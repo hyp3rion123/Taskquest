@@ -1,10 +1,18 @@
 package taskquest.console
 
-import org.apache.commons.text.WordUtils
-import taskquest.utilities.StringUtils
+fun main(args: Array<String>) {
+    // data stored in a list internally
+    // but saved in a file on exit
+    val list = mutableListOf<Item>()
+    val filename = "data.json"
 
-fun main() {
-    val tokens = StringUtils.split(MessageUtils.getMessage())
-    val result = StringUtils.join(tokens)
-    println(WordUtils.capitalize(result))
+    // load previous to-do list
+    list.restore(filename)
+
+    // process commands
+    val command = CommandFactory.createFromArgs(args)
+    command.execute(list)
+
+    // save to-do list (json)
+    list.save(filename)
 }
