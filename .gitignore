@@ -4,5 +4,8 @@
 # Ignore local IntelliJ directory
 .idea
 
+# Ignore Mac local .DS_Store file
+.DS_Store
+
 # Ignore Gradle build output directory
 build
