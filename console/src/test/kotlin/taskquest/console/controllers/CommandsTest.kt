@@ -1,6 +1,7 @@
-package taskquest.console
+package taskquest.console.controllers
 
 import org.junit.jupiter.api.Test
+import taskquest.utilities.models.*
 
 internal class CommandsTest {
 

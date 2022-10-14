@@ -1,4 +1,7 @@
-package taskquest.console
+package taskquest.console.controllers
+
+import taskquest.utilities.models.Item
+import taskquest.utilities.models.add
 
 // Factory pattern
 // generate a command based on the arguments passed in

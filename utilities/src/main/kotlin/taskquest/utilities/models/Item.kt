@@ -1,4 +1,4 @@
-package taskquest.console
+package taskquest.utilities.models
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -12,7 +12,7 @@ data class Item(
     val id: Int, var text: String
 )
 
-// Collection of TO-DO items
+// Methods for interacting with Item instances in a MutableList
 fun MutableList<Item>.add(text: String) {
     this.add(Item(this.size, text))
 }

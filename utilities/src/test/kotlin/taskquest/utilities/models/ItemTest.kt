@@ -1,11 +1,11 @@
-package taskquest.console
+package taskquest.utilities.models
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import java.io.File
 
-internal class ModelTest {
+internal class ItemTest {
     @Test
     fun createItem() {
         val item = Item(id = 0, text = "text")

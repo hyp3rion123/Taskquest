@@ -4,20 +4,14 @@
 
 plugins {
     id 'taskquest.kotlin-application-conventions'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.7.10'
-}
-
-repositories {
-    mavenCentral()
 }
 
 dependencies {
     implementation 'org.apache.commons:commons-text'
     implementation project(':utilities')
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0'
 }
 
 application {
     // Define the main class for the application.
-    mainClass = 'taskquest.console.MainKt'
+    mainClass = 'taskquest.console.views.MainKt'
 }

@@ -1,8 +1,6 @@
-package taskquest.console
+package taskquest.console.views
 
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 
 internal class MainTest {
 
