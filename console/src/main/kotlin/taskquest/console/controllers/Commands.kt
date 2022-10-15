@@ -46,7 +46,7 @@ class ShowCommand(val args: Array<String>) : Command {
     override fun execute(tasks: MutableList<Task>) {
         tasks.forEach { println("[${it.id}] ${it.title} ${if (it.desc == "") "" else "${it.desc} "}" +
                 "${if (it.dueDate == "") "" else "${it.dueDate} "}${it.dateCreated} ${it.priority ?: ""} " +
-                "${it.difficulty ?: ""} " + if (it.complete) "complete" else "incomplete") }
+                "${it.difficulty ?: ""} " + if (it.complete) "Complete" else "Incomplete") }
     }
 }
 
