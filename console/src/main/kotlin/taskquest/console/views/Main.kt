@@ -1,14 +1,14 @@
 package taskquest.console.views
 
 import taskquest.console.controllers.CommandFactory
-import taskquest.utilities.models.Item
+import taskquest.utilities.models.Task
 import taskquest.utilities.models.restore
 import taskquest.utilities.models.save
 
 fun main(args: Array<String>) {
     // data stored in a list internally
     // but saved in a file on exit
-    val list = mutableListOf<Item>()
+    val list = mutableListOf<Task>()
     val filename = "data.json"
 
     // load previous to-do list
