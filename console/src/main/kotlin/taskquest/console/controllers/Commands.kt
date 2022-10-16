@@ -8,15 +8,24 @@ import taskquest.utilities.models.enums.Priority
 // Factory pattern
 // generate a command based on the arguments passed in
 object CommandFactory {
-    fun createFromArgs(args: Array<String>): Command = if (args.isEmpty()) {
-        HelpCommand(args)
-    } else {
+    fun createFromArgs(args: List<String>): Command =
         when (args[0]) {
             "add" -> AddCommand(args)
             "del" -> DelCommand(args)
             "show" -> ShowCommand(args)
             else -> HelpCommand(args)
         }
+
+    fun findFirstCommand(args: List<String>, idx: Int, length: Int) : Int {
+
+        val commands = listOf<String>("add", "del", "show", "help")
+        for (i in idx until length) {
+            if (commands.contains(args[i])) {
+                return i
+            }
+        }
+
+        return length
     }
 }
 
@@ -28,7 +37,7 @@ interface Command {
 }
 
 // Setup to only take a title, priority and difficulty from command line
-class AddCommand(private val args: Array<String>) : Command {
+class AddCommand(private val args: List<String>) : Command {
     private val priority = enumValueOf<Priority>(args[2])
     private val difficulty = enumValueOf<Difficulty>(args[3])
     override fun execute(tasks: MutableList<Task>) {
@@ -36,13 +45,13 @@ class AddCommand(private val args: Array<String>) : Command {
     }
 }
 
-class DelCommand(private val args: Array<String>) : Command {
+class DelCommand(private val args: List<String>) : Command {
     override fun execute(tasks: MutableList<Task>) {
         tasks.removeIf { it.id == args[1].toInt() }
     }
 }
 
-class ShowCommand(val args: Array<String>) : Command {
+class ShowCommand(val args: List<String>) : Command {
     override fun execute(tasks: MutableList<Task>) {
         tasks.forEach { println("[${it.id}] ${it.title} ${if (it.desc == "") "" else "${it.desc} "}" +
                 "${if (it.dueDate == "") "" else "${it.dueDate} "}${it.dateCreated} ${it.priority ?: ""} " +
@@ -50,7 +59,7 @@ class ShowCommand(val args: Array<String>) : Command {
     }
 }
 
-class HelpCommand(val args: Array<String>) : Command {
+class HelpCommand(val args: List<String>) : Command {
     override fun execute(tasks: MutableList<Task>) {
         println("Usage: todo [add|del|show]")
     }
