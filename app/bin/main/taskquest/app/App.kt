@@ -4,10 +4,10 @@
 package taskquest.app
 
 import javafx.application.Application
-import javafx.beans.value.ObservableValue
 import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.Button
+import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
 import javafx.scene.control.TextField
 import javafx.scene.layout.HBox
@@ -34,8 +34,10 @@ fun createTaskListVBox(data : List<TaskList>): VBox {
 
     // add buttons to VBox
     for (taskList in data) {
-        taskListVBox.children.add(Button("${taskList.title}"))
+        val title = Button(taskList.title)
+        taskListVBox.children.add(title)
     }
+
     return taskListVBox
 }
 
@@ -54,7 +56,11 @@ fun createTasksVBox(data : List<Task>): VBox {
 
     // add buttons to VBox
     for (task in data) {
-        tasksVBox.children.add(Button("${task.title}"))
+        val title = Label(task.title)
+        val c = CheckBox()
+
+        val hbox = HBox(5.0, c, title)
+        tasksVBox.children.add(hbox)
     }
     return tasksVBox
 }
@@ -73,7 +79,7 @@ class App: Application() {
         val taskListVBox = createTaskListVBox(taskLists)
 
         var tasks = listOf<Task>()
-        for (id in 1 .. 5) {
+        for (id in 1 .. 10) {
             var task = Task(id, "Task $id")
             tasks += (task)
         }
