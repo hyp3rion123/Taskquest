@@ -4,6 +4,8 @@
 package taskquest.app
 
 import javafx.application.Application
+import javafx.beans.value.ObservableValue
+import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.control.Label
@@ -13,8 +15,11 @@ import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import org.apache.commons.text.WordUtils
 import taskquest.utilities.StringUtils
+import java.util.*
 
 fun createTaskListVBox(): VBox {
+    val data = listOf<String>("1","2","3")
+
     // create a VBox
     val taskListVBox = VBox(10.0)
 
@@ -26,13 +31,15 @@ fun createTaskListVBox(): VBox {
     taskListVBox.children.add(textField)
 
     // add buttons to VBox
-    for (i in 0..4) {
+    for (i in data) {
         taskListVBox.children.add(Button("TaskList #$i"))
     }
     return taskListVBox
 }
 
 fun createTasksVBox(): VBox {
+    val data = listOf<String>("1","2","3")
+
     // create a VBox
     val tasksVBox = VBox(10.0)
 
@@ -44,7 +51,7 @@ fun createTasksVBox(): VBox {
     tasksVBox.children.add(textField)
 
     // add buttons to VBox
-    for (i in 0..10) {
+    for (i in data) {
         tasksVBox.children.add(Button("Task #$i"))
     }
     return tasksVBox
@@ -66,6 +73,7 @@ class App: Application() {
                 + System.getProperty("javafx.version"))
 
         val hbox = HBox(20.0, taskListVBox, tasksVBox)
+        hbox.setAlignment(Pos.CENTER); //Center HBox
         val scene = Scene(hbox, 800.0, 500.0)
         stage?.setResizable(false)
         stage?.setScene(scene)
