@@ -17,7 +17,6 @@ import org.apache.commons.text.WordUtils
 import taskquest.utilities.StringUtils
 import taskquest.utilities.models.Task
 import taskquest.utilities.models.TaskList
-import java.util.*
 
 
 fun createTaskListVBox(data : List<TaskList>): VBox {
@@ -77,6 +76,17 @@ fun createSideBarVBox(): VBox {
     }
     return sideBar
 }
+
+// for outlining layout borders
+val debugMode = false
+val cssLayout = """
+            -fx-border-color: black;
+            -fx-border-insets: 5;
+            -fx-border-width: 1;
+            -fx-border-style: dashed;
+            
+            """.trimIndent()
+
 class App: Application() {
     override fun start(stage: Stage?) {
         // set title for the stage
@@ -102,21 +112,32 @@ class App: Application() {
         val toDoVBox = createTasksVBox(tasks, "To Do")
         val inProgressVBox = createTasksVBox(tasks.slice(0..3), "In Progress")
         val doneVBox = createTasksVBox(tasks.slice(0..7), "Done")
-
         // val image = Image("java.png", 175.0, 175.0)
         // val imageView = ImageView(image)
-        var headerLabel = Label("Welcome back, Andrei.")
+        var headerLabel = Label("Welcome back, Andrei. \n\n\nBoard View")
 
         var boardViewHBox = HBox(20.0, toDoVBox, inProgressVBox, doneVBox)
         val rightSideVBox = VBox(20.0, headerLabel, boardViewHBox)
 
+        var sideBarVBox = createSideBarVBox()
 
-        val hbox = HBox(20.0, createSideBarVBox(), taskListVBox, rightSideVBox)
+        val hbox = HBox(10.0, sideBarVBox, taskListVBox, rightSideVBox)
         hbox.setAlignment(Pos.CENTER); //Center HBox
         val scene = Scene(hbox, 800.0, 500.0)
         stage?.setResizable(false)
         stage?.setScene(scene)
         stage?.show()
+
+        if (debugMode) {
+            toDoVBox.style = cssLayout
+            inProgressVBox.style = cssLayout
+            doneVBox.style = cssLayout
+            headerLabel.style = cssLayout
+            boardViewHBox.style = cssLayout
+            sideBarVBox.style = cssLayout
+            taskListVBox.style = cssLayout
+            rightSideVBox.style = cssLayout
+        }
     }
 }
 
