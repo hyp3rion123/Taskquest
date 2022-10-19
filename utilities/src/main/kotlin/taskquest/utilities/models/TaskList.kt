@@ -8,18 +8,13 @@ import taskquest.utilities.models.enums.Priority
 @Serializable
 class TaskList(
     val id: Int, var title: String, var desc: String = ""
-    ) {
-
+) {
     val tasks: MutableList<Task> = mutableListOf<Task>()
 
-    // test
-    fun addItem(id: Int, title: String, priority: Priority, difficulty: Difficulty) {
-        this.tasks.add(Task(id=id, title=title, priority=priority, difficulty=difficulty))
-    }
-
-    fun addItem(id: Int, title: String, desc: String, dueDate: String, dateCreated: String,
-                priority: Priority, difficulty: Difficulty, complete: Boolean) {
-        this.tasks.add(Task(id, title, desc, dueDate, dateCreated, priority, difficulty, complete))
+    fun addItem(id: Int, title: String, desc: String, dueDate: String,
+                priority: Priority?, difficulty: Difficulty?) {
+        this.tasks.add(Task(id=id, title=title, desc=desc, dueDate=dueDate, priority=priority,
+                            difficulty=difficulty))
     }
 
     fun deleteItem(id: Int) {
