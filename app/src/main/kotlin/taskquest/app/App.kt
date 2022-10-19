@@ -4,6 +4,7 @@
 package taskquest.app
 
 import javafx.application.Application
+import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.control.Label
@@ -66,6 +67,7 @@ class App: Application() {
                 + System.getProperty("javafx.version"))
 
         val hbox = HBox(20.0, taskListVBox, tasksVBox)
+        hbox.setAlignment(Pos.CENTER); //Center HBox
         val scene = Scene(hbox, 800.0, 500.0)
         stage?.setResizable(false)
         stage?.setScene(scene)
