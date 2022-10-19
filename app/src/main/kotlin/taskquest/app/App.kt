@@ -15,10 +15,12 @@ import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import org.apache.commons.text.WordUtils
 import taskquest.utilities.StringUtils
+import taskquest.utilities.models.Task
+import taskquest.utilities.models.TaskList
 import java.util.*
 
-fun createTaskListVBox(): VBox {
-    val data = listOf<String>("1","2","3")
+
+fun createTaskListVBox(data : List<TaskList>): VBox {
 
     // create a VBox
     val taskListVBox = VBox(10.0)
@@ -31,14 +33,14 @@ fun createTaskListVBox(): VBox {
     taskListVBox.children.add(textField)
 
     // add buttons to VBox
-    for (i in data) {
-        taskListVBox.children.add(Button("TaskList #$i"))
+    for (taskList in data) {
+        taskListVBox.children.add(Button("${taskList.title}"))
     }
     return taskListVBox
 }
 
-fun createTasksVBox(): VBox {
-    val data = listOf<String>("1","2","3")
+fun createTasksVBox(data : List<Task>): VBox {
+
 
     // create a VBox
     val tasksVBox = VBox(10.0)
@@ -51,8 +53,8 @@ fun createTasksVBox(): VBox {
     tasksVBox.children.add(textField)
 
     // add buttons to VBox
-    for (i in data) {
-        tasksVBox.children.add(Button("Task #$i"))
+    for (task in data) {
+        tasksVBox.children.add(Button("${task.title}"))
     }
     return tasksVBox
 }
@@ -61,9 +63,22 @@ class App: Application() {
         // set title for the stage
         stage?.title = "TaskQuest";
 
-        val taskListVBox = createTaskListVBox()
+        var taskLists = listOf<TaskList>()
+        for (id in 1 .. 5) {
+            var taskList = TaskList(id, "Task List $id")
+            taskLists += (taskList)
+        }
 
-        val tasksVBox = createTasksVBox()
+        // val taskLists = listOf<String>("1","2","3","4","5")
+        val taskListVBox = createTaskListVBox(taskLists)
+
+        var tasks = listOf<Task>()
+        for (id in 1 .. 5) {
+            var task = Task(id, "Task $id")
+            tasks += (task)
+        }
+
+        val tasksVBox = createTasksVBox(tasks)
 
         // val image = Image("java.png", 175.0, 175.0)
         // val imageView = ImageView(image)
