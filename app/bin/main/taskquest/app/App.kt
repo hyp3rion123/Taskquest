@@ -58,6 +58,7 @@ fun createTasksVBox(data : List<Task>): VBox {
     for (task in data) {
         val title = Label(task.title)
         val c = CheckBox()
+        c.setSelected(task.complete)
 
         val hbox = HBox(5.0, c, title)
         tasksVBox.children.add(hbox)
@@ -80,7 +81,7 @@ class App: Application() {
 
         var tasks = listOf<Task>()
         for (id in 1 .. 10) {
-            var task = Task(id, "Task $id")
+            var task = Task(id, "Task $id", complete = (id % 2 == 0))
             tasks += (task)
         }
 
