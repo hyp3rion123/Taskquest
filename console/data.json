@@ -1,12 +1,21 @@
 [
     {
         "id": 0,
-        "title": "switt",
+        "title": "List1",
         "desc": "",
-        "dueDate": "",
-        "dateCreated": "2022-10-14",
-        "priority": "High",
-        "difficulty": "Hard",
-        "complete": false
+        "tasks": [
+            {
+                "id": 0,
+                "title": "switt",
+                "desc": "",
+                "dueDate": "",
+                "dateCreated": "2022-10-19",
+                "priority": "High",
+                "difficulty": "Hard",
+                "complete": false,
+                "tags": [
+                ]
+            }
+        ]
     }
 ]
