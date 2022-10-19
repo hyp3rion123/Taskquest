@@ -1,8 +1,6 @@
-package taskquest.console
+package taskquest.console.views
 
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 
 internal class MainTest {
 
@@ -18,9 +16,6 @@ internal class MainTest {
 
     @Test
     fun mainWithAdd() {
-        main(arrayOf("add", "conor"))
-        main(arrayOf("show"))
-        main(arrayOf("del", "2"))
-        main(arrayOf("show"))
+        main(arrayOf(""))
     }
 }

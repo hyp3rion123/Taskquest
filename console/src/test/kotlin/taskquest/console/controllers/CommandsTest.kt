@@ -1,13 +1,15 @@
-package taskquest.console
+package taskquest.console.controllers
 
 import org.junit.jupiter.api.Test
+import taskquest.utilities.models.*
 
 internal class CommandsTest {
 
+    // not yet updated with new Task class
     @Test
     fun commandFactory() {
         // basic commands
-        val addString = arrayOf("add", "text")
+        val addString = arrayOf("add", "title")
         val addCommand = CommandFactory.createFromArgs(addString)
         assert(addCommand is AddCommand)
 
@@ -40,7 +42,7 @@ internal class CommandsTest {
 
     @Test
     fun addCommand() {
-        val list = mutableListOf<Item>()
+        val list = mutableListOf<Task>()
         val command = AddCommand(arrayOf("add", "test"))
         command.execute(list)
         assert(list.size == 1)
@@ -48,7 +50,7 @@ internal class CommandsTest {
 
     @Test
     fun delCommand() {
-        val list = mutableListOf<Item>()
+        val list = mutableListOf<Task>()
         list.add(0, "test0")
         list.add(1, "test1")
         list.add(2, "test2")
@@ -71,7 +73,7 @@ internal class CommandsTest {
 
     @Test
     fun showCommand() {
-        val list = mutableListOf<Item>()
+        val list = mutableListOf<Task>()
         val command = ShowCommand(arrayOf("show"))
         command.execute(list)
         assert(list.size == 0)

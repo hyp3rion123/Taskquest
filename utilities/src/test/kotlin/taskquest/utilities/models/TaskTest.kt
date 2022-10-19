@@ -1,28 +1,45 @@
-package taskquest.console
+package taskquest.utilities.models
 
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
-import java.io.File
+import taskquest.utilities.models.enums.Priority
+import java.time.LocalDate
 
-internal class ModelTest {
+internal class TaskTest {
     @Test
     fun createItem() {
-        val item = Item(id = 0, text = "text")
-        assert(item.id == 0)
-        assert(item.text == "text")
+        val task = Task(id = 0, title = "title")
+        assert(task.id == 0)
+        assert(task.title == "title")
+        assert(task.desc == "")
+        assert(task.dueDate == "")
+        assert(LocalDate.parse(task.dateCreated) == LocalDate.now())
+        assert(task.priority == null)
+        assert(task.difficulty == null)
+        assert(!task.complete)
+        assert(task.tags.isEmpty())
     }
 
     @Test
     fun changeItem() {
-        val item = Item(id = 0, text = "text")
-        item.text = "text 2"
-        assert(item.text == "text 2")
+        val task = Task(id = 0, title = "title")
+        task.title = "title 2"
+        assert(task.title == "title 2")
+        task.desc = "test description"
+        assert(task.desc == "test description")
+        task.dueDate = LocalDate.now().toString()
+        assert(LocalDate.parse(task.dateCreated) == LocalDate.now())
+        task.priority = Priority.High
+        assert(task.priority == Priority.High)
+        task.complete = true
+        assert(task.complete)
+        task.tags.add("Test Tag")
+        assert(task.tags.contains("Test Tag"))
     }
 
+    // not yet updated with new Task class
     @Test
     fun addItems() {
-        val list = mutableListOf<Item>()
+        val list = mutableListOf<Task>()
         list.add("item 1")
         list.add("item 2")
         list.add("item 3")
@@ -33,7 +50,7 @@ internal class ModelTest {
 
     @Test
     fun delItems() {
-        val list = mutableListOf<Item>()
+        val list = mutableListOf<Task>()
         list.add("item 1")
         list.removeAt(0)
         assert(list.size == 0)
@@ -45,7 +62,7 @@ internal class ModelTest {
         File(filename).delete()
 
         // create and save a list
-        val list = mutableListOf<Item>()
+        val list = mutableListOf<Task>()
         list.add("item 1")
         list.add("item 2")
         list.add("item 3")
@@ -66,7 +83,7 @@ internal class ModelTest {
         File(filename).delete()
 
         // create and save a list
-        val list1 = mutableListOf<Item>()
+        val list1 = mutableListOf<Task>()
         list1.add("item 1")
         list1.add("item 2")
         list1.add("item 3")
@@ -75,7 +92,7 @@ internal class ModelTest {
         list1.save(filename)
 
         // ensure that restore gives us the same list
-        val list2 = mutableListOf<Item>()
+        val list2 = mutableListOf<Task>()
         list2.restore(filename)
         assert(list1 == list2)
 
