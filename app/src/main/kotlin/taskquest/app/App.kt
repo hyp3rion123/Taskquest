@@ -7,7 +7,34 @@ import taskquest.utilities.StringUtils
 
 import org.apache.commons.text.WordUtils
 
+import javafx.application.Application
+import javafx.geometry.Insets
+import javafx.scene.Scene
+import javafx.scene.control.Label
+import javafx.scene.layout.VBox
+import javafx.stage.Stage
+class App: Application() {
+    override fun start(stage: Stage?) {
+        // val image = Image("java.png", 175.0, 175.0)
+        // val imageView = ImageView(image)
+        val label = Label("TaskQuest window is Working!! " + "\n" +
+                System.getProperty("java.vendor") + "\n"
+                + System.getProperty("java.version") + "\n"
+                + System.getProperty("javafx.version"))
+
+        val box = VBox(label)
+        VBox.setMargin(label, Insets(10.0))
+
+        val scene = Scene(box)
+        stage?.setResizable(false)
+        stage?.setScene(scene)
+        stage?.show()
+    }
+}
+
 fun main() {
+    Application.launch(App::class.java)
+
     val tokens = StringUtils.split(MessageUtils.getMessage())
     val result = StringUtils.join(tokens)
     println(WordUtils.capitalize(result))

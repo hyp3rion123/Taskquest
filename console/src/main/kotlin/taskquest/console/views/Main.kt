@@ -1,18 +1,18 @@
 package taskquest.console.views
 
 import taskquest.console.controllers.CommandFactory
-import taskquest.utilities.models.Task
-import taskquest.utilities.models.restore
-import taskquest.utilities.models.save
+import taskquest.utilities.controllers.SaveUtils.Companion.restore
+import taskquest.utilities.controllers.SaveUtils.Companion.save
+import taskquest.utilities.models.TaskList
 
 fun main(args: Array<String>) {
     // data stored in a list internally
     // but saved in a file on exit
-    val list = mutableListOf<Task>()
+    val lists = mutableListOf<TaskList>()
     val filename = "data.json"
 
     // load previous to-do list
-    list.restore(filename)
+    lists.restore(filename)
 
     println("Welcome to TaskQuest Console.")
     println("We support interactive mode where you can type and execute your commands one by one.")
@@ -31,7 +31,7 @@ fun main(args: Array<String>) {
                 break
             } else {
                 val command = CommandFactory.createFromArgs(curInstr)
-                command.execute(list)
+                command.execute(lists)
             }
         }
     } else {
@@ -44,12 +44,14 @@ fun main(args: Array<String>) {
             if (i == length) break
             val curInstr = instructions.slice(i until length)
             val command = CommandFactory.createFromArgs(curInstr)
-            command.execute(list)
+            command.execute(lists)
             i++
+
+            lists.save(filename)
         }
 
     }
 
     // save to-do list (json)
-    list.save(filename)
+    lists.save(filename)
 }
