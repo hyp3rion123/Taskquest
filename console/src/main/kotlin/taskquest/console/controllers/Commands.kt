@@ -3,22 +3,28 @@ package taskquest.console.controllers
 import taskquest.utilities.models.TaskList
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
+import taskquest.console.views.currentList
 
 // Factory pattern
 // generate a command based on the arguments passed in
 object CommandFactory {
-    fun createFromArgs(args: List<String>): Command =
+    fun createTaskComFromArgs(args: List<String>): TaskCommand =
         when (args[0]) {
             "add" -> AddCommand(args)
             "del" -> DelCommand(args)
             "show" -> ShowCommand(args)
+            else -> HelpCommand(args)
+        }
+
+    fun createTaskListComFromArgs(args: List<String>): TaskListCommand =
+        when (args[0]) {
             "addlist" -> AddListCommand(args)
             else -> HelpCommand(args)
         }
 
     fun findFirstCommand(args: List<String>, idx: Int, length: Int) : Int {
 
-        val commands = listOf<String>("add", "del", "show", "help")
+        val commands = listOf<String>("add", "del", "show", "addlist", "help")
         for (i in idx until length) {
             if (commands.contains(args[i])) {
                 return i
@@ -32,14 +38,16 @@ object CommandFactory {
 // Command pattern
 // represents all valid commands that can be issued by the user
 // any functionality for a given command should be contained in that class
-interface Command {
+interface TaskCommand {
+    fun execute(list: TaskList)
+}
+
+interface TaskListCommand {
     fun execute(lists: MutableList<TaskList>)
 }
 
-// Setup to only take a title, priority and difficulty from command line
-// Accessing lists[0] just for testing purposes
-class AddCommand(private val args: List<String>) : Command {
-    override fun execute(tasks: MutableList<Task>) {
+class AddCommand(private val args: List<String>) : TaskCommand {
+    override fun execute(list: TaskList) {
 
         // mandatory parameter for adding a task (title)
         print("Please add a title: ")
@@ -50,15 +58,14 @@ class AddCommand(private val args: List<String>) : Command {
         println("[0] -> Done   [1] -> Description   [2] -> Due Date   [3] -> Priority   [4] -> Difficulty")
         val validInput = listOf<String>("0", "1", "2", "3", "4")
 
-        var desc : String? = ""
-        var dueDate : String? = ""
+        var desc = ""
+        var dueDate = ""
         var priority : Priority? = null
         var difficulty : Difficulty? = null
 
         var numInt : Int
 
         while (true) {
-
             while (true) {
                 print("Enter a number (0 - 4): ")
                 val num = readLine()!!.trim()
@@ -125,33 +132,44 @@ class AddCommand(private val args: List<String>) : Command {
 
         }
 
+        list.addItem(list.tasks.size, title, desc, dueDate, priority, difficulty)
+
     }
 }
 
-class DelCommand(private val args: List<String>) : Command {
-    override fun execute(lists: MutableList<TaskList>) {
-        lists[0].deleteItem(args[1].toInt())
+class DelCommand(private val args: List<String>) : TaskCommand {
+    override fun execute(list: TaskList) {
+        list.deleteItem(args[1].toInt())
     }
 }
 
-class ShowCommand(val args: List<String>) : Command {
-    override fun execute(lists: MutableList<TaskList>) {
-        println("${lists[0].title}:")
+class ShowCommand(val args: List<String>) : TaskCommand {
+    override fun execute(list: TaskList) {
+        println("${list.title}:")
 
-        lists[0].tasks.forEach { println("  [${it.id}] ${it.title} ${if (it.desc == "") "" else "${it.desc} "}" +
+        list.tasks.forEach { println("  - ${it.id}. Title: ${it.title}, ${if (it.desc == "") "" else "${it.desc} "}" +
                 "${if (it.dueDate == "") "" else "${it.dueDate} "}${it.dateCreated} ${it.priority ?: ""} " +
                 "${it.difficulty ?: ""} " + if (it.complete) "Complete" else "Incomplete") }
     }
 }
 
-class HelpCommand(val args: List<String>) : Command {
+class HelpCommand(val args: List<String>) : TaskCommand, TaskListCommand {
+    override fun execute(list: TaskList) {
+        println("Usage: todo [add|del|show]")
+    }
+
     override fun execute(lists: MutableList<TaskList>) {
         println("Usage: todo [add|del|show]")
     }
 }
 
-class AddListCommand(private val args: List<String>) : Command {
+// add extra parameters (make like switt's add)
+class AddListCommand(private val args: List<String>) : TaskListCommand {
     override fun execute(lists: MutableList<TaskList>) {
         lists.add(TaskList(lists.size, args[1]))
+        if (currentList == -1) {
+            currentList = lists.size - 1
+            println("Your currently active list has been changed to the ${args[1]} list")
+        }
     }
 }
