@@ -41,17 +41,19 @@ fun createTaskListVBox(data : List<TaskList>): VBox {
     return taskListVBox
 }
 
-fun createTasksVBox(data : List<Task>): VBox {
+fun createTasksVBox(data : List<Task>, title: String = "To do"): VBox {
 
 
     // create a VBox
     val tasksVBox = VBox(10.0)
 
+    tasksVBox.children.add(Label("$title (${data.size})"))
+
     val searchBar = Label("Tasks Search bar")
     tasksVBox.children.add(searchBar)
 
     val textField = TextField()
-    textField.setPromptText("Search here!")
+    textField.promptText = "Search here!"
     tasksVBox.children.add(textField)
 
     // add buttons to VBox
@@ -64,6 +66,16 @@ fun createTasksVBox(data : List<Task>): VBox {
         tasksVBox.children.add(hbox)
     }
     return tasksVBox
+}
+
+fun createSideBarVBox(): VBox {
+    val icons = listOf("Profile")
+    val sideBar = VBox(10.0)
+    for (i in 1..4) {
+        val label = Button("ICON")
+        sideBar.children.add(label)
+    }
+    return sideBar
 }
 class App: Application() {
     override fun start(stage: Stage?) {
@@ -87,14 +99,19 @@ class App: Application() {
 
         val tasksVBox = createTasksVBox(tasks)
 
+        val toDoVBox = createTasksVBox(tasks, "To Do")
+        val inProgressVBox = createTasksVBox(tasks.slice(0..3), "In Progress")
+        val doneVBox = createTasksVBox(tasks.slice(0..7), "Done")
+
         // val image = Image("java.png", 175.0, 175.0)
         // val imageView = ImageView(image)
-        val testlabel = Label("TaskQuest window is Working!! " + "\n" +
-                System.getProperty("java.vendor") + "\n"
-                + System.getProperty("java.version") + "\n"
-                + System.getProperty("javafx.version"))
+        var headerLabel = Label("Welcome back, Andrei.")
 
-        val hbox = HBox(20.0, taskListVBox, tasksVBox)
+        var boardViewHBox = HBox(20.0, toDoVBox, inProgressVBox, doneVBox)
+        val rightSideVBox = VBox(20.0, headerLabel, boardViewHBox)
+
+
+        val hbox = HBox(20.0, createSideBarVBox(), taskListVBox, rightSideVBox)
         hbox.setAlignment(Pos.CENTER); //Center HBox
         val scene = Scene(hbox, 800.0, 500.0)
         stage?.setResizable(false)
