@@ -3,29 +3,70 @@
  */
 package taskquest.app
 
-import taskquest.utilities.StringUtils
-
-import org.apache.commons.text.WordUtils
-
 import javafx.application.Application
-import javafx.geometry.Insets
 import javafx.scene.Scene
+import javafx.scene.control.Button
 import javafx.scene.control.Label
+import javafx.scene.control.TextField
+import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
+import org.apache.commons.text.WordUtils
+import taskquest.utilities.StringUtils
+
+fun createTaskListVBox(): VBox {
+    // create a VBox
+    val taskListVBox = VBox(10.0)
+
+    val searchBar = Label("Task List Search bar")
+    taskListVBox.children.add(searchBar)
+
+    val textField = TextField()
+    textField.setPromptText("Search here!")
+    taskListVBox.children.add(textField)
+
+    // add buttons to VBox
+    for (i in 0..4) {
+        taskListVBox.children.add(Button("TaskList #$i"))
+    }
+    return taskListVBox
+}
+
+fun createTasksVBox(): VBox {
+    // create a VBox
+    val tasksVBox = VBox(10.0)
+
+    val searchBar = Label("Tasks Search bar")
+    tasksVBox.children.add(searchBar)
+
+    val textField = TextField()
+    textField.setPromptText("Search here!")
+    tasksVBox.children.add(textField)
+
+    // add buttons to VBox
+    for (i in 0..10) {
+        tasksVBox.children.add(Button("Task #$i"))
+    }
+    return tasksVBox
+}
 class App: Application() {
     override fun start(stage: Stage?) {
+        // set title for the stage
+        stage?.title = "TaskQuest";
+
+        val taskListVBox = createTaskListVBox()
+
+        val tasksVBox = createTasksVBox()
+
         // val image = Image("java.png", 175.0, 175.0)
         // val imageView = ImageView(image)
-        val label = Label("TaskQuest window is Working!! " + "\n" +
+        val testlabel = Label("TaskQuest window is Working!! " + "\n" +
                 System.getProperty("java.vendor") + "\n"
                 + System.getProperty("java.version") + "\n"
                 + System.getProperty("javafx.version"))
 
-        val box = VBox(label)
-        VBox.setMargin(label, Insets(10.0))
-
-        val scene = Scene(box)
+        val hbox = HBox(20.0, taskListVBox, tasksVBox)
+        val scene = Scene(hbox, 800.0, 500.0)
         stage?.setResizable(false)
         stage?.setScene(scene)
         stage?.show()
