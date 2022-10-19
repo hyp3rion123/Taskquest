@@ -1,7 +1,7 @@
 package taskquest.utilities.models.enums
 
 enum class Difficulty {
-    Easy,
+    Hard,
     Medium,
-    Hard
+    Easy
 }

@@ -25,8 +25,9 @@ fun main(args: Array<String>) {
 
         // process commands
         while (true) {
+            print(">> ")
             curInstr = readLine()?.split(' ')
-            if (curInstr == null || curInstr[0] == "quit") {
+            if (curInstr == null || curInstr[0].trim() == "quit" || curInstr[0].trim() == "q") {
                 break
             } else {
                 val command = CommandFactory.createFromArgs(curInstr)

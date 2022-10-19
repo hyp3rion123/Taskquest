@@ -4,7 +4,7 @@
 package taskquest.list
 
 import org.junit.jupiter.api.Test
-
+import taskquest.list.LinkedList
 import org.junit.jupiter.api.Assertions.*
 
 class LinkedListTest {
