@@ -39,10 +39,92 @@ interface Command {
 // Setup to only take a title, priority and difficulty from command line
 // Accessing lists[0] just for testing purposes
 class AddCommand(private val args: List<String>) : Command {
-    private val priority = enumValueOf<Priority>(args[2])
-    private val difficulty = enumValueOf<Difficulty>(args[3])
-    override fun execute(lists: MutableList<TaskList>) {
-        lists[0].addItem(lists[0].tasks.size, args[1], priority, difficulty)
+    override fun execute(tasks: MutableList<Task>) {
+
+        // mandatory parameter for adding a task (title)
+        print("Please add a title: ")
+        val title = readLine()!!.trim()
+
+        // optional parameters
+        println("The following are optional fields you may add to your task. Enter the number associated with any field you would like to add.")
+        println("[0] -> Done   [1] -> Description   [2] -> Due Date   [3] -> Priority   [4] -> Difficulty")
+        val validInput = listOf<String>("0", "1", "2", "3", "4")
+
+        var desc : String? = ""
+        var dueDate : String? = ""
+        var priority : Priority? = null
+        var difficulty : Difficulty? = null
+
+        var numInt : Int
+
+        while (true) {
+
+            while (true) {
+                print("Enter a number (0 - 4): ")
+                val num = readLine()!!.trim()
+                if (validInput.contains(num)) {
+                    numInt = num.toInt()
+                    break
+                } else {
+                    print("Try again. ")
+                }
+            }
+
+            when (numInt) {
+                0 -> {
+                    break
+                }
+                1 -> {
+                    print("Add a description: ")
+                    desc = readLine()!!.trim()
+                }
+                2 -> {
+                    print("Enter a due date (YYYY-MM-DD): ")
+                    val dueDateInput = readLine()!!.trim()
+                    val userDate = dueDateInput.split("-")
+
+                    if (userDate.size != 3) {
+                        println("Invalid date entered. The due date was not successfully set.")
+                        break
+                    }
+
+                    var count = 0
+                    var exit = false
+                    for (item in userDate) {
+                        val dmyInt = item.toIntOrNull()
+                        count++
+                        if (dmyInt == null) {
+                            println("Invalid date entered. The due date was not successfully set.")
+                            exit = true
+                            break
+                        }
+                    }
+
+                    if (exit) break else dueDate = dueDateInput
+
+                }
+                3 -> {
+                    print("Add priority 1 - 3 (where 1 is highest priority, 3 is lowest): ")
+                    val priorityNum = readLine()!!.trim()
+                    try {
+                        priority = Priority.values()[priorityNum.toInt() - 1]
+                    } catch (e: RuntimeException) {
+                        println("Priority was not successfully set.")
+                    }
+                }
+                4 -> {
+                    print("Add difficulty 1 - 3 (where 1 is most difficult, 3 is least): ")
+                    val difficultyNum = readLine()!!.trim()
+                    try {
+                        difficulty = Difficulty.values()[difficultyNum.toInt() - 1]
+                    } catch (e: RuntimeException) {
+                        println("Difficulty was not successfully set. ")
+                    }
+                }
+            }
+
+        }
+
     }
 }
 

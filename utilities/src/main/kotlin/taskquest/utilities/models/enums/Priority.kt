@@ -1,7 +1,7 @@
 package taskquest.utilities.models.enums
 
 enum class Priority {
-    Low,
+    High,
     Medium,
-    High
+    Low
 }
