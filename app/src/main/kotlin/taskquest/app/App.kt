@@ -17,15 +17,15 @@ class App: Application() {
     override fun start(stage: Stage?) {
         // val image = Image("java.png", 175.0, 175.0)
         // val imageView = ImageView(image)
-        val label = Label("TaskQuest window is Working!! " +
-                System.getProperty("java.vendor")
+        val label = Label("TaskQuest window is Working!! " + "\n" +
+                System.getProperty("java.vendor") + "\n"
                 + System.getProperty("java.version") + "\n"
                 + System.getProperty("javafx.version"))
 
         val box = VBox(label)
         VBox.setMargin(label, Insets(10.0))
 
-        val scene = Scene(box, 175.0, 225.0)
+        val scene = Scene(box)
         stage?.setResizable(false)
         stage?.setScene(scene)
         stage?.show()
