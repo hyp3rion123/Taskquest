@@ -1,24 +1,2 @@
 {
-    "lastUsedList": 0,
-    "lists": [
-        {
-            "id": 0,
-            "title": "ayo",
-            "desc": "",
-            "tasks": [
-                {
-                    "id": 0,
-                    "title": "a1",
-                    "desc": "",
-                    "dueDate": "",
-                    "dateCreated": "2022-10-20",
-                    "priority": null,
-                    "difficulty": "Easy",
-                    "complete": true,
-                    "tags": [
-                    ]
-                }
-            ]
-        }
-    ]
 }
