@@ -16,9 +16,16 @@ class TaskList(
         this.tasks.add(Task(id=id, title=title, desc=desc, dueDate=dueDate, priority=priority,
                             difficulty=difficulty))
     }
+    fun addItem(task: Task) {
+        this.tasks.add(task)
+    }
 
     fun deleteItem(id: Int) {
         this.tasks.removeIf { it.id == id }
+    }
+
+    fun getLength(): Int {
+        return this.tasks.size
     }
 }
 

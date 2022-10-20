@@ -4,78 +4,10 @@
 package taskquest.app
 
 import javafx.application.Application
-import javafx.geometry.Pos
-import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.control.CheckBox
-import javafx.scene.control.Label
-import javafx.scene.control.TextField
-import javafx.scene.layout.HBox
-import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import org.apache.commons.text.WordUtils
 import taskquest.utilities.StringUtils
-import taskquest.utilities.models.Task
-import taskquest.utilities.models.TaskList
-
-
-fun createTaskListVBox(data : List<TaskList>): VBox {
-
-    // create a VBox
-    val taskListVBox = VBox(10.0)
-
-    val searchBar = Label("Task List Search bar")
-    taskListVBox.children.add(searchBar)
-
-    val textField = TextField()
-    textField.setPromptText("Search here!")
-    taskListVBox.children.add(textField)
-
-    // add buttons to VBox
-    for (taskList in data) {
-        val title = Button(taskList.title)
-        taskListVBox.children.add(title)
-    }
-
-    return taskListVBox
-}
-
-fun createTasksVBox(data : List<Task>, title: String = "To do"): VBox {
-
-
-    // create a VBox
-    val tasksVBox = VBox(10.0)
-
-    tasksVBox.children.add(Label("$title (${data.size})"))
-
-    val searchBar = Label("Tasks Search bar")
-    tasksVBox.children.add(searchBar)
-
-    val textField = TextField()
-    textField.promptText = "Search here!"
-    tasksVBox.children.add(textField)
-
-    // add buttons to VBox
-    for (task in data) {
-        val title = Label(task.title)
-        val c = CheckBox()
-        c.setSelected(task.complete)
-
-        val hbox = HBox(5.0, c, title)
-        tasksVBox.children.add(hbox)
-    }
-    return tasksVBox
-}
-
-fun createSideBarVBox(): VBox {
-    val icons = listOf("Profile")
-    val sideBar = VBox(10.0)
-    for (i in 1..4) {
-        val label = Button("ICON")
-        sideBar.children.add(label)
-    }
-    return sideBar
-}
+import taskquest.app.javafx.*
 
 // for outlining layout borders
 val debugMode = false
@@ -89,55 +21,8 @@ val cssLayout = """
 
 class App: Application() {
     override fun start(stage: Stage?) {
-        // set title for the stage
-        stage?.title = "TaskQuest";
-
-        var taskLists = listOf<TaskList>()
-        for (id in 1 .. 5) {
-            var taskList = TaskList(id, "Task List $id")
-            taskLists += (taskList)
-        }
-
-        // val taskLists = listOf<String>("1","2","3","4","5")
-        val taskListVBox = createTaskListVBox(taskLists)
-
-        var tasks = listOf<Task>()
-        for (id in 1 .. 10) {
-            var task = Task(id, "Task $id", complete = (id % 2 == 0))
-            tasks += (task)
-        }
-
-        val tasksVBox = createTasksVBox(tasks)
-
-        val toDoVBox = createTasksVBox(tasks, "To Do")
-        val inProgressVBox = createTasksVBox(tasks.slice(0..3), "In Progress")
-        val doneVBox = createTasksVBox(tasks.slice(0..7), "Done")
-        // val image = Image("java.png", 175.0, 175.0)
-        // val imageView = ImageView(image)
-        var headerLabel = Label("Welcome back, Andrei. \n\n\nBoard View")
-
-        var boardViewHBox = HBox(20.0, toDoVBox, inProgressVBox, doneVBox)
-        val rightSideVBox = VBox(20.0, headerLabel, boardViewHBox)
-
-        var sideBarVBox = createSideBarVBox()
-
-        val hbox = HBox(10.0, sideBarVBox, taskListVBox, rightSideVBox)
-        hbox.setAlignment(Pos.CENTER); //Center HBox
-        val scene = Scene(hbox, 800.0, 500.0)
-        stage?.setResizable(false)
-        stage?.setScene(scene)
-        stage?.show()
-
-        if (debugMode) {
-            toDoVBox.style = cssLayout
-            inProgressVBox.style = cssLayout
-            doneVBox.style = cssLayout
-            headerLabel.style = cssLayout
-            boardViewHBox.style = cssLayout
-            sideBarVBox.style = cssLayout
-            taskListVBox.style = cssLayout
-            rightSideVBox.style = cssLayout
-        }
+        val display = MainBoardDisplay()
+        display.start_display(stage)
     }
 }
 
