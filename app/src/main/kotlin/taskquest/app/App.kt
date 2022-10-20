@@ -10,8 +10,9 @@ import javafx.scene.control.Button
 import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
 import javafx.scene.control.TextField
-import javafx.scene.layout.HBox
-import javafx.scene.layout.VBox
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
+import javafx.scene.layout.*
 import javafx.stage.Stage
 import org.apache.commons.text.WordUtils
 import taskquest.utilities.StringUtils
@@ -86,8 +87,16 @@ val debugCss = """
             -fx-border-style: dashed;
             
             """.trimIndent()
+val bannerTextCss = """
+            -fx-border-color: white;
+            -fx-border-insets: 15;
+            -fx-border-width: 0;
+            -fx-border-style: dashed;
+            """.trimIndent()
 
 class App: Application() {
+
+    // setup JavaFX window
     override fun start(stage: Stage?) {
         // set title for the stage
         stage?.title = "TaskQuest";
@@ -97,8 +106,6 @@ class App: Application() {
             var taskList = TaskList(id, "Task List $id")
             taskLists += (taskList)
         }
-
-        // val taskLists = listOf<String>("1","2","3","4","5")
         val taskListVBox = createTaskListVBox(taskLists)
 
         var tasks = listOf<Task>()
@@ -107,17 +114,40 @@ class App: Application() {
             tasks += (task)
         }
 
-        val tasksVBox = createTasksVBox(tasks)
-
         val toDoVBox = createTasksVBox(tasks, "To Do")
         val inProgressVBox = createTasksVBox(tasks.slice(0..3), "In Progress")
         val doneVBox = createTasksVBox(tasks.slice(0..7), "Done")
-        // val image = Image("java.png", 175.0, 175.0)
+
+        val image = Image("https://3.bp.blogspot.com/-Y5k2sJfG5Ro/UoFMFpmbJmI/AAAAAAAAJHw/HVKNUY1Srog/s1600/image+5.png")
         // val imageView = ImageView(image)
-        var headerLabel = Label("Welcome back, Andrei. \n\n\nBoard View")
+
+        var headerLabel = Label("Welcome back, Andrei.\nBoard View")
+
+        var insideHeaderHBox = HBox(10.0, headerLabel)
+        headerLabel.style = bannerTextCss
+
+        var headerVBox = VBox(10.0, insideHeaderHBox)
+
+        val backgroundSize = BackgroundSize(
+
+            1064.0,
+            176.0,
+            true,
+            true,
+            true,
+            false
+        )
+        val backgroundImage = BackgroundImage(
+            image,
+            BackgroundRepeat.NO_REPEAT,
+            BackgroundRepeat.NO_REPEAT,
+            BackgroundPosition.DEFAULT,
+            backgroundSize
+        )
+        headerVBox.setBackground(Background(backgroundImage))
 
         var boardViewHBox = HBox(20.0, toDoVBox, inProgressVBox, doneVBox)
-        val rightSideVBox = VBox(20.0, headerLabel, boardViewHBox)
+        val rightSideVBox = VBox(20.0, headerVBox, boardViewHBox)
 
         var sideBarVBox = createSideBarVBox()
 
@@ -142,6 +172,7 @@ class App: Application() {
 }
 
 fun main() {
+    // launch application JavaFX window
     Application.launch(App::class.java)
 
     val tokens = StringUtils.split(MessageUtils.getMessage())
