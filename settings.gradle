@@ -8,4 +8,4 @@
  */
 
 rootProject.name = 'cs-346-project'
-include('app', 'list', 'utilities', 'console')
+include('app', 'utilities', 'console')
