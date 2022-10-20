@@ -78,8 +78,8 @@ fun createSideBarVBox(): VBox {
 }
 
 // for outlining layout borders
-val debugMode = false
-val cssLayout = """
+const val debugMode = false
+val debugCss = """
             -fx-border-color: black;
             -fx-border-insets: 5;
             -fx-border-width: 1;
@@ -124,19 +124,19 @@ class App: Application() {
         val hbox = HBox(10.0, sideBarVBox, taskListVBox, rightSideVBox)
         hbox.setAlignment(Pos.CENTER); //Center HBox
         val scene = Scene(hbox, 800.0, 500.0)
-        stage?.setResizable(false)
+        stage?.setResizable(true)
         stage?.setScene(scene)
         stage?.show()
 
         if (debugMode) {
-            toDoVBox.style = cssLayout
-            inProgressVBox.style = cssLayout
-            doneVBox.style = cssLayout
-            headerLabel.style = cssLayout
-            boardViewHBox.style = cssLayout
-            sideBarVBox.style = cssLayout
-            taskListVBox.style = cssLayout
-            rightSideVBox.style = cssLayout
+            toDoVBox.style = debugCss
+            inProgressVBox.style = debugCss
+            doneVBox.style = debugCss
+            headerLabel.style = debugCss
+            boardViewHBox.style = debugCss
+            sideBarVBox.style = debugCss
+            taskListVBox.style = debugCss
+            rightSideVBox.style = debugCss
         }
     }
 }
