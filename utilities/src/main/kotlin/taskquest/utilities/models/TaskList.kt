@@ -17,9 +17,12 @@ class TaskList(
                             difficulty=difficulty))
     }
 
-    fun deleteItem(id: Int) {
-        this.tasks.removeIf { it.id == id }
+
+    fun deleteItem(idx: Int) {
+        this.tasks.removeAt(idx)
+
     }
+
 }
 
 
