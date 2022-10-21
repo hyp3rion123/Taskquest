@@ -22,7 +22,7 @@ internal class CommandsTest {
 
         // multiple ways to invoke help
         val helpString1 = listOf("")
-        val helpCommand1 = CommandFactory.createTaskComFromArgs(helpString1)
+        val helpCommand1 = CommandFactory.createTaskListComFromArgs(helpString1)
         assert(helpCommand1 is HelpCommand)
 
         val helpString2 = listOf("help")
@@ -31,11 +31,11 @@ internal class CommandsTest {
 
         // unknown commands/arguments also invoke help
         val unknownString1 = listOf("unknown")
-        val unknownCommand1 = CommandFactory.createTaskComFromArgs(unknownString1)
+        val unknownCommand1 = CommandFactory.createTaskListComFromArgs(unknownString1)
         assert(unknownCommand1 is HelpCommand)
 
         val unknownString2 = listOf("unknown", "unknown", "unknown")
-        val unknownCommand2 = CommandFactory.createTaskComFromArgs(unknownString2)
+        val unknownCommand2 = CommandFactory.createTaskListComFromArgs(unknownString2)
         assert(unknownCommand2 is HelpCommand)
     }
 
