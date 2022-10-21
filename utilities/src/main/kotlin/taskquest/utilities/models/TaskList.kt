@@ -19,8 +19,9 @@ class TaskList(
 
 
     fun deleteItem(idx: Int) {
+        val currentId = this.tasks[idx].id
+        this.tasks.forEach { if (it.id > currentId) it.id -= 1 }
         this.tasks.removeAt(idx)
-
     }
 
 }

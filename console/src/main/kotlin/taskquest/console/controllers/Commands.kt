@@ -185,9 +185,20 @@ class ShowCommand(val args: List<String>) : TaskCommand {
             println("${list.title}:")
 
             var count = 0
-            list.tasks.forEach { println("  - ${++count}. Title: ${it.title}, ${if (it.desc == "") "" else "${it.desc} "}" +
-                    "${if (it.dueDate == "") "" else "${it.dueDate} "}${it.dateCreated} ${it.priority ?: ""} " +
-                    "${it.difficulty ?: ""} " + if (it.complete) "Complete" else "Incomplete") }
+            list.tasks.forEach {
+                val lead = "  ${++count}. "
+                print(lead)
+                println("${it.title}:")
+
+                val indent = " ".repeat(lead.length)
+                if (it.desc != "") println("${indent}${it.desc}\n")
+                println(if (it.complete) "${indent}Status: Complete" else "${indent}Status: Incomplete")
+                if (it.priority != null) println("${indent}Priority: ${it.priority}")
+                if (it.difficulty != null) println("${indent}Difficulty: ${it.difficulty}")
+                if (it.dueDate != "") println("${indent}Due Date: ${it.dueDate}")
+                println("${indent}Date Created: ${it.dateCreated}")
+                println("")
+            }
         }
 
     }
@@ -468,10 +479,19 @@ class ShowListCommand(private val args: List<String>) : TaskListCommand {
     override fun execute(lists: MutableList<TaskList>) {
 
         if (lists.size == 0) {
-            println("You have no lists to be shown. Create a list using the addlist command.")
+            println("You have no lists to be shown. Create a list using the listadd command.")
         } else {
+            println("Lists:")
             var count = 0
-            lists.forEach { println("  ${++count}. Title: ${it.title}  ${if (it.desc == "") "" else "Description: ${it.desc} "} ${if (currentList + 1 == count) " <-- active" else ""} ") }
+            lists.forEach {
+                val lead = "  ${++count}. "
+                print(lead)
+                println("Name: ${it.title}${if (currentList + 1 == count) " <-- active" else ""}")
+
+                val indent = " ".repeat(lead.length)
+                if (it.desc != "") println("${indent}Description: ${it.desc}")
+                println("")
+            }
         }
 
     }

@@ -30,8 +30,6 @@ fun main(args: Array<String>) {
         command.execute(currentUser.lists[currentList])
     }
 
-    println("")
-
 
 
     if (args.isEmpty()) {
