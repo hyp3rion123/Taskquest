@@ -5,8 +5,6 @@ package taskquest.app
 
 import javafx.application.Application
 import javafx.stage.Stage
-import org.apache.commons.text.WordUtils
-import taskquest.utilities.StringUtils
 import taskquest.app.javafx.*
 
 // for outlining layout borders
@@ -28,8 +26,4 @@ class App: Application() {
 
 fun main() {
     Application.launch(App::class.java)
-
-    val tokens = StringUtils.split(MessageUtils.getMessage())
-    val result = StringUtils.join(tokens)
-    println(WordUtils.capitalize(result))
 }
