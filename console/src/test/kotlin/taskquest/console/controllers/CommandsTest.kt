@@ -87,4 +87,20 @@ internal class CommandsTest {
         command.execute(list)
         assert(list.tasks[0].title == "banana")
     }
+
+    @Test
+    fun selectListCommandOne() {
+        val user = User()
+        user.lastUsedList = 1
+        val list = TaskList(0, "Test List")
+        list.addItem("item 1")
+        user.lists.add(list)
+        val list2 = TaskList(1, "Test List Two")
+        list2.addItem("item 1")
+        user.lists.add(list2)
+        val currentList = 1
+        val command = SelectListCommand(listOf("listselect", "2"))
+        command.execute(user.lists)
+        assert(user.lastUsedList == currentList)
+    }
 }
