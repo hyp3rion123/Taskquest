@@ -1,6 +1,7 @@
 package taskquest.console.views
 
 import taskquest.console.controllers.CommandFactory
+import taskquest.console.controllers.ShowCommand
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveData
 import java.lang.Exception
@@ -18,15 +19,20 @@ fun main(args: Array<String>) {
     val taskCommands = listOf<String>("add", "del", "show", "edit", "sort")
 
     println("Welcome to TaskQuest Console.")
-    println("We support interactive mode where you can type and execute your commands one by one.")
-    println("We also support argument mode where you can pass your commands via the --args flag.")
+    println("Enter 'help' for a detailed description of each supported command.")
     println("")
 
     if (currentList == -1) {
         println("You have no currently active list.")
     } else {
         println("Your currently active list is the ${currentUser.lists[currentList].title} list.")
+        val command = ShowCommand(listOf("show"))
+        command.execute(currentUser.lists[currentList])
     }
+
+    println("")
+
+
 
     if (args.isEmpty()) {
 
