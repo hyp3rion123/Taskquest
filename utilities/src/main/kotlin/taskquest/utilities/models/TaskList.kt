@@ -16,12 +16,21 @@ class TaskList(
         this.tasks.add(Task(id=this.tasks.size, title=title, desc=desc, dueDate=dueDate, priority=priority,
                             difficulty=difficulty))
     }
+    fun addItem(task: Task) {
+        this.tasks.add(task)
+    }
 
-
+    fun deleteItemByID(id: Int) {
+        this.tasks.removeIf { it.id == id }
+    }
     fun deleteItem(idx: Int) {
         val currentId = this.tasks[idx].id
         this.tasks.forEach { if (it.id > currentId) it.id -= 1 }
         this.tasks.removeAt(idx)
+    }
+
+    fun getLength(): Int {
+        return this.tasks.size
     }
 
 }
