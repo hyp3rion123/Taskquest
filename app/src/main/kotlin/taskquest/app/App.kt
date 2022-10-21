@@ -7,16 +7,6 @@ import javafx.application.Application
 import javafx.stage.Stage
 import taskquest.app.javafx.*
 
-// for outlining layout borders
-val debugMode = false
-val cssLayout = """
-            -fx-border-color: black;
-            -fx-border-insets: 5;
-            -fx-border-width: 1;
-            -fx-border-style: dashed;
-            
-            """.trimIndent()
-
 class App: Application() {
     override fun start(stage: Stage?) {
         val display = MainBoardDisplay()
