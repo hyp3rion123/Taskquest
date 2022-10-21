@@ -220,9 +220,13 @@ class EditCommand(private val args: List<String>) : TaskCommand {
             } else {
                 val task : Task = list.tasks[taskNum - 1]
                 println("The task being edited in list ${list.title}:")
-                println("Title: ${task.title}, ${if (task.desc == "") "" else "${task.desc} "}" +
-                        "${if (task.dueDate == "") "" else "${task.dueDate} "}${task.dateCreated} ${task.priority ?: ""} " +
-                        "${task.difficulty ?: ""} " + if (task.complete) "Complete" else "Incomplete")
+                println("${task.title}:")
+                if (task.desc != "") println("${task.desc}\n")
+                println(if (task.complete) "Status: Complete" else "Status: Incomplete")
+                if (task.priority != null) println("Priority: ${task.priority}")
+                if (task.difficulty != null) println("Difficulty: ${task.difficulty}")
+                if (task.dueDate != "") println("Due Date: ${task.dueDate}")
+                println("Date Created: ${task.dateCreated}")
                 println("")
                 println("Enter the number associated with any field you would like to edit.")
                 println("[0] -> Done\n[1] -> Edit Title\n[2] -> Edit Description\n[3] -> Edit Due Date\n[4] -> Edit Priority\n[5] -> Edit Difficulty\n[6] -> Edit Completion Status")
@@ -519,7 +523,9 @@ class EditListCommand(private val args: List<String>) : TaskListCommand {
                 println("Invalid list number entered.")
             } else {
                 val list : TaskList = lists[listNum - 1]
-                println("The list being edited:\nTitle: ${list.title}, ${if (list.desc == "") "" else "Description: ${list.desc} "}")
+                println("The list being edited: ")
+                println("Name: ${list.title}")
+                if (list.desc != "") println("Description: ${list.desc}")
                 println("")
                 println("Enter the number associated with any field you would like to edit.")
                 println("[0] -> Done\n[1] -> Edit Title\n[2] -> Edit Description")
