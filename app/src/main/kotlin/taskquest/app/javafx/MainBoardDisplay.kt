@@ -178,12 +178,12 @@ public class MainBoardDisplay {
 
         // add buttons to VBox
         for (task in data.tasks) {
-            val title = Label(task.title)
+            val title2 = Label(task.title)
             val c = CheckBox()
             c.setSelected(task.complete)
             var btn_del = Button("delete")
             var btn_info = Button("See info")
-            val hbox = HBox(5.0, c, title, btn_del, btn_info)
+            val hbox = HBox(5.0, c, title2, btn_del, btn_info)
             btn_del.setOnMouseClicked {
                 data.deleteItemByID(task.id)
                 tasksVBox.children.remove(hbox)
@@ -203,7 +203,7 @@ public class MainBoardDisplay {
     }
 
     fun createSideBarVBox(): VBox {
-        val icons = listOf("Profile")
+        //val icons = listOf("Profile")
         val sideBar = VBox(10.0)
         val label1 = Button("Switch theme")
         val label2 = Button("Profile")
