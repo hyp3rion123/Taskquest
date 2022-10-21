@@ -144,7 +144,7 @@ class AddCommand(private val args: List<String>) : TaskCommand {
 
         }
 
-        list.addItem(list.tasks.size, title, desc, dueDate, priority, difficulty)
+        list.addItem(title, desc, dueDate, priority, difficulty)
         println("Task $title added successfully.")
 
     }
