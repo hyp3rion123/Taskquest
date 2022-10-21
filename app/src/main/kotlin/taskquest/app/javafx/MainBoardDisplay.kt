@@ -185,7 +185,7 @@ public class MainBoardDisplay {
             var btn_info = Button("See info")
             val hbox = HBox(5.0, c, title, btn_del, btn_info)
             btn_del.setOnMouseClicked {
-                data.deleteItem(task.id)
+                data.deleteItemByID(task.id)
                 tasksVBox.children.remove(hbox)
             }
             btn_info.setOnMouseClicked {
@@ -260,7 +260,7 @@ public class MainBoardDisplay {
             val btn_info = Button("See info")
             val hbox = HBox(5.0, c, title, btn_delete, btn_info)
             btn_delete.setOnMouseClicked {
-                data.deleteItem(task.id)
+                data.deleteItemByID(task.id)
                 vBox.children.remove(hbox)
             }
             btn_info.setOnMouseClicked {

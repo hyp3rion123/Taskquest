@@ -20,7 +20,7 @@ class TaskList(
         this.tasks.add(task)
     }
 
-    fun deleteItem(id: Int) {
+    fun deleteItemByID(id: Int) {
         this.tasks.removeIf { it.id == id }
     }
 
