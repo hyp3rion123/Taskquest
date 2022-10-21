@@ -430,6 +430,7 @@ class SelectListCommand(private val args: List<String>) : TaskListCommand {
 
         if (lists.size == 0) {
             println("You have no lists to select.")
+            return
         }
 
         if (args.size < 2) {
@@ -451,6 +452,7 @@ class DeleteListCommand(private val args: List<String>) : TaskListCommand {
 
         if (lists.size == 0) {
             println("You have no lists to delete.")
+            return
         }
 
         if (args.size < 2) {
@@ -508,6 +510,7 @@ class EditListCommand(private val args: List<String>) : TaskListCommand {
 
         if (lists.size == 0) {
             println("You have no lists to edit.")
+            return
         }
 
         if (args.size < 2) {
