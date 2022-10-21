@@ -103,4 +103,40 @@ internal class CommandsTest {
         command.execute(user.lists)
         assert(user.lastUsedList == currentList)
     }
+
+    @Test
+    fun delCommand() {
+        val list = TaskList(0, "Test List")
+        list.addItem(title="apple")
+        list.addItem(title="banana")
+        assert(list.tasks.size == 2)
+
+        val command = DelCommand(listOf("del", "2"))
+        command.execute(list)
+        assert(list.tasks.size == 1)
+
+        val command2 = DelCommand(listOf("del", "1"))
+        command2.execute(list)
+        assert(list.tasks.size == 0)
+    }
+
+    @Test
+    fun listDelCommand() {
+        val user = User()
+        val list = TaskList(0, "Test List")
+        list.addItem("apple")
+        user.lists.add(list)
+        val list2 = TaskList(1, "Test List 2")
+        list.addItem("banana")
+        user.lists.add(list2)
+        assert(user.lists.size == 2)
+
+        val command = DeleteListCommand(listOf("listdel", "2"))
+        command.execute(user.lists)
+        assert(user.lists.size == 1)
+
+        val command2 = DeleteListCommand(listOf("listdel", "1"))
+        command2.execute(user.lists)
+        assert(user.lists.size == 0)
+    }
 }
