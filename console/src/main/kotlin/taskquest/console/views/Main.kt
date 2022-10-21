@@ -1,9 +1,10 @@
 package taskquest.console.views
 
 import taskquest.console.controllers.CommandFactory
-import taskquest.utilities.controllers.SaveUtils.Companion.restore
-import taskquest.utilities.controllers.SaveUtils.Companion.save
-import taskquest.utilities.models.TaskList
+import taskquest.console.controllers.ShowCommand
+import taskquest.utilities.controllers.SaveUtils.Companion.restoreData
+import taskquest.utilities.controllers.SaveUtils.Companion.saveData
+import java.lang.Exception
 
 var currentList = -1
 
@@ -11,17 +12,26 @@ fun main(args: Array<String>) {
     // data stored in a list internally
     // but saved in a file on exit
 
-    val lists = mutableListOf<TaskList>()
     val filename = "data.json"
+    val currentUser = restoreData(filename)
+    currentList = currentUser.lastUsedList
 
-    // load previous to-do list
-    lists.restore(filename)
-
-    val taskCommands = listOf<String>("add", "del", "show")
+    val taskCommands = listOf<String>("add", "del", "show", "edit", "sort")
 
     println("Welcome to TaskQuest Console.")
-    println("We support interactive mode where you can type and execute your commands one by one.")
-    println("We also support argument mode where you can pass your commands via the --args flag.")
+    println("Enter 'help' for a detailed description of each supported command.")
+    println("")
+
+    if (currentList == -1) {
+        println("You have no currently active list.")
+    } else {
+        println("Your currently active list is the ${currentUser.lists[currentList].title} list.")
+        val command = ShowCommand(listOf("show"))
+        command.execute(currentUser.lists[currentList])
+    }
+
+    println("")
+
 
 
     if (args.isEmpty()) {
@@ -32,15 +42,27 @@ fun main(args: Array<String>) {
         while (true) {
             print(">> ")
             curInstr = readLine()?.split(' ')
-            if (curInstr == null || curInstr[0].trim() == "quit" || curInstr[0].trim() == "q") {
+            if (curInstr == null || curInstr[0].trim().lowercase() == "quit"
+                || curInstr[0].trim().lowercase() == "q" || curInstr[0].trim().lowercase() == "exit") {
                 break
             } else if (taskCommands.contains(curInstr[0])) {
                 val taskCommand = CommandFactory.createTaskComFromArgs(curInstr)
-                taskCommand.execute(lists[currentList])
+                if (currentList == -1) {
+                    println("You have no currently active list. Please select a list.")
+                } else {
+                    try {
+                        taskCommand.execute(currentUser.lists[currentList])
+                    } catch (e: Exception) {
+                        println("An error occurred.")
+                    }
+                }
             } else {
                 val taskListCommand = CommandFactory.createTaskListComFromArgs(curInstr)
-                taskListCommand.execute(lists)
+                taskListCommand.execute(currentUser.lists)
             }
+
+            currentUser.lastUsedList = currentList
+            saveData(currentUser, filename)
         }
     } else {
         val instructions : List<String> = args.toMutableList()
@@ -54,18 +76,28 @@ fun main(args: Array<String>) {
 
             if (taskCommands.contains(curInstr[0])) {
                 val taskCommand = CommandFactory.createTaskComFromArgs(curInstr)
-                taskCommand.execute(lists[currentList])
+                if (currentList == -1) {
+                    println("You have no currently active list. Please select a list.")
+                } else {
+                    try {
+                        taskCommand.execute(currentUser.lists[currentList])
+                    } catch (e: Exception) {
+                        println("An error occurred.")
+                    }
+                }
             } else {
                 val taskListCommand = CommandFactory.createTaskListComFromArgs(curInstr)
-                taskListCommand.execute(lists)
+                taskListCommand.execute(currentUser.lists)
             }
             i++
 
-            lists.save(filename)
+            currentUser.lastUsedList = currentList
+            saveData(currentUser, filename)
         }
 
     }
 
     // save to-do list (json)
-    lists.save(filename)
+    currentUser.lastUsedList = currentList
+    saveData(currentUser, filename)
 }

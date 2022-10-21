@@ -5,81 +5,138 @@ import taskquest.utilities.models.*
 
 internal class CommandsTest {
 
-    // not yet updated with new Task class
     @Test
     fun commandFactory() {
         // basic commands
-        val addString = arrayOf("add", "title")
-        val addCommand = CommandFactory.createFromArgs(addString)
+        val addString = listOf("add")
+        val addCommand = CommandFactory.createTaskComFromArgs(addString)
         assert(addCommand is AddCommand)
 
-        val delString = arrayOf("del", "0")
-        val delCommand = CommandFactory.createFromArgs(delString)
+        val delString = listOf("del", "1")
+        val delCommand = CommandFactory.createTaskComFromArgs(delString)
         assert(delCommand is DelCommand)
 
-        val showString = arrayOf("show")
-        val showCommand = CommandFactory.createFromArgs(showString)
+        val showString = listOf("show")
+        val showCommand = CommandFactory.createTaskComFromArgs(showString)
         assert(showCommand is ShowCommand)
 
         // multiple ways to invoke help
-        val helpString1 = arrayOf("")
-        val helpCommand1 = CommandFactory.createFromArgs(helpString1)
+        val helpString1 = listOf("")
+        val helpCommand1 = CommandFactory.createTaskListComFromArgs(helpString1)
         assert(helpCommand1 is HelpCommand)
 
-        val helpString2 = arrayOf("help")
-        val helpCommand2 = CommandFactory.createFromArgs(helpString2)
+        val helpString2 = listOf("help")
+        val helpCommand2 = CommandFactory.createTaskListComFromArgs(helpString2)
         assert(helpCommand2 is HelpCommand)
 
         // unknown commands/arguments also invoke help
-        val unknownString1 = arrayOf("unknown")
-        val unknownCommand1 = CommandFactory.createFromArgs(unknownString1)
+        val unknownString1 = listOf("unknown")
+        val unknownCommand1 = CommandFactory.createTaskListComFromArgs(unknownString1)
         assert(unknownCommand1 is HelpCommand)
 
-        val unknownString2 = arrayOf("unknown", "unknown", "unknown")
-        val unknownCommand2 = CommandFactory.createFromArgs(unknownString2)
+        val unknownString2 = listOf("unknown", "unknown", "unknown")
+        val unknownCommand2 = CommandFactory.createTaskListComFromArgs(unknownString2)
         assert(unknownCommand2 is HelpCommand)
     }
 
+
     @Test
-    fun addCommand() {
-        val list = mutableListOf<Task>()
-        val command = AddCommand(arrayOf("add", "test"))
+    fun showCommand() {
+        val list = TaskList(0, "Test List")
+        val command = ShowCommand(listOf("show"))
         command.execute(list)
-        assert(list.size == 1)
+        assert(list.tasks.size == 0)
+    }
+
+    @Test
+    fun sortByTitleAscCommand() {
+        val list = TaskList(0, "Test List")
+        list.addItem("banana")
+        list.addItem("apple")
+        val command = SortCommand(listOf("sort", "byTitleAsc"))
+        command.execute(list)
+        assert(list.tasks[0].title == "apple")
+    }
+
+    @Test
+    fun sortByTitleDescCommand() {
+        val list = TaskList(0, "Test List")
+        list.addItem("apple")
+        list.addItem("banana")
+        val command = SortCommand(listOf("sort", "byTitleDesc"))
+        command.execute(list)
+        assert(list.tasks[0].title == "banana")
+    }
+
+    @Test
+    fun sortByDueDateAscCommand() {
+        val list = TaskList(0, "Test List")
+        list.addItem(title="banana", dueDate="2022-01-02")
+        list.addItem(title="apple", dueDate="2022-01-01")
+        val command = SortCommand(listOf("sort", "byDueDateAsc"))
+        command.execute(list)
+        assert(list.tasks[0].title == "apple")
+    }
+
+    @Test
+    fun sortByDueDateDescCommand() {
+        val list = TaskList(0, "Test List")
+        list.addItem(title="apple", dueDate="2022-01-01")
+        list.addItem(title="banana", dueDate="2022-01-02")
+        val command = SortCommand(listOf("sort", "byDueDateDesc"))
+        command.execute(list)
+        assert(list.tasks[0].title == "banana")
+    }
+
+    @Test
+    fun selectListCommandOne() {
+        val user = User()
+        user.lastUsedList = 1
+        val list = TaskList(0, "Test List")
+        list.addItem("item 1")
+        user.lists.add(list)
+        val list2 = TaskList(1, "Test List Two")
+        list2.addItem("item 1")
+        user.lists.add(list2)
+        val currentList = 1
+        val command = SelectListCommand(listOf("listselect", "2"))
+        command.execute(user.lists)
+        assert(user.lastUsedList == currentList)
     }
 
     @Test
     fun delCommand() {
-        val list = mutableListOf<Task>()
-        list.add(0, "test0")
-        list.add(1, "test1")
-        list.add(2, "test2")
+        val list = TaskList(0, "Test List")
+        list.addItem(title="apple")
+        list.addItem(title="banana")
+        assert(list.tasks.size == 2)
 
-        val command1 = DelCommand(arrayOf("del", "0"))
-        command1.execute(list)
-        assert(list.size == 2)
-        assert(list.first().id == 1)
-        assert(list.last().id == 2)
+        val command = DelCommand(listOf("del", "2"))
+        command.execute(list)
+        assert(list.tasks.size == 1)
 
-        val command2 = DelCommand(arrayOf("del", "1"))
+        val command2 = DelCommand(listOf("del", "1"))
         command2.execute(list)
-        assert(list.size == 1)
-        assert(list.first().id == 2)
-
-        val command3 = DelCommand(arrayOf("del", "2"))
-        command3.execute(list)
-        assert(list.size == 0)
+        assert(list.tasks.size == 0)
     }
 
     @Test
-    fun showCommand() {
-        val list = mutableListOf<Task>()
-        val command = ShowCommand(arrayOf("show"))
-        command.execute(list)
-        assert(list.size == 0)
+    fun listDelCommand() {
+        val user = User()
+        val list = TaskList(0, "Test List")
+        list.addItem("apple")
+        user.lists.add(list)
+        val list2 = TaskList(1, "Test List 2")
+        list.addItem("banana")
+        user.lists.add(list2)
+        assert(user.lists.size == 2)
 
-        list.add(0, "test")
-        command.execute(list)
-        assert(list.size == 1)
+        val command = DeleteListCommand(listOf("listdel", "2"))
+        command.execute(user.lists)
+        assert(user.lists.size == 1)
+
+        val command2 = DeleteListCommand(listOf("listdel", "1"))
+        command2.execute(user.lists)
+        assert(user.lists.size == 0)
     }
 }

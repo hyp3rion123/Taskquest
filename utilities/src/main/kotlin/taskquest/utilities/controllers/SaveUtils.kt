@@ -3,7 +3,7 @@ package taskquest.utilities.controllers
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import taskquest.utilities.models.TaskList
+import taskquest.utilities.models.User
 import java.io.File
 
 class SaveUtils {
@@ -13,17 +13,14 @@ class SaveUtils {
             prettyPrint = true
         }
 
-        fun MutableList<TaskList>.save(filename: String) {
-            val jsonList = formattedJson.encodeToString(this.toList())
-            File(filename).writeText(jsonList)
+        fun saveData(user: User, filename: String) {
+            val json = formattedJson.encodeToString(user)
+            File(filename).writeText(json)
         }
 
-        fun MutableList<TaskList>.restore(filename: String) {
-            try {
-                val jsonList = File(filename).readText()
-                this.addAll(formattedJson.decodeFromString(jsonList))
-            } catch (_: Exception) {
-            }
+        fun restoreData(filename: String): User {
+            val json = File(filename).readText()
+            return formattedJson.decodeFromString(json)
         }
     }
 }

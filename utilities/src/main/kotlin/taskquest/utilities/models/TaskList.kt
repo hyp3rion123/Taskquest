@@ -11,9 +11,9 @@ class TaskList(
 ) {
     val tasks: MutableList<Task> = mutableListOf<Task>()
 
-    fun addItem(id: Int, title: String, desc: String, dueDate: String,
-                priority: Priority?, difficulty: Difficulty?) {
-        this.tasks.add(Task(id=id, title=title, desc=desc, dueDate=dueDate, priority=priority,
+    fun addItem(title: String, desc: String = "", dueDate: String = "",
+                priority: Priority? = null, difficulty: Difficulty? = null) {
+        this.tasks.add(Task(id=this.tasks.size, title=title, desc=desc, dueDate=dueDate, priority=priority,
                             difficulty=difficulty))
     }
     fun addItem(task: Task) {
@@ -23,10 +23,15 @@ class TaskList(
     fun deleteItemByID(id: Int) {
         this.tasks.removeIf { it.id == id }
     }
+    fun deleteItem(idx: Int) {
+        this.tasks.removeAt(idx)
+
+    }
 
     fun getLength(): Int {
         return this.tasks.size
     }
+
 }
 
 
