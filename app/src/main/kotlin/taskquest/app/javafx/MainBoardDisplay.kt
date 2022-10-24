@@ -16,6 +16,8 @@ import javafx.scene.image.ImageView
 import javafx.scene.layout.*
 import taskquest.utilities.controllers.SaveUtils
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreData
+import taskquest.utilities.controllers.SaveUtils.Companion.saveData
+import taskquest.utilities.models.User
 import java.io.File
 
 
@@ -36,27 +38,29 @@ val bannerTextCss = """
             -fx-border-style: dashed;
             """.trimIndent()
 
-
+const val dataFileName = "console/data.json"
 public class MainBoardDisplay {
+    var user = User();
+    fun dataChanged() {
+        println("data changed")
+        user.to_string()
+        saveData(user, dataFileName)
+    }
 
     fun start_display(stage: Stage?) {
-        val filename = "console/data.json"
+
         //val currentUser = SaveUtils.restoreData(filename)
 
-        //print(currentUser)
+        //println(currentUser)
 
-        var user = restoreData(filename)
-        print(user.toString())
+        user = restoreData(dataFileName)
+        println(user.toString())
 
         // set title for the stage
         stage?.title = "TaskQuest";
 
         //Task lists - Left column
-        var taskLists = listOf<TaskList>()
-        for (list in user.lists) {
-            var taskList = list
-            taskLists += (taskList)
-        }
+        var taskLists = user.lists
 
         val taskListVBox = createTaskListVBox(taskLists)
 
@@ -91,7 +95,7 @@ public class MainBoardDisplay {
 
         //Main tasks board
         var tasks = user.lists[0]
-        print(tasks)
+        println(tasks)
 
         var taskList1 = user.lists[0]
 
@@ -163,7 +167,7 @@ public class MainBoardDisplay {
             val title = Button(taskList.title)
             taskListVBox.children.add(title)
             title.setOnMouseClicked {
-                print("Selected taskList: " + taskList.title)
+                println("Selected taskList: " + taskList.title)
             }
         }
 
@@ -195,6 +199,8 @@ public class MainBoardDisplay {
             btn_del.setOnMouseClicked {
                 data.deleteItemByID(task.id)
                 tasksVBox.children.remove(hbox)
+                user.to_string()
+                dataChanged()
             }
             btn_info.setOnMouseClicked {
                 showTaskInfoStage(task)
@@ -270,12 +276,14 @@ public class MainBoardDisplay {
             btn_delete.setOnMouseClicked {
                 data.deleteItemByID(task.id)
                 vBox.children.remove(hbox)
+                dataChanged()
             }
             btn_info.setOnMouseClicked {
                 showTaskInfoStage(task)
             }
             vBox.children.add(hbox)
             create_task_stage.close()
+            dataChanged()
         }
 
         val scene = Scene(vbox, 700.0, 400.0)

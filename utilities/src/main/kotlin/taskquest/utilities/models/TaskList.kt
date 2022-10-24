@@ -10,6 +10,7 @@ class TaskList(
     val id: Int, var title: String, var desc: String = ""
 ) {
     val tasks: MutableList<Task> = mutableListOf<Task>()
+    var nextId = 0
 
     fun addItem(title: String, desc: String = "", dueDate: String = "",
                 priority: Priority? = null, difficulty: Difficulty? = null) {
@@ -17,7 +18,9 @@ class TaskList(
                             difficulty=difficulty))
     }
     fun addItem(task: Task) {
+        task.id = nextId
         this.tasks.add(task)
+        nextId += 1
     }
 
     fun deleteItemByID(id: Int) {
