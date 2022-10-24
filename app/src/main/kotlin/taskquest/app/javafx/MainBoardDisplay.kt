@@ -162,6 +162,9 @@ public class MainBoardDisplay {
         for (taskList in data) {
             val title = Button(taskList.title)
             taskListVBox.children.add(title)
+            title.setOnMouseClicked {
+                print("Selected taskList: " + taskList.title)
+            }
         }
 
         return taskListVBox
