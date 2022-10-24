@@ -122,7 +122,7 @@ public class MainBoardDisplay {
 
         var hbox = HBox(10.0, sideBarVBox, taskListVBox, rightSideVBox)
         hbox.setAlignment(Pos.CENTER); //Center HBox
-        var mainScene = Scene(hbox, 1200.0, 800.0)
+        var mainScene = Scene(hbox, 900.0, 600.0)
         val stage2 = createTaskStage(taskList1, toDoVBox)
 
         btn_create_task_to_do.setOnMouseClicked {
