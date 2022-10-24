@@ -53,8 +53,8 @@ public class MainBoardDisplay {
 
         //Task lists - Left column
         var taskLists = listOf<TaskList>()
-        for (id in 1..5) {
-            var taskList = TaskList(id, "Task List $id")
+        for (list in user.lists) {
+            var taskList = list
             taskLists += (taskList)
         }
 
