@@ -14,6 +14,9 @@ import taskquest.utilities.models.TaskList
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.*
+import taskquest.utilities.controllers.SaveUtils
+import taskquest.utilities.controllers.SaveUtils.Companion.restoreData
+import java.io.File
 
 
 // for outlining layout borders
@@ -37,6 +40,14 @@ val bannerTextCss = """
 public class MainBoardDisplay {
 
     fun start_display(stage: Stage?) {
+        val filename = "console/data.json"
+        //val currentUser = SaveUtils.restoreData(filename)
+
+        //print(currentUser)
+
+        var user = restoreData(filename)
+        print(user.toString())
+
         // set title for the stage
         stage?.title = "TaskQuest";
 
@@ -79,17 +90,11 @@ public class MainBoardDisplay {
 
 
         //Main tasks board
-        var tasks = listOf<Task>()
-        for (id in 1..10) {
-            var task = Task(id, "Task $id", complete = (id % 2 == 0))
-            tasks += (task)
-        }
+        var tasks = user.lists[0]
+        print(tasks)
 
-        var taskList1 = TaskList(1, "TaskList1", "This is a test task list")
-        for (id in 1..10) {
-            var task = Task(id=id,title="Task $id",desc="some desc", complete = (id % 2 == 0))
-            taskList1.addItem(task)
-        }
+        var taskList1 = user.lists[0]
+
         var taskList2 = TaskList(2, "TaskList2", "This is a test task list")
         for (id in 1..5) {
             var task = Task(id=id+10,title="Task $id",desc="some desc", complete = (id % 2 == 0))
