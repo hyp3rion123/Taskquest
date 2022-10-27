@@ -112,6 +112,50 @@
                 }
             ],
             "nextId": 4
+        },
+        {
+            "id": 2,
+            "title": "Personal",
+            "desc": "0",
+            "tasks": [
+                {
+                    "id": 0,
+                    "title": "Personal 1",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-24",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": false,
+                    "tags": [
+                    ]
+                },
+                {
+                    "id": 2,
+                    "title": "Personal 2",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-27",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": false,
+                    "tags": [
+                    ]
+                },
+                {
+                    "id": 3,
+                    "title": "Personal last test",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-27",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": false,
+                    "tags": [
+                    ]
+                }
+            ],
+            "nextId": 4
         }
     ]
 }
