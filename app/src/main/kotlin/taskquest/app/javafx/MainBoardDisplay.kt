@@ -48,10 +48,6 @@ public class MainBoardDisplay {
 
     fun start_display(stage: Stage?) {
 
-        //val currentUser = SaveUtils.restoreData(filename)
-
-        //println(currentUser)
-
         user = restoreData(dataFileName)
         println(user.toString())
 
