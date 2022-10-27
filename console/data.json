@@ -31,30 +31,6 @@
                     ]
                 },
                 {
-                    "id": 2,
-                    "title": "",
-                    "desc": "",
-                    "dueDate": "",
-                    "dateCreated": "2022-10-24",
-                    "priority": null,
-                    "difficulty": null,
-                    "complete": false,
-                    "tags": [
-                    ]
-                },
-                {
-                    "id": 3,
-                    "title": "",
-                    "desc": "",
-                    "dueDate": "",
-                    "dateCreated": "2022-10-24",
-                    "priority": null,
-                    "difficulty": null,
-                    "complete": false,
-                    "tags": [
-                    ]
-                },
-                {
                     "id": 4,
                     "title": "test5",
                     "desc": "",
@@ -111,18 +87,6 @@
                     ]
                 },
                 {
-                    "id": 1,
-                    "title": "sprint 2 - test",
-                    "desc": "",
-                    "dueDate": "",
-                    "dateCreated": "2022-10-24",
-                    "priority": null,
-                    "difficulty": null,
-                    "complete": false,
-                    "tags": [
-                    ]
-                },
-                {
                     "id": 2,
                     "title": "test3",
                     "desc": "",
@@ -133,9 +97,21 @@
                     "complete": false,
                     "tags": [
                     ]
+                },
+                {
+                    "id": 3,
+                    "title": "last",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-27",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": false,
+                    "tags": [
+                    ]
                 }
             ],
-            "nextId": 3
+            "nextId": 4
         }
     ]
 }
