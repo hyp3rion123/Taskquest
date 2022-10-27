@@ -105,7 +105,7 @@ public class MainBoardDisplay {
         val btn_create_task_in_progress = Button("Create task")
         val btn_create_task_done = Button("Create task")
 
-        toDoVBox = createTasksVBox(btn_create_task_to_do, taskList1, "To Do")
+        toDoVBox = createTasksVBox(btn_create_task_to_do, taskList1, taskList1.title)
         var inProgressVBox = createTasksVBox(btn_create_task_in_progress, taskList2, "In Progress")
         var doneVBox = createTasksVBox(btn_create_task_done, taskList3, "Done")
 
@@ -163,7 +163,7 @@ public class MainBoardDisplay {
             taskListVBox.children.add(title)
             title.setOnMouseClicked {
                 println("Selected taskList: " + taskList.title)
-                toDoVBox = createTasksVBox(btn_create_task_to_do, taskList, "Tasklist")
+                toDoVBox = createTasksVBox(btn_create_task_to_do, taskList, taskList.title)
                 boardViewHBox.children.clear()
                 boardViewHBox.children.add(toDoVBox)
             }
