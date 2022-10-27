@@ -8,18 +8,20 @@ import java.io.File
 
 class SaveUtils {
     companion object {
-        private val formattedJson = Json {
+        val formattedJson = Json {
             encodeDefaults = true
             prettyPrint = true
         }
 
         fun saveData(user: User, filename: String) {
             val json = formattedJson.encodeToString(user)
+            print(json)
             File(filename).writeText(json)
         }
 
         fun restoreData(filename: String): User {
             val json = File(filename).readText()
+            print(json)
             return formattedJson.decodeFromString(json)
         }
     }
