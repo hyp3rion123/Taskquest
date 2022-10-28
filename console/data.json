@@ -14,7 +14,7 @@
                     "dateCreated": "2022-10-24",
                     "priority": null,
                     "difficulty": null,
-                    "complete": false,
+                    "complete": true,
                     "tags": [
                     ]
                 },
@@ -38,7 +38,7 @@
                     "dateCreated": "2022-10-27",
                     "priority": null,
                     "difficulty": null,
-                    "complete": false,
+                    "complete": true,
                     "tags": [
                     ]
                 },
@@ -50,7 +50,7 @@
                     "dateCreated": "2022-10-27",
                     "priority": null,
                     "difficulty": null,
-                    "complete": false,
+                    "complete": true,
                     "tags": [
                     ]
                 },
@@ -62,7 +62,7 @@
                     "dateCreated": "2022-10-27",
                     "priority": null,
                     "difficulty": null,
-                    "complete": false,
+                    "complete": true,
                     "tags": [
                     ]
                 }
@@ -126,7 +126,7 @@
                     "dateCreated": "2022-10-24",
                     "priority": null,
                     "difficulty": null,
-                    "complete": false,
+                    "complete": true,
                     "tags": [
                     ]
                 },

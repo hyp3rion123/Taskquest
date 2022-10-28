@@ -188,6 +188,17 @@ public class MainBoardDisplay {
             val title2 = Label(task.title)
             val c = CheckBox()
             c.setSelected(task.complete)
+            c.setOnMouseClicked {
+                if (task.complete) {
+                    println("Mark incomplete: " + task.title)
+                    task.complete = false
+                } else {
+                    println("Mark complete: " + task.title)
+                    task.complete = true
+                    showTaskCompletionStage(task)
+                }
+                dataChanged()
+            }
             var btn_del = Button("delete")
             var btn_info = Button("See info")
             val hbox = HBox(5.0, c, title2, btn_del, btn_info)
@@ -293,6 +304,43 @@ public class MainBoardDisplay {
 
         val hbox_title = HBox(20.0)
         val label_title = Label("Title: " + task.title)
+        hbox_title.children.addAll(label_title)
+
+        val hbox_desc = HBox(20.0)
+        val label_desc = Label("Description: " + task.desc)
+        hbox_desc.children.addAll(label_desc)
+
+        val hbox_due = HBox(20.0)
+        val label_due = Label("Due Date: " + task.dueDate)
+        hbox_due.children.addAll(label_due)
+
+        val hbox_prio = HBox(20.0)
+        val label_prio = Label("Priority: " + task.priority)
+        hbox_prio.children.addAll(label_prio)
+
+        val hbox_diff = HBox(20.0)
+        val label_diff = Label("Difficulty: " + task.difficulty)
+        hbox_diff.children.addAll(label_diff)
+
+        val vbox = VBox(10.0)
+        vbox.children.addAll(hbox_title, hbox_desc, hbox_due, hbox_prio, hbox_diff, btn)
+
+        btn.setOnMouseClicked {
+            taskInfoStage.close()
+        }
+
+        val scene = Scene(vbox, 700.0, 400.0)
+        taskInfoStage.scene = scene
+        taskInfoStage.show()
+    }
+
+    fun showTaskCompletionStage(task: Task) {
+        val taskInfoStage = Stage()
+        taskInfoStage.setTitle("Task Completed!")
+        val btn = Button("Exit")
+
+        val hbox_title = HBox(20.0)
+        val label_title = Label("Congrats on getting " + task.title + " done!")
         hbox_title.children.addAll(label_title)
 
         val hbox_desc = HBox(20.0)
