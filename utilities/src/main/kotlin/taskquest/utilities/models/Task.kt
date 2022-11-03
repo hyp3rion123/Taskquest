@@ -13,4 +13,23 @@ class Task(
     var difficulty: Difficulty? = null, var complete: Boolean = false
 ) {
     val tags: MutableSet<String> = mutableSetOf<String>()
+    var coinValue: Int? = when(difficulty) {
+        Difficulty.Hard -> 3
+        Difficulty.Medium -> 2
+        Difficulty.Easy -> 1
+        else -> null
+    }
+    init {
+        val multiplier: Int? = when(priority) {
+            Priority.High -> 3
+            Priority.Medium -> 2
+            Priority.Low -> 1
+            else -> null
+        }
+        if (coinValue == null && multiplier != null) {
+            coinValue = multiplier
+        } else if (coinValue != null && multiplier != null) {
+            coinValue = coinValue!! * multiplier
+        }
+    }
 }
