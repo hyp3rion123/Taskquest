@@ -12,8 +12,10 @@ import javafx.stage.Stage
 import taskquest.utilities.models.Task
 import taskquest.utilities.models.TaskList
 import javafx.scene.image.Image
-import javafx.scene.image.ImageView
 import javafx.scene.layout.*
+import taskquest.utilities.controllers.SaveUtils.Companion.restoreData
+import taskquest.utilities.controllers.SaveUtils.Companion.saveData
+import taskquest.utilities.models.User
 
 
 // for outlining layout borders
@@ -33,21 +35,28 @@ val bannerTextCss = """
             -fx-border-style: dashed;
             """.trimIndent()
 
-
+const val dataFileName = "console/data.json"
 public class MainBoardDisplay {
+    var user = User();
+    var toDoVBox = VBox();
+    var boardViewHBox = HBox();
+    fun dataChanged() {
+        println("data changed")
+        user.to_string()
+        saveData(user, dataFileName)
+    }
 
     fun start_display(stage: Stage?) {
+
+        user = restoreData(dataFileName)
+        println(user.toString())
+
         // set title for the stage
         stage?.title = "TaskQuest";
 
         //Task lists - Left column
-        var taskLists = listOf<TaskList>()
-        for (id in 1..5) {
-            var taskList = TaskList(id, "Task List $id")
-            taskLists += (taskList)
-        }
+        var taskLists = user.lists
 
-        val taskListVBox = createTaskListVBox(taskLists)
 
         //Banner
         val image = Image("https://3.bp.blogspot.com/-Y5k2sJfG5Ro/UoFMFpmbJmI/AAAAAAAAJHw/HVKNUY1Srog/s1600/image+5.png")
@@ -79,36 +88,27 @@ public class MainBoardDisplay {
 
 
         //Main tasks board
-        var tasks = listOf<Task>()
-        for (id in 1..10) {
-            var task = Task(id, "Task $id", complete = (id % 2 == 0))
-            tasks += (task)
-        }
+        var tasks = user.lists[0]
+        println(tasks)
 
-        var taskList1 = TaskList(1, "TaskList1", "This is a test task list")
-        for (id in 1..10) {
-            var task = Task(id=id,title="Task $id",desc="some desc", complete = (id % 2 == 0))
-            taskList1.addItem(task)
-        }
-        var taskList2 = TaskList(2, "TaskList2", "This is a test task list")
-        for (id in 1..5) {
-            var task = Task(id=id+10,title="Task $id",desc="some desc", complete = (id % 2 == 0))
-            taskList2.addItem(task)
-        }
-        var taskList3 = TaskList(3, "TaskList3", "This is a test task list")
-        for (id in 1..7) {
-            var task = Task(id=id+20,title="Task $id",desc="some desc", complete = (id % 2 == 0))
-            taskList3.addItem(task)
-        }
+        var taskList1 = user.lists[0]
+
+        var taskList2 = taskList1
+
+        var taskList3 = taskList1
+
         val btn_create_task_to_do = Button("Create task")
         val btn_create_task_in_progress = Button("Create task")
         val btn_create_task_done = Button("Create task")
 
-        var toDoVBox = createTasksVBox(btn_create_task_to_do, taskList1, "To Do")
+        toDoVBox = createTasksVBox(btn_create_task_to_do, taskList1, taskList1.title)
         var inProgressVBox = createTasksVBox(btn_create_task_in_progress, taskList2, "In Progress")
         var doneVBox = createTasksVBox(btn_create_task_done, taskList3, "Done")
 
-        var boardViewHBox = HBox(20.0, toDoVBox, inProgressVBox, doneVBox)
+        var taskListVBox = createTaskListVBox(taskLists, toDoVBox, btn_create_task_to_do)
+
+
+        boardViewHBox = HBox(20.0, toDoVBox)
         var rightSideVBox = VBox(20.0, headerVBox, boardViewHBox)
 
         var sideBarVBox = createSideBarVBox()
@@ -117,7 +117,7 @@ public class MainBoardDisplay {
 
         var hbox = HBox(10.0, sideBarVBox, taskListVBox, rightSideVBox)
         hbox.setAlignment(Pos.CENTER); //Center HBox
-        var mainScene = Scene(hbox, 1200.0, 800.0)
+        var mainScene = Scene(hbox, 900.0, 600.0)
         val stage2 = createTaskStage(taskList1, toDoVBox)
 
         btn_create_task_to_do.setOnMouseClicked {
@@ -141,7 +141,7 @@ public class MainBoardDisplay {
         }
     }
 
-    fun createTaskListVBox(data : List<TaskList>): VBox {
+    fun createTaskListVBox(data: List<TaskList>, tasksVBox: VBox, btn_create_task_to_do: Button): VBox {
 
         // create a VBox
         val taskListVBox = VBox(10.0)
@@ -157,10 +157,17 @@ public class MainBoardDisplay {
         for (taskList in data) {
             val title = Button(taskList.title)
             taskListVBox.children.add(title)
+            title.setOnMouseClicked {
+                println("Selected taskList: " + taskList.title)
+                toDoVBox = createTasksVBox(btn_create_task_to_do, taskList, taskList.title)
+                boardViewHBox.children.clear()
+                boardViewHBox.children.add(toDoVBox)
+            }
         }
 
         return taskListVBox
     }
+
 
     fun createTasksVBox(create_button: Button, data : TaskList, title: String = "To do"): VBox {
 
@@ -181,12 +188,25 @@ public class MainBoardDisplay {
             val title2 = Label(task.title)
             val c = CheckBox()
             c.setSelected(task.complete)
+            c.setOnMouseClicked {
+                if (task.complete) {
+                    println("Mark incomplete: " + task.title)
+                    task.complete = false
+                } else {
+                    println("Mark complete: " + task.title)
+                    task.complete = true
+                    showTaskCompletionStage(task)
+                }
+                dataChanged()
+            }
             var btn_del = Button("delete")
             var btn_info = Button("See info")
             val hbox = HBox(5.0, c, title2, btn_del, btn_info)
             btn_del.setOnMouseClicked {
                 data.deleteItemByID(task.id)
                 tasksVBox.children.remove(hbox)
+                user.to_string()
+                dataChanged()
             }
             btn_info.setOnMouseClicked {
                 showTaskInfoStage(task)
@@ -262,12 +282,14 @@ public class MainBoardDisplay {
             btn_delete.setOnMouseClicked {
                 data.deleteItemByID(task.id)
                 vBox.children.remove(hbox)
+                dataChanged()
             }
             btn_info.setOnMouseClicked {
                 showTaskInfoStage(task)
             }
             vBox.children.add(hbox)
             create_task_stage.close()
+            dataChanged()
         }
 
         val scene = Scene(vbox, 700.0, 400.0)
@@ -282,6 +304,43 @@ public class MainBoardDisplay {
 
         val hbox_title = HBox(20.0)
         val label_title = Label("Title: " + task.title)
+        hbox_title.children.addAll(label_title)
+
+        val hbox_desc = HBox(20.0)
+        val label_desc = Label("Description: " + task.desc)
+        hbox_desc.children.addAll(label_desc)
+
+        val hbox_due = HBox(20.0)
+        val label_due = Label("Due Date: " + task.dueDate)
+        hbox_due.children.addAll(label_due)
+
+        val hbox_prio = HBox(20.0)
+        val label_prio = Label("Priority: " + task.priority)
+        hbox_prio.children.addAll(label_prio)
+
+        val hbox_diff = HBox(20.0)
+        val label_diff = Label("Difficulty: " + task.difficulty)
+        hbox_diff.children.addAll(label_diff)
+
+        val vbox = VBox(10.0)
+        vbox.children.addAll(hbox_title, hbox_desc, hbox_due, hbox_prio, hbox_diff, btn)
+
+        btn.setOnMouseClicked {
+            taskInfoStage.close()
+        }
+
+        val scene = Scene(vbox, 700.0, 400.0)
+        taskInfoStage.scene = scene
+        taskInfoStage.show()
+    }
+
+    fun showTaskCompletionStage(task: Task) {
+        val taskInfoStage = Stage()
+        taskInfoStage.setTitle("Task Completed!")
+        val btn = Button("Exit")
+
+        val hbox_title = HBox(20.0)
+        val label_title = Label("Congrats on getting " + task.title + " done!")
         hbox_title.children.addAll(label_title)
 
         val hbox_desc = HBox(20.0)

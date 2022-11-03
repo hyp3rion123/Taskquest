@@ -5,6 +5,7 @@ import taskquest.utilities.models.Task
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
 import taskquest.console.views.currentList
+import taskquest.utilities.controllers.DateValidator
 
 // Factory pattern
 // generate a command based on the arguments passed in
@@ -97,27 +98,25 @@ class AddCommand(private val args: List<String>) : TaskCommand {
                 }
                 2 -> {
                     print("Enter a due date (YYYY-MM-DD): ")
-                    val dueDateInput = readLine()!!.trim()
-                    val userDate = dueDateInput.split("-")
+                    var dueDateInput = readLine()!!.trim()
 
-                    if (userDate.size != 3) {
+                    val obj = DateValidator("yyyy-MM-dd")
+                    val validDate = obj.validDate(dueDateInput)
+
+                    if (!validDate) {
                         println("Invalid date entered. The due date was not successfully set.")
-                        continue
-                    }
+                    } else {
 
-                    var count = 0
-                    var exit = false
-                    for (item in userDate) {
-                        val dmyInt = item.toIntOrNull()
-                        count++
-                        if (dmyInt == null) {
-                            println("Invalid date entered. The due date was not successfully set.")
-                            exit = true
-                            break
+                        val userDate = dueDateInput.split("-").toMutableList()
+                        if (userDate[1].length == 1) {
+                            userDate[1] = "0" + userDate[1]
+                         }
+
+                        if (userDate[2].length == 1) {
+                            userDate[2] = "0" + userDate[2]
                         }
-                    }
 
-                    if (!exit) {
+                        dueDateInput = userDate[0] + "-" + userDate[1] + "-" + userDate[2]
                         dueDate = dueDateInput
                     }
 
@@ -205,6 +204,8 @@ class ShowCommand(val args: List<String>) : TaskCommand {
 }
 
 class EditCommand(private val args: List<String>) : TaskCommand {
+
+
     override fun execute(list: TaskList) {
         if (args.size < 2) {
             println("Please specify a task you would like to edit")
@@ -265,27 +266,26 @@ class EditCommand(private val args: List<String>) : TaskCommand {
                         }
                         3 -> {
                             print("Update Due Date (YYYY-MM-DD): ")
-                            val dueDateInput = readLine()!!.trim()
-                            val userDate = dueDateInput.split("-")
+                            var dueDateInput = readLine()!!.trim()
 
-                            if (userDate.size != 3) {
-                                println("Invalid date entered. The due date was not successfully updated.")
-                                continue
-                            }
+                            val obj = DateValidator("yyyy-MM-dd")
+                            val validDate = obj.validDate(dueDateInput)
 
-                            var count = 0
-                            var exit = false
-                            for (item in userDate) {
-                                val dmyInt = item.toIntOrNull()
-                                count++
-                                if (dmyInt == null) {
-                                    println("Invalid date entered. The due date was not successfully updated.")
-                                    exit = true
-                                    break
+                            if (!validDate) {
+                                println("Invalid date entered. The due date was not successfully set.")
+                            } else {
+
+                                val userDate = dueDateInput.split("-").toMutableList()
+
+                                if (userDate[2].length == 1) {
+                                    userDate[2] = "0" + userDate[2]
                                 }
-                            }
 
-                            if (!exit) {
+                                if (userDate[1].length == 1) {
+                                    userDate[1] = "0" + userDate[1]
+                                }
+
+                                dueDateInput = userDate[0] + "-" + userDate[1] + "-" + userDate[2]
                                 task.dueDate = dueDateInput
                             }
                         }
