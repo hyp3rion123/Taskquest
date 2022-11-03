@@ -4,6 +4,7 @@
 
 plugins {
     id 'taskquest.kotlin-application-conventions'
+    id 'java'
 }
 
 dependencies {
@@ -19,3 +20,33 @@ application {
     // Define the main class for the application.
     mainClass = 'taskquest.console.views.MainKt'
 }
+
+tasks.register('updateUberJar', Copy) {
+    group 'build'
+    description 'Updates the public JAR for our CLI app'
+
+    dependsOn tasks.uberJar
+    from layout.buildDirectory.file("libs/console-uber.jar")
+    into layout.projectDirectory.dir("public")
+}
+
+tasks.register('uberJar', Jar) {
+    group 'build'
+    description 'Creates a JAR for our CLI app'
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    archiveClassifier = 'uber'
+
+    from sourceSets.main.output
+
+    manifest {
+        attributes['Main-Class'] = 'taskquest.console.views.MainKt'
+    }
+
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+}
+

@@ -4,6 +4,8 @@ import taskquest.console.controllers.CommandFactory
 import taskquest.console.controllers.ShowCommand
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveData
+import taskquest.utilities.models.User
+import java.io.File
 import java.lang.Exception
 
 var currentList = -1
@@ -13,6 +15,11 @@ fun main(args: Array<String>) {
     // but saved in a file on exit
 
     val filename = "data.json"
+    if (!File(filename).exists()) {
+        File(filename).createNewFile()
+        val newUser = User()
+        saveData(newUser, filename)
+    }
     val currentUser = restoreData(filename)
     currentList = currentUser.lastUsedList
 
