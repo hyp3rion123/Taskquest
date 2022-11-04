@@ -36,6 +36,27 @@ class TaskList(
         return this.tasks.size
     }
 
+    fun moveItem(from: Int, to: Int): Boolean {
+        var posFrom = -1
+        var posTo = -1
+        for ((index, value) in this.tasks.withIndex()) {
+            if (value.id == from) {
+                posFrom = index
+            } else if (value.id == to) {
+                posTo = index
+            }
+        }
+        if (posFrom == -1 || posTo == -1) {
+            return false // this shouldn't happen unless id assignment logic is unsound or front-end isn't able to get ids
+        }
+        val taskToMove = this.tasks[posFrom]
+        this.tasks.removeAt(posFrom)
+        if (posTo > posFrom) posFrom -= 1
+        this.tasks.add(posTo,taskToMove)
+        return true
+    }
+
+
 }
 
 

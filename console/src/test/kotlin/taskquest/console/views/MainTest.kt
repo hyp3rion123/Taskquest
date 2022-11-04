@@ -59,10 +59,10 @@ internal class MainTest {
         main(arrayOf("listshow"))
     }
 
-    @Test
-    fun mainWithListEdit() {
-        main(arrayOf("listedit", "1"))
-    }
+//    @Test
+//    fun mainWithListEdit() {
+//        main(arrayOf("listedit", "1"))
+//    }
 
     @Test
     fun mainWithListDelete() {
