@@ -1,7 +1,127 @@
 {
-    "lastUsedList": -1,
+    "lastUsedList": 0,
     "wallet": 0,
     "lists": [
+        {
+            "id": 0,
+            "title": "cs341",
+            "desc": "0",
+            "tasks": [
+                {
+                    "id": 0,
+                    "title": "sprint 2",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-24",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": true,
+                    "tags": [
+                    ],
+                    "coinValue": null
+                },
+                {
+                    "id": 1,
+                    "title": "sprint 2 - test",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-24",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": true,
+                    "tags": [
+                    ],
+                    "coinValue": null
+                },
+                {
+                    "id": 4,
+                    "title": "test5",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-27",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": true,
+                    "tags": [
+                    ],
+                    "coinValue": null
+                },
+                {
+                    "id": 5,
+                    "title": "test6",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-27",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": false,
+                    "tags": [
+                    ],
+                    "coinValue": null
+                },
+                {
+                    "id": 6,
+                    "title": "test7",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-27",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": false,
+                    "tags": [
+                    ],
+                    "coinValue": null
+                }
+            ],
+            "nextId": 8
+        },
+        {
+            "id": 1,
+            "title": "cs350",
+            "desc": "0",
+            "tasks": [
+                {
+                    "id": 0,
+                    "title": "sprint 2",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-24",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": false,
+                    "tags": [
+                    ],
+                    "coinValue": null
+                },
+                {
+                    "id": 2,
+                    "title": "test3",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-27",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": false,
+                    "tags": [
+                    ],
+                    "coinValue": null
+                },
+                {
+                    "id": 3,
+                    "title": "last",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-27",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": false,
+                    "tags": [
+                    ],
+                    "coinValue": null
+                }
+            ],
+            "nextId": 4
+        }
     ],
     "store": {
         "items": [
