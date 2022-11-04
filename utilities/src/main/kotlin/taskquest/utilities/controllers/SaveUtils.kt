@@ -15,11 +15,13 @@ class SaveUtils {
 
         fun saveData(user: User, filename: String) {
             val json = formattedJson.encodeToString(user)
+//            print(json)
             File(filename).writeText(json)
         }
 
         fun restoreData(filename: String): User {
             val json = File(filename).readText()
+//            print(json)
             return formattedJson.decodeFromString(json)
         }
     }

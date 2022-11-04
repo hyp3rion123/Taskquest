@@ -6,16 +6,20 @@ import javafx.scene.control.Button
 import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
 import javafx.scene.control.TextField
-import javafx.scene.layout.HBox
-import javafx.scene.layout.VBox
-import javafx.stage.Stage
-import taskquest.utilities.models.Task
-import taskquest.utilities.models.TaskList
 import javafx.scene.image.Image
+import javafx.scene.input.ClipboardContent
+import javafx.scene.input.DragEvent
+import javafx.scene.input.Dragboard
+import javafx.scene.input.TransferMode
 import javafx.scene.layout.*
+import javafx.stage.Stage
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveData
+import taskquest.utilities.models.Task
+import taskquest.utilities.models.TaskList
 import taskquest.utilities.models.User
+import javafx.event.EventHandler
+import javafx.scene.input.MouseEvent
 
 
 // for outlining layout borders
@@ -35,13 +39,12 @@ val bannerTextCss = """
             -fx-border-style: dashed;
             """.trimIndent()
 
-const val dataFileName = "console/data.json"
+const val dataFileName = "../console/data.json"
 public class MainBoardDisplay {
     var user = User();
     var toDoVBox = VBox();
     var boardViewHBox = HBox();
     fun dataChanged() {
-        println("data changed")
         user.to_string()
         saveData(user, dataFileName)
     }
@@ -49,7 +52,6 @@ public class MainBoardDisplay {
     fun start_display(stage: Stage?) {
 
         user = restoreData(dataFileName)
-        println(user.toString())
 
         // set title for the stage
         stage?.title = "TaskQuest";
@@ -88,8 +90,6 @@ public class MainBoardDisplay {
 
 
         //Main tasks board
-        var tasks = user.lists[0]
-        println(tasks)
 
         var taskList1 = user.lists[0]
 
@@ -105,7 +105,7 @@ public class MainBoardDisplay {
         var inProgressVBox = createTasksVBox(btn_create_task_in_progress, taskList2, "In Progress")
         var doneVBox = createTasksVBox(btn_create_task_done, taskList3, "Done")
 
-        var taskListVBox = createTaskListVBox(taskLists, toDoVBox, btn_create_task_to_do)
+        var taskListVBox = createTaskListVBox(taskLists, btn_create_task_to_do)
 
 
         boardViewHBox = HBox(20.0, toDoVBox)
@@ -141,7 +141,7 @@ public class MainBoardDisplay {
         }
     }
 
-    fun createTaskListVBox(data: List<TaskList>, tasksVBox: VBox, btn_create_task_to_do: Button): VBox {
+    fun createTaskListVBox(data: List<TaskList>, btn_create_task_to_do: Button): VBox {
 
         // create a VBox
         val taskListVBox = VBox(10.0)
@@ -168,11 +168,95 @@ public class MainBoardDisplay {
         return taskListVBox
     }
 
+    fun createTaskHbox(task: Task, data:TaskList, tasksVBox: VBox, title: String, create_button: Button): HBox {
+        val title2 = Label(task.title)
+        val c = CheckBox()
+        c.setSelected(task.complete)
+        c.setOnMouseClicked {
+            if (task.complete) {
+                println("Mark incomplete: " + task.title)
+                task.complete = false
+            } else {
+                println("Mark complete: " + task.title)
+                task.complete = true
+                showTaskCompletionStage(task)
+            }
+            dataChanged()
+        }
+        var btn_del = Button("delete")
+        var btn_info = Button("See info")
+        val hbox = HBox(5.0, c, title2, btn_del, btn_info)
+        hbox.onDragDetected = EventHandler<MouseEvent?> {event ->
+            /* drag was detected, start a drag-and-drop gesture*/
+            /* allow any transfer mode */
+            val db: Dragboard = hbox.startDragAndDrop(*TransferMode.ANY)
 
-    fun createTasksVBox(create_button: Button, data : TaskList, title: String = "To do"): VBox {
+            /* Put a string on a dragboard */
+            val content = ClipboardContent()
+            content.putString(task.id.toString())
+            db.setContent(content)
+            event.consume()
+        }
 
-        // create a VBox
-        val tasksVBox = VBox(10.0)
+        hbox.onDragOver = EventHandler<DragEvent?> {event ->
+            /* data is dragged over the target */
+            /* accept it only if it is not dragged from the same node and if it has a string data */
+            if (event.gestureSource !== hbox &&
+                event.dragboard.hasString()
+            ) {
+                /* allow for both copying and moving, whatever user chooses */
+                event.acceptTransferModes(*TransferMode.COPY_OR_MOVE)
+            }
+            event.consume()
+        }
+        hbox.onDragDropped = EventHandler<DragEvent?> {event ->
+            /* data dropped */
+            /* if there is a string data on dragboard, read it and use it */
+            val db = event.dragboard
+            var success = data.moveItem(db.string.toInt(), task.id)
+            if(success) {
+                //Update backend-needed if user switches back and forth between lists
+                for((index, list) in user.lists.withIndex()){
+                    if(list.id == data.id){
+                        user.lists.remove(list)
+                        user.lists.add(index,data)
+                        break
+                    }
+                }
+                dataChanged()
+
+                //Update frontend
+                val newLists = restoreData(dataFileName).lists
+                var newList = newLists[0]
+                tasksVBox.children.clear()
+                addVBoxNonTasks(create_button, data, title, tasksVBox)
+                for(list in newLists) {
+                    if (list.id == data.id) {
+                        newList = list
+                    }
+                }
+                for(currTask in newList.tasks){
+                    tasksVBox.children.add(createTaskHbox(currTask, newList, tasksVBox, title, create_button))
+                }
+            }
+            /* let the source know whether the string was successfully transferred and used */
+            event.isDropCompleted = success
+            event.consume()
+        }
+
+        btn_del.setOnMouseClicked {
+            data.deleteItemByID(task.id)
+            tasksVBox.children.remove(hbox)
+            user.to_string()
+            dataChanged()
+        }
+        btn_info.setOnMouseClicked {
+            showTaskInfoStage(task)
+        }
+        return hbox
+    }
+
+    fun addVBoxNonTasks(create_button: Button, data: TaskList, title: String, tasksVBox: VBox) {
         tasksVBox.children.add(create_button)
         tasksVBox.children.add(Label("$title (${data.getLength()})"))
 
@@ -182,35 +266,17 @@ public class MainBoardDisplay {
         val textField = TextField()
         textField.promptText = "Search here!"
         tasksVBox.children.add(textField)
+    }
 
-        // add buttons to VBox
+    fun createTasksVBox(create_button: Button, data : TaskList, title: String = "To do"): VBox {
+
+        // create a VBox
+        var tasksVBox = VBox(10.0)
+        addVBoxNonTasks(create_button, data, title, tasksVBox)
+
+        // add tasks to VBox
         for (task in data.tasks) {
-            val title2 = Label(task.title)
-            val c = CheckBox()
-            c.setSelected(task.complete)
-            c.setOnMouseClicked {
-                if (task.complete) {
-                    println("Mark incomplete: " + task.title)
-                    task.complete = false
-                } else {
-                    println("Mark complete: " + task.title)
-                    task.complete = true
-                    showTaskCompletionStage(task)
-                }
-                dataChanged()
-            }
-            var btn_del = Button("delete")
-            var btn_info = Button("See info")
-            val hbox = HBox(5.0, c, title2, btn_del, btn_info)
-            btn_del.setOnMouseClicked {
-                data.deleteItemByID(task.id)
-                tasksVBox.children.remove(hbox)
-                user.to_string()
-                dataChanged()
-            }
-            btn_info.setOnMouseClicked {
-                showTaskInfoStage(task)
-            }
+            val hbox = createTaskHbox(task, data, tasksVBox, title, create_button)
             tasksVBox.children.add(hbox)
         }
 
