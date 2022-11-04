@@ -139,4 +139,96 @@ internal class CommandsTest {
         command2.execute(user.lists)
         assert(user.lists.size == 0)
     }
+
+    @Test
+    fun addTagsCommandNorm() {
+        val user = User()
+        val command = AddTagsCommand(listOf("addtags", "2", "tag1", "tag2"))
+        command.execute()
+        assert(user.tags.size == 0)
+    }
+
+    @Test
+    fun addTagsCommandLessArgs() {
+        val user = User()
+        val command = AddTagsCommand(listOf("addtags", "55", "tag1", "tag2", "tag3"))
+        command.execute()
+        assert(user.tags.size == 0)
+    }
+
+    @Test
+    fun addTagsCommandMoreArgs() {
+        val user = User()
+        val command = AddTagsCommand(listOf("addtags", "1", "tag1", "tag2", "tag3"))
+        command.execute()
+        assert(user.tags.size == 0)
+    }
+
+    @Test
+    fun delTagCommand() {
+        val user = User()
+        val command = AddTagsCommand(listOf("addtags", "2", "tag1", "tag2"))
+        command.execute()
+        assert(user.tags.size == 0)
+
+        val command2 = DelTagsCommand(listOf("deltag", "tag1"))
+        command2.execute()
+        assert(user.tags.size == 0)
+
+    }
+
+    @Test
+    fun delTagCommandFail() {
+        val user = User()
+        val command = AddTagsCommand(listOf("addtags", "2", "tag1", "tag2"))
+        command.execute()
+        assert(user.tags.size == 0)
+
+        val command2 = DelTagsCommand(listOf("deltag", "tag"))
+        command2.execute()
+        assert(user.tags.size == 0)
+
+    }
+
+    @Test
+    fun showTagCommandWithTags() {
+        val user = User()
+        val command = AddTagsCommand(listOf("addtags", "2", "tag1", "tag2"))
+        command.execute()
+
+        val command2 = ShowTagsCommand()
+        command2.execute()
+        assert(user.tags.size == 0)
+
+    }
+
+    @Test
+    fun showTagCommandWithOutTags() {
+        val user = User()
+        val command = ShowTagsCommand()
+        command.execute()
+        assert(user.tags.size == 0)
+
+    }
+
+    @Test
+    fun coinCommand() {
+        val user = User()
+        val command = ShowCoins()
+        command.execute()
+        assert(user.wallet == 0)
+    }
+
+    @Test
+    fun delAll() {
+        val user = User()
+        val command = DelTagsCommand(listOf("deltag, tag1"))
+        command.execute()
+
+        val command2 = DelTagsCommand(listOf("deltag, tag2"))
+        command2.execute()
+
+        assert(user.tags.size == 0)
+    }
+
 }
