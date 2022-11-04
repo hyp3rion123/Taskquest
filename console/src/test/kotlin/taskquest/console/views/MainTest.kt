@@ -1,7 +1,6 @@
 package taskquest.console.views
 
 import org.junit.jupiter.api.Test
-import java.io.ByteArrayInputStream
 
 internal class MainTest {
 
@@ -78,5 +77,27 @@ internal class MainTest {
         main(arrayOf(""))
     }
 
+    @Test
+    fun mainWithWallet() {
+        main(arrayOf("wallet"))
+    }
+
+    @Test
+    fun mainWithShowTags() {
+        main(arrayOf("showtags"))
+    }
+
+    @Test
+    fun mainWithAddTags() {
+        main(arrayOf("addtags", "2", "tag1", "tag2"))
+        main(arrayOf("deltag", "tag1"))
+        main(arrayOf("deltag", "tag2"))
+    }
+
+    @Test
+    fun mainWithDelTag() {
+        main(arrayOf("deltag", "tag1"))
+        main(arrayOf("deltag", "tag2"))
+    }
 
 }

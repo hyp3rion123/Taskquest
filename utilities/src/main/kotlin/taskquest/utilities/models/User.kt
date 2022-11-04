@@ -8,6 +8,7 @@ class User() {
     var wallet: Int = 0
     val lists = mutableListOf<TaskList>()
     val store: Store = Store()
+    val tags = mutableSetOf<String>()
 
     fun to_string() {
         for (list in lists) {
