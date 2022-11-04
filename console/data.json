@@ -4,7 +4,7 @@
     "lists": [
         {
             "id": 0,
-            "title": "cs341",
+            "title": "CS 341",
             "desc": "0",
             "tasks": [
                 {
@@ -77,7 +77,7 @@
         },
         {
             "id": 1,
-            "title": "cs350",
+            "title": "CS 350",
             "desc": "0",
             "tasks": [
                 {
@@ -109,6 +109,53 @@
                 {
                     "id": 3,
                     "title": "last",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-27",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": false,
+                    "tags": [
+                    ],
+                    "coinValue": null
+                }
+            ],
+            "nextId": 4
+        },
+        {
+            "id": 2,
+            "title": "CS 346",
+            "desc": "0",
+            "tasks": [
+                {
+                    "id": 0,
+                    "title": "Finish PR reviews",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-24",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": false,
+                    "tags": [
+                    ],
+                    "coinValue": null
+                },
+                {
+                    "id": 2,
+                    "title": "Merge changes",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-27",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": false,
+                    "tags": [
+                    ],
+                    "coinValue": null
+                },
+                {
+                    "id": 3,
+                    "title": "Do Sprint Demo 2",
                     "desc": "",
                     "dueDate": "",
                     "dateCreated": "2022-10-27",
