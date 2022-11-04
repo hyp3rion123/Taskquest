@@ -412,7 +412,11 @@ public class MainBoardDisplay {
         hbox_title.children.addAll(label_title)
 
         val hbox_desc = HBox(20.0)
-        val label_desc = Label("Here's 10 TaskCoins as a reward!")
+        var coinValue = 10
+        if (task.coinValue != null) {
+            coinValue = task.coinValue!!
+        }
+        val label_desc = Label("Here's " + coinValue + " TaskCoins as a reward!")
         hbox_desc.alignment = Pos.CENTER
         hbox_desc.children.addAll(label_desc)
 
