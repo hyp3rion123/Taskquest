@@ -2,18 +2,21 @@ package taskquest.console.views
 
 import taskquest.console.controllers.CommandFactory
 import taskquest.console.controllers.ShowCommand
-import taskquest.utilities.controllers.SaveUtils.Companion.restoreData
-import taskquest.utilities.controllers.SaveUtils.Companion.saveData
+import taskquest.utilities.controllers.SaveUtils
+import taskquest.utilities.views.MainUser
+import java.io.File
 import java.lang.Exception
 
-var currentList = -1
+var currentUser = MainUser.userInfo
+var currentList = MainUser.userInfo.lastUsedList
 
 fun main(args: Array<String>) {
-    // data stored in a list internally
-    // but saved in a file on exit
-
     val filename = "data.json"
-    val currentUser = restoreData(filename)
+    if (!File(filename).exists()) {
+        File(filename).createNewFile()
+        SaveUtils.saveData(currentUser, filename)
+    }
+    currentUser = SaveUtils.restoreData(filename)
     currentList = currentUser.lastUsedList
 
     val taskCommands = listOf<String>("add", "del", "show", "edit", "sort")
@@ -60,7 +63,7 @@ fun main(args: Array<String>) {
             }
 
             currentUser.lastUsedList = currentList
-            saveData(currentUser, filename)
+            SaveUtils.saveData(currentUser, filename)
         }
     } else {
         val instructions : List<String> = args.toMutableList()
@@ -90,12 +93,12 @@ fun main(args: Array<String>) {
             i++
 
             currentUser.lastUsedList = currentList
-            saveData(currentUser, filename)
+            SaveUtils.saveData(currentUser, filename)
         }
 
     }
 
     // save to-do list (json)
     currentUser.lastUsedList = currentList
-    saveData(currentUser, filename)
+    SaveUtils.saveData(currentUser, filename)
 }
