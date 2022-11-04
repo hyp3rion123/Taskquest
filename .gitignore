@@ -10,4 +10,9 @@
 # Ignore Gradle build output directory
 build
 
+# Ignore jDeploy directories within console/public, except package.json and icon
+console/public/**
+!console/public/package.json
+!console/public/icon.png
+
 gradle/wrapper/gradle-wrapper.properties
