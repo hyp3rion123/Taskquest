@@ -1,81 +1,87 @@
 package taskquest.console.views
 
 import org.junit.jupiter.api.Test
-import java.io.ByteArrayInputStream
+import java.io.File
 
 internal class MainTest {
+    private fun mainTestFunc(params: Array<String>) {
+        File("data.json").copyTo(File("backup.json"), true)
+        File("data.json").delete()
+        main(params)
+        File("backup.json").copyTo(File("data.json"), true)
+    }
 
     @Test
     fun mainWithoutArgs() {
-        main(arrayOf(""))
+        mainTestFunc(arrayOf(""))
     }
 
     @Test
     fun mainWithShow() {
-        main(arrayOf("show"))
+        mainTestFunc(arrayOf("show"))
     }
 
     @Test
     fun mainWithAdd() {
-        main(arrayOf("add"))
+        mainTestFunc(arrayOf("add"))
     }
 
     @Test
     fun mainWithEdit() {
-        main(arrayOf("edit", "2"))
+        mainTestFunc(arrayOf("edit", "2"))
     }
 
     @Test
     fun mainWithEditWrong() {
-        main(arrayOf("edit"))
+        mainTestFunc(arrayOf("edit"))
     }
 
     @Test
     fun mainWithDel() {
-        main(arrayOf("del", "1"))
+        mainTestFunc(arrayOf("del", "1"))
     }
 
     @Test
     fun mainWithSort() {
-        main(arrayOf("sort", "byPriorityAsc"))
+        mainTestFunc(arrayOf("sort", "byPriorityAsc"))
     }
 
     @Test
     fun mainWithSortWrong() {
-        main(arrayOf("sort"))
+        mainTestFunc(arrayOf("sort"))
     }
 
     @Test
     fun mainWithListSelect() {
-        main(arrayOf("listselect", "1"))
+        mainTestFunc(arrayOf("listselect", "1"))
     }
 
     @Test
     fun mainWithListSelectWrong() {
-        main(arrayOf("listselect"))
+        mainTestFunc(arrayOf("listselect"))
     }
     @Test
     fun mainWithListShow() {
-        main(arrayOf("listshow"))
+        mainTestFunc(arrayOf("listshow"))
     }
 
-//    @Test
-//    fun mainWithListEdit() {
-//        main(arrayOf("listedit", "1"))
-//    }
+    @Test
+    fun mainWithListEdit() {
+        mainTestFunc(arrayOf("listedit", "1"))
+    }
 
     @Test
     fun mainWithListDelete() {
-        main(arrayOf("listdel", "1"))
+        mainTestFunc(arrayOf("listdel", "1"))
     }
 
     @Test
     fun mainWithHelp() {
-        main(arrayOf("help"))
+        mainTestFunc(arrayOf("help"))
     }
     @Test
     fun mainWithHelpNothing() {
-        main(arrayOf(""))
+        mainTestFunc(arrayOf(""))
     }
 
 
