@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 internal class TaskTest {
     @Test
-    fun createItem() {
+    fun createTask() {
         val task = Task(id = 0, title = "title")
         assert(task.id == 0)
         assert(task.title == "title")
@@ -21,7 +21,7 @@ internal class TaskTest {
     }
 
     @Test
-    fun changeItem() {
+    fun changeTask() {
         val task = Task(id = 0, title = "title")
         task.title = "title 2"
         assert(task.title == "title 2")
