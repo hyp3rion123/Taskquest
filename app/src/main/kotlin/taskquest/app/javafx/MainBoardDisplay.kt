@@ -17,9 +17,15 @@ import javafx.stage.Stage
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveData
 import javafx.event.EventHandler
+import javafx.geometry.Insets
+import javafx.geometry.Orientation
+import javafx.scene.Cursor
+import javafx.scene.control.ScrollPane
 import javafx.scene.image.ImageView
 import javafx.scene.input.MouseEvent
+import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
+import javafx.stage.Window
 import taskquest.utilities.models.*
 import java.io.File
 
@@ -41,7 +47,9 @@ val bannerTextCss = """
             -fx-border-style: dashed;
             """.trimIndent()
 
-const val dataFileName = "../console/data.json"
+val dataFileName = "../console/data.json"
+val globalFont = Font.font("Courier New", FontWeight.BOLD, 16.0)
+
 public class MainBoardDisplay {
     var user = User();
     var toDoVBox = VBox();
@@ -443,19 +451,65 @@ public class MainBoardDisplay {
     fun createShopScene(homeStage: Stage?, homeScene: Scene): Scene {
         var user = restoreData(dataFileName)
         var store = user.store
-        val backButton = Button("Back")
+        val borderPane = BorderPane()
+
+        val shopScene = Scene(borderPane, 900.0, 600.0)
 
         //HEADER
+        val labelHeader = Label("My Shop")
+        labelHeader.font = Font.font("Courier New", FontWeight.BOLD, 36.0)
+        val hboxHeader = HBox()
+        hboxHeader.alignment = Pos.CENTER
+        hboxHeader.padding = Insets(20.0, 0.0, 0.0, 0.0)
+        hboxHeader.children.addAll(labelHeader)
+//        val headerFlowPane = FlowPane()
+//        headerFlowPane.children.addAll(backButton, labelHeader)
+//        headerFlowPane.hgap = Window.width/2
+        borderPane.top = hboxHeader
+        //End Header
+
+        //FOOTER
+        val backButton = Button("Back")
+        backButton.font = globalFont
+        val buttonStyle = """
+            -fx-background-color: #000000;
+            -fx-text-fill: white;            
+            """.trimIndent()
+        backButton.style = buttonStyle
+
         backButton.setOnMouseClicked {
             homeStage?.scene = homeScene
         }
 
-        val hboxHeader = HBox(20.0)
-        val labelHeader = Label("My Shop")
-        hboxHeader.children.addAll(backButton, labelHeader)
+        backButton.onMouseEntered = EventHandler<MouseEvent?> {
+            shopScene.cursor = Cursor.HAND
+            backButton.style = """
+            -fx-background-color: #383838;
+            -fx-text-fill: white;
+            """.trimIndent()
+        }
+
+        backButton.onMouseExited = EventHandler<MouseEvent?> {
+            shopScene.cursor = Cursor.DEFAULT
+            backButton.style = buttonStyle
+        }
+        val footerHbox = HBox()
+        footerHbox.children.add(backButton)
+        footerHbox.padding = Insets(0.0, 0.0, 20.0, 20.0)
+        borderPane.bottom = footerHbox
+        //END FOOTER
 
         //Main
-        var itemsContainer = HBox(20.0)
+        val flowPane = FlowPane()
+        val scrollPane = ScrollPane()
+        flowPane.padding = Insets(30.0, 20.0, 30.0, 60.0)
+        flowPane.vgap = 10.0
+        flowPane.hgap = 30.0
+        flowPane.orientation = Orientation.VERTICAL
+        scrollPane.content = flowPane
+        scrollPane.style = """
+            -fx-background-color:transparent;
+        """
         for (child in store.items){
             val (childBox, purchaseBtn) = createShopItem(child)
             purchaseBtn.setOnMouseClicked {
@@ -463,17 +517,31 @@ public class MainBoardDisplay {
                 store.buyItem(child.id)
                 user.store = store
                 saveData(user, dataFileName)
-                itemsContainer.children.remove(childBox)
+                flowPane.children.remove(childBox)
                 homeStage?.scene = createShopScene(homeStage, homeScene)
             }
+
+
+            purchaseBtn.onMouseEntered = EventHandler<MouseEvent?> {
+                shopScene.cursor = Cursor.HAND
+                purchaseBtn.style = """
+            -fx-background-color: #383838;
+            -fx-text-fill: white;   
+            """.trimIndent()
+            }
+
+            purchaseBtn.onMouseExited = EventHandler<MouseEvent?> {
+                shopScene.cursor = Cursor.DEFAULT
+                purchaseBtn.style = buttonStyle
+            }
+
             if(!child.purchased) {
-                itemsContainer.children.add(childBox)
+                flowPane.children.add(childBox)
             }
         }
-
-        val vbox = VBox(10.0)
-        vbox.children.addAll(hboxHeader, itemsContainer)
-        return Scene(vbox, 900.0, 600.0)
+        borderPane.center = scrollPane
+        //End Main
+        return shopScene
     }
 
     fun createShopItem(item: Item): Pair<VBox, Button> {
@@ -482,14 +550,23 @@ public class MainBoardDisplay {
         val image = Image(File("../assets/elf-helmet.png").toURI().toString())
         val imageView = ImageView()
         imageView.image = image
-        imageView.fitWidth = 100.0
-        imageView.fitHeight = 100.0
+        imageView.fitWidth = 120.0
+        imageView.fitHeight = 120.0
         //Title
         val label = Label(item.name)
+        label.font = globalFont
         val titleBox = HBox(10.0, label)
         // Purchase
         val text = Text(item.price.toString() + " C")
+        text.font = globalFont
         val purchaseBtn = Button("Buy")
+        purchaseBtn.font = globalFont
+        val btnStyle = """
+            -fx-background-color: #000000;
+            -fx-text-fill: white;            
+            """.trimIndent()
+        purchaseBtn.style = btnStyle
+
         val purchaseBox = HBox(20.0, text, purchaseBtn)
 
         vBox.children.addAll(imageView, titleBox, purchaseBox)

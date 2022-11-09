@@ -30,7 +30,7 @@
                     "dateCreated": "2022-10-24",
                     "priority": null,
                     "difficulty": null,
-                    "complete": false,
+                    "complete": true,
                     "completeOnce": false,
                     "tags": [
                     ],
@@ -60,7 +60,7 @@
                     "dateCreated": "2022-10-27",
                     "priority": null,
                     "difficulty": null,
-                    "complete": false,
+                    "complete": true,
                     "completeOnce": false,
                     "tags": [
                     ],
@@ -211,6 +211,83 @@
             {
                 "id": 2,
                 "name": "profile1",
+                "price": 100,
+                "type": "ProfilePicture",
+                "purchased": false
+            },
+            {
+                "id": 3,
+                "name": "profile3",
+                "price": 100,
+                "type": "ProfilePicture",
+                "purchased": true
+            },
+            {
+                "id": 4,
+                "name": "profile4",
+                "price": 100,
+                "type": "ProfilePicture",
+                "purchased": false
+            },
+            {
+                "id": 5,
+                "name": "profile5",
+                "price": 100,
+                "type": "ProfilePicture",
+                "purchased": false
+            },
+            {
+                "id": 6,
+                "name": "profile6",
+                "price": 100,
+                "type": "ProfilePicture",
+                "purchased": false
+            },
+            {
+                "id": 7,
+                "name": "profile7",
+                "price": 100,
+                "type": "ProfilePicture",
+                "purchased": false
+            },
+            {
+                "id": 5,
+                "name": "profile5",
+                "price": 100,
+                "type": "ProfilePicture",
+                "purchased": false
+            },
+            {
+                "id": 6,
+                "name": "profile6",
+                "price": 100,
+                "type": "ProfilePicture",
+                "purchased": false
+            },
+            {
+                "id": 7,
+                "name": "profile7",
+                "price": 100,
+                "type": "ProfilePicture",
+                "purchased": false
+            },
+            {
+                "id": 5,
+                "name": "profile5",
+                "price": 100,
+                "type": "ProfilePicture",
+                "purchased": false
+            },
+            {
+                "id": 6,
+                "name": "profile6",
+                "price": 100,
+                "type": "ProfilePicture",
+                "purchased": false
+            },
+            {
+                "id": 7,
+                "name": "profile7",
                 "price": 100,
                 "type": "ProfilePicture",
                 "purchased": false
