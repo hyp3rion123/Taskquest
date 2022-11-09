@@ -25,7 +25,6 @@ import javafx.scene.image.ImageView
 import javafx.scene.input.MouseEvent
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
-import javafx.stage.Window
 import taskquest.utilities.models.*
 import java.io.File
 
@@ -462,9 +461,6 @@ public class MainBoardDisplay {
         hboxHeader.alignment = Pos.CENTER
         hboxHeader.padding = Insets(20.0, 0.0, 0.0, 0.0)
         hboxHeader.children.addAll(labelHeader)
-//        val headerFlowPane = FlowPane()
-//        headerFlowPane.children.addAll(backButton, labelHeader)
-//        headerFlowPane.hgap = Window.width/2
         borderPane.top = hboxHeader
         //End Header
 
@@ -547,7 +543,8 @@ public class MainBoardDisplay {
     fun createShopItem(item: Item): Pair<VBox, Button> {
         val vBox = VBox(10.0)
         //Image
-        val image = Image(File("../assets/elf-helmet.png").toURI().toString())
+        val path = "../assets/" + item.name + ".png"
+        val image = Image(File(path).toURI().toString())
         val imageView = ImageView()
         imageView.image = image
         imageView.fitWidth = 120.0

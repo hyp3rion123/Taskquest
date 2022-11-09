@@ -8,21 +8,6 @@
             "desc": "0",
             "tasks": [
                 {
-                    "id": 5,
-                    "title": "test6",
-                    "desc": "",
-                    "dueDate": "",
-                    "dateCreated": "2022-10-27",
-                    "priority": null,
-                    "difficulty": null,
-                    "complete": true,
-                    "completeOnce": false,
-                    "tags": [
-                    ],
-                    "coinValue": 20,
-                    "multiplier": 0
-                },
-                {
                     "id": 0,
                     "title": "sprint 2",
                     "desc": "",
@@ -43,6 +28,21 @@
                     "desc": "",
                     "dueDate": "",
                     "dateCreated": "2022-10-24",
+                    "priority": null,
+                    "difficulty": null,
+                    "complete": true,
+                    "completeOnce": false,
+                    "tags": [
+                    ],
+                    "coinValue": 20,
+                    "multiplier": 0
+                },
+                {
+                    "id": 5,
+                    "title": "test6",
+                    "desc": "",
+                    "dueDate": "",
+                    "dateCreated": "2022-10-27",
                     "priority": null,
                     "difficulty": null,
                     "complete": true,
@@ -196,102 +196,103 @@
         "items": [
             {
                 "id": 0,
-                "name": "profile2",
+                "name": "Astronaut",
                 "price": 200,
-                "type": "Banner",
+                "type": "ProfilePicture",
                 "purchased": false
             },
             {
                 "id": 1,
-                "name": "banner2",
+                "name": "King",
                 "price": 300,
                 "type": "ProfilePicture",
                 "purchased": false
             },
             {
                 "id": 2,
-                "name": "profile1",
+                "name": "Queen",
                 "price": 100,
                 "type": "ProfilePicture",
                 "purchased": false
             },
             {
                 "id": 3,
-                "name": "profile3",
+                "name": "Elf",
                 "price": 100,
                 "type": "ProfilePicture",
-                "purchased": true
+                "purchased": false
             },
             {
                 "id": 4,
-                "name": "profile4",
+                "name": "Dwarf",
                 "price": 100,
                 "type": "ProfilePicture",
                 "purchased": false
             },
             {
                 "id": 5,
-                "name": "profile5",
+                "name": "Monkey",
                 "price": 100,
                 "type": "ProfilePicture",
                 "purchased": false
             },
             {
                 "id": 6,
-                "name": "profile6",
+                "name": "Panda",
                 "price": 100,
                 "type": "ProfilePicture",
                 "purchased": false
             },
             {
                 "id": 7,
-                "name": "profile7",
+                "name": "Spy",
                 "price": 100,
                 "type": "ProfilePicture",
                 "purchased": false
             },
             {
-                "id": 5,
-                "name": "profile5",
+                "id": 8,
+                "name": "Triforce",
                 "price": 100,
                 "type": "ProfilePicture",
                 "purchased": false
             },
             {
-                "id": 6,
-                "name": "profile6",
+                "id": 9,
+                "name": "Yin-Yang",
                 "price": 100,
                 "type": "ProfilePicture",
                 "purchased": false
             },
             {
-                "id": 7,
-                "name": "profile7",
+                "id": 10,
+                "name": "Radioactive",
                 "price": 100,
                 "type": "ProfilePicture",
                 "purchased": false
             },
             {
-                "id": 5,
-                "name": "profile5",
+                "id": 11,
+                "name": "Scales",
                 "price": 100,
                 "type": "ProfilePicture",
                 "purchased": false
             },
             {
-                "id": 6,
-                "name": "profile6",
+                "id": 12,
+                "name": "Pumpkin",
                 "price": 100,
                 "type": "ProfilePicture",
                 "purchased": false
             },
             {
-                "id": 7,
-                "name": "profile7",
+                "id": 13,
+                "name": "Chili",
                 "price": 100,
                 "type": "ProfilePicture",
                 "purchased": false
             }
+
         ]
     },
     "tags": [
