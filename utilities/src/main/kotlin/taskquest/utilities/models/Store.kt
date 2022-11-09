@@ -5,7 +5,7 @@ import taskquest.utilities.views.MainUser
 
 @Serializable
 class Store {
-    val items = mutableListOf<Item>()
+    var items = mutableListOf<Item>()
 
     fun buyItem(itemId: Int) {
         val results = items.filter { it.id == itemId }

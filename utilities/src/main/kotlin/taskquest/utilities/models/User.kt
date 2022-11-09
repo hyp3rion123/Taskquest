@@ -5,9 +5,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 class User() {
     var lastUsedList: Int = - 1
-    var wallet: Int = 0
+    var wallet: Int = 1000000
     val lists = mutableListOf<TaskList>()
-    val store: Store = Store()
+    var store: Store = Store()
     val tags = mutableSetOf<String>()
 
     fun to_string() {

@@ -16,11 +16,12 @@ import javafx.scene.text.Font
 import javafx.stage.Stage
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveData
-import taskquest.utilities.models.Task
-import taskquest.utilities.models.TaskList
-import taskquest.utilities.models.User
 import javafx.event.EventHandler
+import javafx.scene.image.ImageView
 import javafx.scene.input.MouseEvent
+import javafx.scene.text.Text
+import taskquest.utilities.models.*
+import java.io.File
 
 
 // for outlining layout borders
@@ -50,16 +51,12 @@ public class MainBoardDisplay {
         saveData(user, dataFileName)
     }
 
-    fun start_display(stage: Stage?) {
+    fun start_display(mainStage: Stage?) {
 
         user = restoreData(dataFileName)
 
         // set title for the stage
-        stage?.title = "TaskQuest";
-
-        //Task lists - Left column
-        var taskLists = user.lists
-
+        mainStage?.title = "TaskQuest";
 
         //Banner
         val image = Image("https://3.bp.blogspot.com/-Y5k2sJfG5Ro/UoFMFpmbJmI/AAAAAAAAJHw/HVKNUY1Srog/s1600/image+5.png")
@@ -106,28 +103,32 @@ public class MainBoardDisplay {
         var inProgressVBox = createTasksVBox(btn_create_task_in_progress, taskList2, "In Progress")
         var doneVBox = createTasksVBox(btn_create_task_done, taskList3, "Done")
 
-        var taskListVBox = createTaskListVBox(taskLists, btn_create_task_to_do)
+        var taskListVBox = createTaskListVBox(btn_create_task_to_do)
 
 
         boardViewHBox = HBox(20.0, toDoVBox)
         var rightSideVBox = VBox(20.0, headerVBox, boardViewHBox)
 
-        var sideBarVBox = createSideBarVBox()
+        var (sideBarVBox, shopButton) = createSideBarVBox()
 
         //Create task popup scene
 
         var hbox = HBox(10.0, sideBarVBox, taskListVBox, rightSideVBox)
         hbox.setAlignment(Pos.CENTER); //Center HBox
         var mainScene = Scene(hbox, 900.0, 600.0)
-        val stage2 = createTaskStage(taskList1, toDoVBox)
+        val createTaskMenu = createTaskStage(taskList1, toDoVBox)
 
         btn_create_task_to_do.setOnMouseClicked {
-            stage2.show()
+            createTaskMenu.show()
         }
 
-        stage?.setResizable(true)
-        stage?.setScene(mainScene)
-        stage?.show()
+        shopButton.setOnMouseClicked {
+            mainStage?.scene = createShopScene(mainStage, mainScene) //created every time for refresh purposes
+        }
+
+        mainStage?.setResizable(true)
+        mainStage?.setScene(mainScene)
+        mainStage?.show()
 
         if (debugMode) {
             toDoVBox.style = debugCss
@@ -142,7 +143,7 @@ public class MainBoardDisplay {
         }
     }
 
-    fun createTaskListVBox(data: List<TaskList>, btn_create_task_to_do: Button): VBox {
+    fun createTaskListVBox(btn_create_task_to_do: Button): VBox {
 
         // create a VBox
         val taskListVBox = VBox(10.0)
@@ -155,17 +156,17 @@ public class MainBoardDisplay {
         taskListVBox.children.add(textField)
 
         // add buttons to VBox
-        for (taskList in data) {
+        var data = restoreData(dataFileName).lists
+        for ((index, taskList) in data.withIndex()) {
             val title = Button(taskList.title)
             taskListVBox.children.add(title)
             title.setOnMouseClicked {
-                println("Selected taskList: " + taskList.title)
+                val taskList = restoreData(dataFileName).lists[index]
                 toDoVBox = createTasksVBox(btn_create_task_to_do, taskList, taskList.title)
                 boardViewHBox.children.clear()
                 boardViewHBox.children.add(toDoVBox)
             }
         }
-
         return taskListVBox
     }
 
@@ -224,8 +225,7 @@ public class MainBoardDisplay {
                         break
                     }
                 }
-                dataChanged()
-
+                saveData(user, dataFileName)
                 //Update frontend
                 val newLists = restoreData(dataFileName).lists
                 var newList = newLists[0]
@@ -289,14 +289,14 @@ public class MainBoardDisplay {
         return tasksVBox
     }
 
-    fun createSideBarVBox(): VBox {
+    fun createSideBarVBox(): Pair<VBox, Button> {
         //val icons = listOf("Profile")
         val sideBar = VBox(10.0)
-        val label1 = Button("Switch theme")
-        val label2 = Button("Profile")
-        val label3 = Button("Shop")
-        sideBar.children.addAll(label1, label2, label3)
-        return sideBar
+        val themeButton = Button("Switch theme")
+        val profileButton = Button("Profile")
+        val shopButton = Button("Shop")
+        sideBar.children.addAll(themeButton, profileButton, shopButton)
+        return sideBar to shopButton
     }
 
     fun createTaskStage(data: TaskList, vBox: VBox): Stage {
@@ -439,4 +439,61 @@ public class MainBoardDisplay {
         taskCompletionStage.scene = scene
         taskCompletionStage.show()
     }
+
+    fun createShopScene(homeStage: Stage?, homeScene: Scene): Scene {
+        var user = restoreData(dataFileName)
+        var store = user.store
+        val backButton = Button("Back")
+
+        //HEADER
+        backButton.setOnMouseClicked {
+            homeStage?.scene = homeScene
+        }
+
+        val hboxHeader = HBox(20.0)
+        val labelHeader = Label("My Shop")
+        hboxHeader.children.addAll(backButton, labelHeader)
+
+        //Main
+        var itemsContainer = HBox(20.0)
+        for (child in store.items){
+            val (childBox, purchaseBtn) = createShopItem(child)
+            purchaseBtn.setOnMouseClicked {
+                user = restoreData(dataFileName)
+                store.buyItem(child.id)
+                user.store = store
+                saveData(user, dataFileName)
+                itemsContainer.children.remove(childBox)
+                homeStage?.scene = createShopScene(homeStage, homeScene)
+            }
+            if(!child.purchased) {
+                itemsContainer.children.add(childBox)
+            }
+        }
+
+        val vbox = VBox(10.0)
+        vbox.children.addAll(hboxHeader, itemsContainer)
+        return Scene(vbox, 900.0, 600.0)
+    }
+
+    fun createShopItem(item: Item): Pair<VBox, Button> {
+        val vBox = VBox(10.0)
+        //Image
+        val image = Image(File("../assets/elf-helmet.png").toURI().toString())
+        val imageView = ImageView()
+        imageView.image = image
+        imageView.fitWidth = 100.0
+        imageView.fitHeight = 100.0
+        //Title
+        val label = Label(item.name)
+        val titleBox = HBox(10.0, label)
+        // Purchase
+        val text = Text(item.price.toString() + " C")
+        val purchaseBtn = Button("Buy")
+        val purchaseBox = HBox(20.0, text, purchaseBtn)
+
+        vBox.children.addAll(imageView, titleBox, purchaseBox)
+        return vBox to purchaseBtn
+    }
+
 }
