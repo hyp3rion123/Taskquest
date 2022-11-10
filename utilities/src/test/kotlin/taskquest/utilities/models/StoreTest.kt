@@ -18,6 +18,7 @@ internal class StoreTest {
         val store = Store()
         val item = Item(id = 0, name = "Test Item", price = 50, type = ItemType.ProfilePicture)
         store.items.add(item)
+        MainUser.userInfo.wallet = 49
         store.buyItem(0)
         assert(!store.items[0].purchased)
     }
