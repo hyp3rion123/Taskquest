@@ -703,40 +703,10 @@ public class MainBoardDisplay {
         profileVBox.children.addAll(imageView, userInfoLabel, statisticsHBox, unlockablesLabel)
         profileVBox.alignment = Pos.CENTER
 
-        val btn = Button("Exit")
-        setDefaultButtonStyle(btn)
-
-        val hbox_title = HBox(20.0)
-        val label_title = Label("Profile Label")
-        label_title.font = globalFont
-        hbox_title.alignment = Pos.CENTER
-        hbox_title.children.addAll(label_title)
-
-        val hbox_desc = HBox(20.0)
-        var coinValue = 10
-        val label_desc = Label("Here's " + coinValue + " TaskCoins as a reward!")
-        label_desc.font = globalFont
-        hbox_desc.alignment = Pos.CENTER
-        hbox_desc.children.addAll(label_desc)
-
-        val hbox_reward = HBox(20.0)
-        val label_reward = Label("+10 ")
-        label_reward.setFont(Font.font("Courier New", 32.0));
-        hbox_reward.alignment = Pos.CENTER
-        hbox_reward.children.addAll(label_desc)
-
-        val vbox = VBox(10.0)
-        vbox.children.addAll(hbox_title, hbox_desc, label_desc, btn)
-
-        vbox.alignment = Pos.CENTER
-
-        btn.setOnMouseClicked {
-            profileStage.close()
-        }
-        vbox.style = """
+        profileVBox.style = """
             -fx-background-color:""" + base2 + """;
         """
-        val scene = Scene(profileVBox, 500.0, 200.0)
+        val scene = Scene(profileVBox, 500.0, 500.0)
         profileStage.scene = scene
         profileStage.show()
     }
