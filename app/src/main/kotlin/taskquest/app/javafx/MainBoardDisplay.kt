@@ -26,6 +26,8 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import taskquest.utilities.models.*
+import taskquest.utilities.models.enums.Difficulty
+import taskquest.utilities.models.enums.Priority
 import java.io.File
 
 
@@ -450,28 +452,81 @@ public class MainBoardDisplay {
         vbox.children.addAll(hbox_title, hbox_desc, hbox_due, hbox_prio, hbox_diff, btn)
 
         btn.setOnMouseClicked {
-            val task = Task(id=1, title=text_title.text, desc=text_desc.text, dueDate=text_due.text)
-            data.addItem(task)
-            val title = Label(task.title)
-            title.font = globalFont
-            val c = CheckBox()
-            c.setSelected(task.complete)
-            var btn_delete = Button("delete")
-            val btn_info = Button("See info")
-            val hbox = HBox(5.0, c, title, btn_delete, btn_info)
-            setDefaultButtonStyle(btn_delete)
-            setDefaultButtonStyle(btn_info)
-            btn_delete.setOnMouseClicked {
-                data.deleteItemByID(task.id)
-                vBox.children.remove(hbox)
+            if(!validatePriority(text_prio.text)){
+                val invalidPriorityStage = Stage()
+                invalidPriorityStage.title = "Error"
+                //label
+                val errorMessage = Label("Invalid Priority Entered. Please enter one of:\n High | Medium | Low")
+                errorMessage.font = globalFont
+                errorMessage.isWrapText = true
+                //button
+                val exitPrioStageButton = Button("Exit")
+                setDefaultButtonStyle(exitPrioStageButton)
+                exitPrioStageButton.setOnMouseClicked {
+                    invalidPriorityStage.hide()
+                }
+                //container
+                val prioSceneContainer = BorderPane()
+                prioSceneContainer.center = errorMessage
+                prioSceneContainer.bottom = exitPrioStageButton
+                prioSceneContainer.style = """
+                    -fx-background-color:""" + base3 + """;
+                """
+                //scene
+                val invalidPriorityScene = Scene(prioSceneContainer,500.0, 300.0)
+
+                invalidPriorityStage.scene = invalidPriorityScene
+                invalidPriorityStage.show()
+            } else if(!validateDifficulty(text_diff.text)) {
+                val invalidDiffStage = Stage()
+                invalidDiffStage.title = "Error"
+                //label
+                val errorMessage = Label("Invalid Difficulty Entered. Please enter one of:\n Hard | Medium | Easy")
+                errorMessage.font = globalFont
+                errorMessage.isWrapText = true
+                //button
+                val exitDiffStageButton = Button("Exit")
+                setDefaultButtonStyle(exitDiffStageButton)
+                exitDiffStageButton.setOnMouseClicked {
+                    invalidDiffStage.hide()
+                }
+                //container
+                val prioSceneContainer = BorderPane()
+                prioSceneContainer.center = errorMessage
+                prioSceneContainer.bottom = exitDiffStageButton
+                prioSceneContainer.style = """
+                    -fx-background-color:""" + base3 + """;
+                """
+                //scene
+                val invalidPriorityScene = Scene(prioSceneContainer,500.0, 300.0)
+
+                invalidDiffStage.scene = invalidPriorityScene
+                invalidDiffStage.show()
+            } else {
+                val task = Task(id=1, title=text_title.text, desc=text_desc.text, dueDate=text_due.text,
+                    priority = strToPrio(text_prio.text), difficulty = strToDiff(text_diff.text))
+                data.addItem(task)
+                val title = Label(task.title)
+                title.font = globalFont
+                val c = CheckBox()
+                c.setSelected(task.complete)
+                var btn_delete = Button("delete")
+                val btn_info = Button("See info")
+                val hbox = HBox(5.0, c, title, btn_delete, btn_info)
+                setDefaultButtonStyle(btn_delete)
+                setDefaultButtonStyle(btn_info)
+                btn_delete.setOnMouseClicked {
+                    data.deleteItemByID(task.id)
+                    vBox.children.remove(hbox)
+                    dataChanged()
+                }
+                btn_info.setOnMouseClicked {
+                    showTaskInfoStage(task)
+                }
+                vBox.children.add(hbox)
+                create_task_stage.close()
                 dataChanged()
             }
-            btn_info.setOnMouseClicked {
-                showTaskInfoStage(task)
-            }
-            vBox.children.add(hbox)
-            create_task_stage.close()
-            dataChanged()
         }
         vbox.style = """
             -fx-background-color:""" + base3 + """;
@@ -479,6 +534,36 @@ public class MainBoardDisplay {
         val scene = Scene(vbox, 700.0, 400.0)
         create_task_stage.scene = scene
         return create_task_stage
+    }
+
+    fun validateDifficulty(d: String): Boolean {
+        if(d == "Hard" || d == "Medium" || d == "Easy") return true
+        return false
+    }
+
+    fun strToDiff(s: String): Difficulty {
+        var diff = Difficulty.Easy
+        when(s) {
+            "Hard" -> diff = Difficulty.Hard
+            "Medium" -> diff = Difficulty.Medium
+            "Easy" -> return diff
+        }
+        return diff
+    }
+
+    fun validatePriority(p: String): Boolean {
+        if(p == "High" || p == "Medium" || p == "Low") return true
+        return false
+    }
+
+    fun strToPrio(s: String): Priority {
+        var prio = Priority.Low
+        when(s) {
+            "High" -> prio = Priority.High
+            "Medium" -> prio = Priority.Medium
+            "Low" -> return prio
+        }
+        return prio
     }
 
     fun showTaskInfoStage(task: Task) {
