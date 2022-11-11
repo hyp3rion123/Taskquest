@@ -69,6 +69,9 @@ public class MainBoardDisplay {
         user.to_string()
         saveData(user, dataFileName)
     }
+    fun getTheme(): Triple<String, String, String> {
+        return Triple(base1, base2, base3)
+    }
 
     fun start_display(mainStage: Stage?) {
 
@@ -100,7 +103,7 @@ public class MainBoardDisplay {
         val mainTasksSection = VBox(20.0, headerHBox, boardViewHBox)
         mainTasksSection.padding = Insets(100.0, 0.0, 0.0, 0.0)
         mainTasksSection.style = """
-            -fx-background-color:""" + base3 + """;
+            -fx-background-color:""" + getTheme().third + """;
         """
 
         val mainScreenPane = BorderPane()
@@ -111,7 +114,7 @@ public class MainBoardDisplay {
         var mainScene = Scene(mainScreenPane, 900.0, 600.0)
 
         //Create task popup scene
-        val createTaskMenu = createTaskStage(taskList1, toDoVBox)
+        var createTaskMenu = createTaskStage(taskList1, toDoVBox)
 
         createTaskButton.setOnMouseClicked {
             createTaskMenu.show()
@@ -123,15 +126,16 @@ public class MainBoardDisplay {
 
         fun updateTheme() {
             mainTasksSection.style = """
-                -fx-background-color:""" + base3 + """;
+                -fx-background-color:""" + getTheme().third + """;
             """
             sideBarVBox.style = """
-                -fx-background-color:""" + base2 + """;
+                -fx-background-color:""" + getTheme().second + """;
             """
             setDefaultButtonStyle(themeButton)
             setDefaultButtonStyle(shopButton)
             setDefaultButtonStyle(profileButton)
             mainScreenPane.right = createTaskListVBox(user.lists, createTaskButton)
+            createTaskMenu = createTaskStage(taskList1, toDoVBox)
 //            toDoVBox.children.clear()
 //            addVBoxNonTasks(createTaskButton)
 //            toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
@@ -206,7 +210,7 @@ public class MainBoardDisplay {
 
     fun setDefaultButtonStyle(button: Button) {
         val buttonStyle = """
-            -fx-background-color:""" + base1 + """;
+            -fx-background-color:""" + getTheme().first + """;
             -fx-text-fill: white;  
         """
         button.style = buttonStyle
@@ -229,13 +233,13 @@ public class MainBoardDisplay {
         // create a VBox
         val taskListVBox = VBox(10.0)
         taskListVBox.style = """
-            -fx-background-color:""" + base2 + """;
+            -fx-background-color:""" + getTheme().second + """;
         """
 
         val searchBarLabel = Label("Task List Search bar")
         searchBarLabel.font = globalFont
         searchBarLabel.style = """
-            -fx-background-color:"""+ base1+ """;
+            -fx-background-color:"""+ getTheme().first+ """;
             -fx-text-fill: white;
         """
 
@@ -395,7 +399,7 @@ public class MainBoardDisplay {
         //val icons = listOf("Profile")
         val sideBar = VBox(10.0)
         sideBar.style = """
-            -fx-background-color:"""+ base2+ """;
+            -fx-background-color:"""+ getTheme().second+ """;
         """
         val themeButton = Button("Switch theme")
         val profileButton = Button("Profile")
@@ -470,7 +474,7 @@ public class MainBoardDisplay {
                 prioSceneContainer.center = errorMessage
                 prioSceneContainer.bottom = exitPrioStageButton
                 prioSceneContainer.style = """
-                    -fx-background-color:""" + base3 + """;
+                    -fx-background-color:""" + getTheme().third + """;
                 """
                 //scene
                 val invalidPriorityScene = Scene(prioSceneContainer,500.0, 300.0)
@@ -495,7 +499,7 @@ public class MainBoardDisplay {
                 prioSceneContainer.center = errorMessage
                 prioSceneContainer.bottom = exitDiffStageButton
                 prioSceneContainer.style = """
-                    -fx-background-color:""" + base3 + """;
+                    -fx-background-color:""" + getTheme().third + """;
                 """
                 //scene
                 val invalidPriorityScene = Scene(prioSceneContainer,500.0, 300.0)
@@ -529,7 +533,7 @@ public class MainBoardDisplay {
             }
         }
         vbox.style = """
-            -fx-background-color:""" + base3 + """;
+            -fx-background-color:""" + getTheme().third + """;
         """
         val scene = Scene(vbox, 700.0, 400.0)
         create_task_stage.scene = scene
@@ -604,7 +608,7 @@ public class MainBoardDisplay {
             taskInfoStage.close()
         }
         vbox.style = """
-            -fx-background-color:""" + base3 + """;
+            -fx-background-color:""" + getTheme().third + """;
         """
         val scene = Scene(vbox, 700.0, 400.0)
         taskInfoStage.scene = scene
@@ -648,7 +652,7 @@ public class MainBoardDisplay {
             taskCompletionStage.close()
         }
         vbox.style = """
-            -fx-background-color:""" + base2 + """;
+            -fx-background-color:""" + getTheme().second + """;
         """
         val scene = Scene(vbox, 500.0, 200.0)
         taskCompletionStage.scene = scene
@@ -670,7 +674,7 @@ public class MainBoardDisplay {
         hboxHeader.padding = Insets(20.0, 0.0, 0.0, 0.0)
         hboxHeader.children.addAll(labelHeader)
         hboxHeader.style = """
-            -fx-background-color:""" + base2 + """;
+            -fx-background-color:""" + getTheme().second + """;
         """
         borderPane.top = hboxHeader
         //End Header
@@ -686,7 +690,7 @@ public class MainBoardDisplay {
         footerHbox.children.add(backButton)
         footerHbox.padding = Insets(0.0, 0.0, 20.0, 20.0)
         footerHbox.style = """
-            -fx-background-color:""" + base2 + """;
+            -fx-background-color:""" + getTheme().second + """;
         """
         borderPane.bottom = footerHbox
         //END FOOTER
@@ -700,7 +704,7 @@ public class MainBoardDisplay {
         flowPane.orientation = Orientation.VERTICAL
         scrollPane.content = flowPane
         flowPane.style = """
-            -fx-background-color:""" + base3 + """;
+            -fx-background-color:""" + getTheme().third + """;
         """
         flowPane.prefHeightProperty().bind(scrollPane.heightProperty())
         flowPane.prefWidthProperty().bind(scrollPane.widthProperty())
