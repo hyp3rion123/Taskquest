@@ -601,9 +601,16 @@ public class MainBoardDisplay {
             statVBox.children.addAll(title, field)
             statisticsHBox.children.add(statVBox)
         }
+        statisticsHBox.alignment = Pos.CENTER
 
+        val unlockablesLabel = Label("Unlockables")
+        var unlockablesHBox = HBox(10.0)
+        print(user.store.items.size)
+        for (item in user.store.items) {
+            unlockablesHBox.children.add(Label(item.name))
+        }
 
-        profileVBox.children.addAll(imageView, userInfoLabel, statisticsHBox)
+        profileVBox.children.addAll(imageView, userInfoLabel, statisticsHBox, unlockablesLabel)
         profileVBox.alignment = Pos.CENTER
 
         val btn = Button("Exit")
