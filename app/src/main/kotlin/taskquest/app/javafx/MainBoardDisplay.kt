@@ -80,7 +80,10 @@ public class MainBoardDisplay {
 
         //Main tasks board
 
-        var taskList1 = user.lists[0]
+        var taskList1 = TaskList(-1, "Test")
+        if (user.lists.size >= 1) {
+            taskList1 = user.lists[0]
+        }
 
         val createTaskButton = Button("Create task")
         setDefaultButtonStyle(createTaskButton)
@@ -401,6 +404,9 @@ public class MainBoardDisplay {
         setDefaultButtonStyle(themeButton)
         setDefaultButtonStyle(profileButton)
         setDefaultButtonStyle(shopButton)
+        profileButton.setOnMouseClicked {
+            showProfileScreen(user);
+        }
         sideBar.children.addAll(themeButton, profileButton, shopButton)
         return sideBar to listOf(themeButton, profileButton, shopButton)
     }
@@ -568,6 +574,47 @@ public class MainBoardDisplay {
         val scene = Scene(vbox, 500.0, 200.0)
         taskCompletionStage.scene = scene
         taskCompletionStage.show()
+    }
+
+    fun showProfileScreen(user: User) {
+        val profileStage = Stage()
+        profileStage.setTitle("Profile Screen")
+        val btn = Button("Exit")
+        setDefaultButtonStyle(btn)
+
+        val hbox_title = HBox(20.0)
+        val label_title = Label("Profile Label")
+        label_title.font = globalFont
+        hbox_title.alignment = Pos.CENTER
+        hbox_title.children.addAll(label_title)
+
+        val hbox_desc = HBox(20.0)
+        var coinValue = 10
+        val label_desc = Label("Here's " + coinValue + " TaskCoins as a reward!")
+        label_desc.font = globalFont
+        hbox_desc.alignment = Pos.CENTER
+        hbox_desc.children.addAll(label_desc)
+
+        val hbox_reward = HBox(20.0)
+        val label_reward = Label("+10 ")
+        label_reward.setFont(Font.font("Courier New", 32.0));
+        hbox_reward.alignment = Pos.CENTER
+        hbox_reward.children.addAll(label_desc)
+
+        val vbox = VBox(10.0)
+        vbox.children.addAll(hbox_title, hbox_desc, label_desc, btn)
+
+        vbox.alignment = Pos.CENTER
+
+        btn.setOnMouseClicked {
+            profileStage.close()
+        }
+        vbox.style = """
+            -fx-background-color:""" + base2 + """;
+        """
+        val scene = Scene(vbox, 500.0, 200.0)
+        profileStage.scene = scene
+        profileStage.show()
     }
 
     fun createShopScene(homeStage: Stage?, homeScene: Scene): Scene {
