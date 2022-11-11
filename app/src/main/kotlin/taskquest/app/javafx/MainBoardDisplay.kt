@@ -114,7 +114,7 @@ public class MainBoardDisplay {
         var mainScene = Scene(mainScreenPane, 900.0, 600.0)
 
         //Create task popup scene
-        var createTaskMenu = createTaskStage(taskList1, toDoVBox)
+        val createTaskMenu = createTaskStage(taskList1, toDoVBox)
 
         createTaskButton.setOnMouseClicked {
             createTaskMenu.show()
@@ -124,30 +124,29 @@ public class MainBoardDisplay {
             mainStage?.scene = createShopScene(mainStage, mainScene) //created every time for refresh purposes
         }
 
-        fun updateTheme() {
-            mainTasksSection.style = """
-                -fx-background-color:""" + getTheme().third + """;
-            """
-            sideBarVBox.style = """
-                -fx-background-color:""" + getTheme().second + """;
-            """
-            setDefaultButtonStyle(themeButton)
-            setDefaultButtonStyle(shopButton)
-            setDefaultButtonStyle(profileButton)
-            mainScreenPane.right = createTaskListVBox(user.lists, createTaskButton)
-            createTaskMenu = createTaskStage(taskList1, toDoVBox)
-//            toDoVBox.children.clear()
-//            addVBoxNonTasks(createTaskButton)
-//            toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
-
-//            toDoVBox.children.clear()
-//            addVBoxNonTasks(createTaskButton, taskList1, taskList1.title, toDoVBox)
-//            for(currTask in taskList1.tasks){
-//                val child = createTaskHbox(currTask, taskList1, toDoVBox, taskList1.title, createTaskButton)
-//                child.alignment = Pos.TOP_LEFT
-//                tasksVBox.children.add(child)
-//            }
-        }
+//        fun updateTheme() {
+//            mainTasksSection.style = """
+//                -fx-background-color:""" + getTheme().third + """;
+//            """
+//            sideBarVBox.style = """
+//                -fx-background-color:""" + getTheme().second + """;
+//            """
+//            setDefaultButtonStyle(themeButton)
+//            setDefaultButtonStyle(shopButton)
+//            setDefaultButtonStyle(profileButton)
+//            mainScreenPane.right = createTaskListVBox(user.lists, createTaskButton)
+////            toDoVBox.children.clear()
+////            addVBoxNonTasks(createTaskButton)
+////            toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
+//
+////            toDoVBox.children.clear()
+////            addVBoxNonTasks(createTaskButton, taskList1, taskList1.title, toDoVBox)
+////            for(currTask in taskList1.tasks){
+////                val child = createTaskHbox(currTask, taskList1, toDoVBox, taskList1.title, createTaskButton)
+////                child.alignment = Pos.TOP_LEFT
+////                tasksVBox.children.add(child)
+////            }
+//        }
 
         themeButton.setOnMouseClicked {
             if (theme == 0) {
@@ -161,7 +160,9 @@ public class MainBoardDisplay {
                 base2 = lighterBlue
                 base3 = lightestBlue
             }
-            updateTheme()
+//            updateTheme()
+            mainStage?.close()
+            start_display(mainStage)
         }
 
         mainStage?.setResizable(true)
