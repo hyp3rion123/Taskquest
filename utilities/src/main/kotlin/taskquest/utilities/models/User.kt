@@ -9,6 +9,9 @@ class User() {
     val lists = mutableListOf<TaskList>()
     var store: Store = Store()
     val tags = mutableSetOf<String>()
+    var profileImageName: String = "Default.png"
+    var longestStreak: Int = 0
+    var level: Int = 0
 
     fun to_string() {
         for (list in lists) {
