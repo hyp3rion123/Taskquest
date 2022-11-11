@@ -16,9 +16,11 @@
                     "priority": null,
                     "difficulty": null,
                     "complete": false,
+                    "completeOnce": false,
                     "tags": [
                     ],
-                    "coinValue": 1
+                    "coinValue": 1,
+                    "multiplier": 0
                 },
                 {
                     "id": 1,
@@ -29,9 +31,11 @@
                     "priority": null,
                     "difficulty": null,
                     "complete": true,
+                    "completeOnce": false,
                     "tags": [
                     ],
-                    "coinValue": 10
+                    "coinValue": 10,
+                    "multiplier": 0
                 },
                 {
                     "id": 4,
@@ -42,9 +46,11 @@
                     "priority": null,
                     "difficulty": null,
                     "complete": false,
+                    "completeOnce": false,
                     "tags": [
                     ],
-                    "coinValue": 10
+                    "coinValue": 10,
+                    "multiplier": 0
                 },
                 {
                     "id": 5,
@@ -55,9 +61,11 @@
                     "priority": null,
                     "difficulty": null,
                     "complete": true,
+                    "completeOnce": false,
                     "tags": [
                     ],
-                    "coinValue": 10
+                    "coinValue": 10,
+                    "multiplier": 0
                 },
                 {
                     "id": 6,
@@ -68,9 +76,11 @@
                     "priority": null,
                     "difficulty": null,
                     "complete": false,
+                    "completeOnce": false,
                     "tags": [
                     ],
-                    "coinValue": 10
+                    "coinValue": 10,
+                    "multiplier": 0
                 }
             ],
             "nextId": 8
@@ -89,9 +99,11 @@
                     "priority": null,
                     "difficulty": null,
                     "complete": false,
+                    "completeOnce": false,
                     "tags": [
                     ],
-                    "coinValue": 10
+                    "coinValue": 10,
+                    "multiplier": 0
                 },
                 {
                     "id": 2,
@@ -102,9 +114,11 @@
                     "priority": null,
                     "difficulty": null,
                     "complete": false,
+                    "completeOnce": false,
                     "tags": [
                     ],
-                    "coinValue": 10
+                    "coinValue": 10,
+                    "multiplier": 0
                 },
                 {
                     "id": 3,
@@ -115,9 +129,11 @@
                     "priority": null,
                     "difficulty": null,
                     "complete": false,
+                    "completeOnce": false,
                     "tags": [
                     ],
-                    "coinValue": 10
+                    "coinValue": 10,
+                    "multiplier": 0
                 }
             ],
             "nextId": 4
@@ -136,9 +152,11 @@
                     "priority": null,
                     "difficulty": null,
                     "complete": false,
+                    "completeOnce": false,
                     "tags": [
                     ],
-                    "coinValue": 10
+                    "coinValue": 10,
+                    "multiplier": 0
                 },
                 {
                     "id": 2,
@@ -149,9 +167,11 @@
                     "priority": null,
                     "difficulty": null,
                     "complete": false,
+                    "completeOnce": false,
                     "tags": [
                     ],
-                    "coinValue": 15
+                    "coinValue": 15,
+                    "multiplier": 0
                 },
                 {
                     "id": 3,
@@ -162,9 +182,11 @@
                     "priority": null,
                     "difficulty": null,
                     "complete": false,
+                    "completeOnce": false,
                     "tags": [
                     ],
-                    "coinValue": 20
+                    "coinValue": 20,
+                    "multiplier": 0
                 }
             ],
             "nextId": 4
@@ -173,5 +195,10 @@
     "store": {
         "items": [
         ]
-    }
+    },
+    "tags": [
+    ],
+    "profileImageName": "Default.png",
+    "longestStreak": 0,
+    "level": 0
 }
