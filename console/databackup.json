@@ -18,7 +18,7 @@
                     "complete": false,
                     "tags": [
                     ],
-                    "coinValue": null
+                    "coinValue": 1
                 },
                 {
                     "id": 1,
@@ -31,7 +31,7 @@
                     "complete": true,
                     "tags": [
                     ],
-                    "coinValue": null
+                    "coinValue": 10
                 },
                 {
                     "id": 4,
@@ -44,7 +44,7 @@
                     "complete": false,
                     "tags": [
                     ],
-                    "coinValue": null
+                    "coinValue": 10
                 },
                 {
                     "id": 5,
@@ -57,7 +57,7 @@
                     "complete": true,
                     "tags": [
                     ],
-                    "coinValue": null
+                    "coinValue": 10
                 },
                 {
                     "id": 6,
@@ -70,7 +70,7 @@
                     "complete": false,
                     "tags": [
                     ],
-                    "coinValue": null
+                    "coinValue": 10
                 }
             ],
             "nextId": 8
@@ -91,7 +91,7 @@
                     "complete": false,
                     "tags": [
                     ],
-                    "coinValue": null
+                    "coinValue": 10
                 },
                 {
                     "id": 2,
@@ -104,7 +104,7 @@
                     "complete": false,
                     "tags": [
                     ],
-                    "coinValue": null
+                    "coinValue": 10
                 },
                 {
                     "id": 3,
@@ -117,7 +117,7 @@
                     "complete": false,
                     "tags": [
                     ],
-                    "coinValue": null
+                    "coinValue": 10
                 }
             ],
             "nextId": 4
