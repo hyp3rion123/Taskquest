@@ -579,6 +579,33 @@ public class MainBoardDisplay {
     fun showProfileScreen(user: User) {
         val profileStage = Stage()
         profileStage.setTitle("Profile Screen")
+
+        var profileVBox = VBox(10.0)
+
+        val path = "../assets/" + user.profileImageName
+        val image = Image(File(path).toURI().toString())
+        val imageView = ImageView()
+        imageView.image = image
+        imageView.fitWidth = 120.0
+        imageView.fitHeight = 120.0
+
+        val userInfoLabel = Label("User Info")
+        var statisticsHBox = HBox(10.0)
+        val titles = listOf("Current coins", "Longest Streak", "Level")
+        val fields = listOf(user.wallet, user.longestStreak, user.level)
+
+        for (i in 0..titles.size - 1) {
+            val title = Label(titles[i])
+            val field = Label(fields[i].toString())
+            val statVBox = VBox(5.0)
+            statVBox.children.addAll(title, field)
+            statisticsHBox.children.add(statVBox)
+        }
+
+
+        profileVBox.children.addAll(imageView, userInfoLabel, statisticsHBox)
+        profileVBox.alignment = Pos.CENTER
+
         val btn = Button("Exit")
         setDefaultButtonStyle(btn)
 
@@ -612,7 +639,7 @@ public class MainBoardDisplay {
         vbox.style = """
             -fx-background-color:""" + base2 + """;
         """
-        val scene = Scene(vbox, 500.0, 200.0)
+        val scene = Scene(profileVBox, 500.0, 200.0)
         profileStage.scene = scene
         profileStage.show()
     }
