@@ -617,12 +617,12 @@ public class MainBoardDisplay {
         flowPane.style = """
             -fx-background-color:""" + base3 + """;
         """
+        flowPane.prefHeightProperty().bind(scrollPane.heightProperty())
+        flowPane.prefWidthProperty().bind(scrollPane.widthProperty())
         for (child in store.items){
             val (childBox, purchaseBtn) = createShopItem(child)
             purchaseBtn.setOnMouseClicked {
-                user = restoreData(dataFileName)
-                store.buyItem(child.id)
-                user.store = store
+                user.store.buyItem(child.id)
                 saveData(user, dataFileName)
                 flowPane.children.remove(childBox)
                 homeStage?.scene = createShopScene(homeStage, homeScene)
@@ -633,6 +633,13 @@ public class MainBoardDisplay {
             }
         }
         borderPane.center = scrollPane
+
+        if (debugMode) {
+            borderPane.style = debugCss
+            flowPane.style = debugCss
+            scrollPane.style = debugCss
+            hboxHeader.style = debugCss
+        }
         //End Main
         return shopScene
     }
