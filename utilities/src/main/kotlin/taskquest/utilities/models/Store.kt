@@ -1,9 +1,7 @@
 package taskquest.utilities.models
 
-import kotlinx.serialization.Serializable
 import taskquest.utilities.views.MainUser
 
-@Serializable
 class Store {
     val items = mutableListOf<Item>()
 

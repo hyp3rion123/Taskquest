@@ -9,6 +9,7 @@ internal class MainTest {
         File("data.json").delete()
         main(params)
         File("backup.json").copyTo(File("data.json"), true)
+        File("backup.json").delete()
     }
 
     @Test

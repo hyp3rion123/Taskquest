@@ -46,7 +46,7 @@ public class MainBoardDisplay {
     var toDoVBox = VBox();
     var boardViewHBox = HBox();
     fun dataChanged() {
-        user.to_string()
+        user.convertToString()
         saveData(user, dataFileName)
     }
 
@@ -248,7 +248,7 @@ public class MainBoardDisplay {
         btn_del.setOnMouseClicked {
             data.deleteItemByID(task.id)
             tasksVBox.children.remove(hbox)
-            user.to_string()
+            user.convertToString()
             dataChanged()
         }
         btn_info.setOnMouseClicked {
@@ -259,7 +259,7 @@ public class MainBoardDisplay {
 
     fun addVBoxNonTasks(create_button: Button, data: TaskList, title: String, tasksVBox: VBox) {
         tasksVBox.children.add(create_button)
-        tasksVBox.children.add(Label("$title (${data.getLength()})"))
+        tasksVBox.children.add(Label("$title (${data.tasks.size})"))
 
         val searchBar = Label("Tasks Search bar")
         tasksVBox.children.add(searchBar)

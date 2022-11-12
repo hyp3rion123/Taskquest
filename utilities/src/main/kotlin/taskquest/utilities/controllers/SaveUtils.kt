@@ -1,28 +1,23 @@
 package taskquest.utilities.controllers
 
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import com.fasterxml.jackson.databind.SerializationFeature
 import taskquest.utilities.models.User
 import java.io.File
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 
 class SaveUtils {
     companion object {
-        val formattedJson = Json {
-            encodeDefaults = true
-            prettyPrint = true
-        }
+        val mapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
 
         fun saveData(user: User, filename: String) {
-            val json = formattedJson.encodeToString(user)
-//            print(json)
+            val json = mapper.writeValueAsString(user)
             File(filename).writeText(json)
         }
 
         fun restoreData(filename: String): User {
             val json = File(filename).readText()
-//            print(json)
-            return formattedJson.decodeFromString(json)
+            return mapper.readValue<User>(json)
         }
     }
 }
