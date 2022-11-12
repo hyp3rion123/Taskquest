@@ -1,30 +1,21 @@
 package taskquest.app.javafx;
 
-import javafx.geometry.Pos
-import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.control.CheckBox
-import javafx.scene.control.Label
-import javafx.scene.control.TextField
-import javafx.scene.image.Image
-import javafx.scene.input.ClipboardContent
-import javafx.scene.input.DragEvent
-import javafx.scene.input.Dragboard
-import javafx.scene.input.TransferMode
-import javafx.scene.layout.*
-import javafx.scene.text.Font
-import javafx.stage.Stage
-import taskquest.utilities.controllers.SaveUtils.Companion.restoreData
-import taskquest.utilities.controllers.SaveUtils.Companion.saveData
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
-import javafx.scene.Cursor
-import javafx.scene.control.ScrollPane
+import javafx.geometry.Pos
+import javafx.scene.Scene
+import javafx.scene.control.*
+import javafx.scene.image.Image
 import javafx.scene.image.ImageView
-import javafx.scene.input.MouseEvent
+import javafx.scene.input.*
+import javafx.scene.layout.*
+import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
+import javafx.stage.Stage
+import taskquest.utilities.controllers.SaveUtils.Companion.restoreData
+import taskquest.utilities.controllers.SaveUtils.Companion.saveData
 import taskquest.utilities.models.*
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
@@ -113,7 +104,7 @@ public class MainBoardDisplay {
             taskList1 = user.lists[0]
         }
 
-        val createTaskButton = Button("Create task")
+        val createTaskButton = ImageButton("../assets/icons/add.png",30.0,30.0)
         setDefaultButtonStyle(createTaskButton)
 
         toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
@@ -436,6 +427,18 @@ public class MainBoardDisplay {
         setDefaultButtonStyle(shopButton)
         sideBar.children.addAll(themeButton, profileButton, shopButton)
         return sideBar to listOf(themeButton, profileButton, shopButton)
+    }
+
+    fun ImageButton(path: String, h: Double, w: Double): Button {
+        var button = Button()
+        print(File(path).toURI().toString())
+        val originalImage = Image(File(path).toURI().toString())
+        val imageView = ImageView(originalImage)
+        imageView.fitWidth = h
+        imageView.fitHeight = w
+        imageView.isPreserveRatio = true
+        button.graphic = imageView
+        return button
     }
 
     fun createTaskStage(data: TaskList, vBox: VBox): Stage {
