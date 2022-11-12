@@ -6,7 +6,7 @@ import taskquest.utilities.views.MainUser
 @Serializable
 class User() {
     var lastUsedList: Int = - 1
-    var wallet: Int = 0
+    var wallet: Int = 100000
     val lists = mutableListOf<TaskList>()
     var store: Store = Store()
     val tags = mutableSetOf<String>()
