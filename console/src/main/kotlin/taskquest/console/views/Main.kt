@@ -19,8 +19,8 @@ fun main(args: Array<String>) {
     currentUser = SaveUtils.restoreData(filename)
     currentList = currentUser.lastUsedList
 
-    val taskCommands = listOf<String>("add", "del", "show", "edit", "sort", "help")
-    val userCommands = listOf<String>("addtags", "deltag", "showtags", "wallet")
+    val taskCommands = listOf<String>("add", "del", "show", "edit", "sort")
+    val userCommands = listOf<String>("addtags", "deltag", "showtags", "wallet", "help")
 
     println("Welcome to TaskQuest Console.")
     println("Enter 'help' for a detailed description of each supported command.")

@@ -706,6 +706,14 @@ class ShowCoins() : UserCommand {
 
 class HelpCommand(val args: List<String>) : TaskCommand, TaskListCommand, UserCommand {
     override fun execute(list: TaskList) {
+        println("Invalid command. Type help for information on valid commands.")
+    }
+
+    override fun execute(lists: MutableList<TaskList>) {
+        println("Invalid command. Type help for information on valid commands.")
+    }
+
+    override fun execute() {
         println("Usage: taskquest command")
         println("Command: ")
         println("\thelp  ->  Usage info")
@@ -742,11 +750,5 @@ class HelpCommand(val args: List<String>) : TaskCommand, TaskListCommand, UserCo
         println("\t\tshowtags  ->  Displays a users tags.")
         println("\t\twallet  ->  Displays the number of coins one has.")
     }
-
-    override fun execute(lists: MutableList<TaskList>) {
-        println("Invalid command. Type help for information on valid commands.")
-    }
-
-    override fun execute() { }
 }
 
