@@ -1,9 +1,15 @@
 {
-    "lastUsedList": 0,
+    "lastUsedList": -1,
     "wallet": 0,
-    "lists": [],
+    "lists": [
+    ],
     "store": {
         "items": [
         ]
-    }
+    },
+    "tags": [
+    ],
+    "profileImageName": "Default.png",
+    "longestStreak": 0,
+    "level": 0
 }

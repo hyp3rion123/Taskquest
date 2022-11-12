@@ -87,7 +87,7 @@ public class MainBoardDisplay {
 
         //Main tasks board
 
-        var taskList1 = TaskList(-1, "Test")
+        var taskList1 = TaskList(-1, "No list")
         if (user.lists.size >= 1) {
             taskList1 = user.lists[0]
         }
