@@ -65,6 +65,10 @@ public class MainBoardDisplay {
     var user = User();
     var toDoVBox = VBox();
     var boardViewHBox = HBox();
+
+    fun saveData() {
+        saveData(user, dataFileName)
+    }
     fun dataChanged() {
         user.to_string()
         saveData(user, dataFileName)
@@ -77,6 +81,25 @@ public class MainBoardDisplay {
 
         user = restoreData(dataFileName)
 
+        if (mainStage != null) {
+            mainStage.setOnCloseRequest {
+                println("Stage Closing. Save dimensions.")
+                user.x = mainStage.x
+                user.y = mainStage.y
+                user.height = mainStage.height
+                user.width = mainStage.width
+                saveData()
+            }
+        }
+
+        if (mainStage != null) {
+            // restore window dimensions and location
+            mainStage.x = user.x
+            mainStage.y = user.y
+            mainStage.height = user.height
+            mainStage.width = user.width
+        }
+
         // set title for the stage
         mainStage?.title = "TaskQuest";
 
@@ -85,7 +108,10 @@ public class MainBoardDisplay {
 
         //Main tasks board
 
-        var taskList1 = user.lists[0]
+        var taskList1 = TaskList(-1, "No list")
+        if (user.lists.size >= 1) {
+            taskList1 = user.lists[0]
+        }
 
         val createTaskButton = Button("Create task")
         setDefaultButtonStyle(createTaskButton)

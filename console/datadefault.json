@@ -1,9 +1,16 @@
 {
-    "lastUsedList": 0,
+    "lastUsedList": -1,
     "wallet": 0,
-    "lists": [],
+    "lists": [
+    ],
     "store": {
         "items": [
         ]
-    }
+    },
+    "tags": [
+    ],
+    "width": 900.0,
+    "height": 500.0,
+    "x": 300.0,
+    "y": 100.0
 }

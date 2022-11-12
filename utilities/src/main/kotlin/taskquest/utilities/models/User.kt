@@ -9,10 +9,10 @@ class User() {
     val lists = mutableListOf<TaskList>()
     var store: Store = Store()
     val tags = mutableSetOf<String>()
-    var width = 900;
-    var height = 500;
-    var x = 0;
-    var y = 0;
+    var width = 900.0;
+    var height = 500.0;
+    var x = 0.0;
+    var y = 0.0;
 
     fun to_string() {
         for (list in lists) {
