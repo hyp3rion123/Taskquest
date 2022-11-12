@@ -14,4 +14,12 @@ class Store {
             results[0].purchased = true
         }
     }
+
+    fun to_string(): String {
+        var result = ""
+        for (item in items) {
+            result += item.name + ": " + item.purchased + ". ";
+        }
+        return result;
+    }
 }
