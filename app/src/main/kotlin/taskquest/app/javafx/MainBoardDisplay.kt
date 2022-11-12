@@ -26,6 +26,8 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import taskquest.utilities.models.*
+import taskquest.utilities.models.enums.Difficulty
+import taskquest.utilities.models.enums.Priority
 import java.io.File
 
 
@@ -67,6 +69,9 @@ public class MainBoardDisplay {
         user.to_string()
         saveData(user, dataFileName)
     }
+    fun getTheme(): Triple<String, String, String> {
+        return Triple(base1, base2, base3)
+    }
 
     fun start_display(mainStage: Stage?) {
 
@@ -98,7 +103,7 @@ public class MainBoardDisplay {
         val mainTasksSection = VBox(20.0, headerHBox, boardViewHBox)
         mainTasksSection.padding = Insets(100.0, 0.0, 0.0, 0.0)
         mainTasksSection.style = """
-            -fx-background-color:""" + base3 + """;
+            -fx-background-color:""" + getTheme().third + """;
         """
 
         val mainScreenPane = BorderPane()
@@ -119,29 +124,29 @@ public class MainBoardDisplay {
             mainStage?.scene = createShopScene(mainStage, mainScene) //created every time for refresh purposes
         }
 
-        fun updateTheme() {
-            mainTasksSection.style = """
-                -fx-background-color:""" + base3 + """;
-            """
-            sideBarVBox.style = """
-                -fx-background-color:""" + base2 + """;
-            """
-            setDefaultButtonStyle(themeButton)
-            setDefaultButtonStyle(shopButton)
-            setDefaultButtonStyle(profileButton)
-            mainScreenPane.right = createTaskListVBox(user.lists, createTaskButton)
-//            toDoVBox.children.clear()
-//            addVBoxNonTasks(createTaskButton)
-//            toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
-
-//            toDoVBox.children.clear()
-//            addVBoxNonTasks(createTaskButton, taskList1, taskList1.title, toDoVBox)
-//            for(currTask in taskList1.tasks){
-//                val child = createTaskHbox(currTask, taskList1, toDoVBox, taskList1.title, createTaskButton)
-//                child.alignment = Pos.TOP_LEFT
-//                tasksVBox.children.add(child)
-//            }
-        }
+//        fun updateTheme() {
+//            mainTasksSection.style = """
+//                -fx-background-color:""" + getTheme().third + """;
+//            """
+//            sideBarVBox.style = """
+//                -fx-background-color:""" + getTheme().second + """;
+//            """
+//            setDefaultButtonStyle(themeButton)
+//            setDefaultButtonStyle(shopButton)
+//            setDefaultButtonStyle(profileButton)
+//            mainScreenPane.right = createTaskListVBox(user.lists, createTaskButton)
+////            toDoVBox.children.clear()
+////            addVBoxNonTasks(createTaskButton)
+////            toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
+//
+////            toDoVBox.children.clear()
+////            addVBoxNonTasks(createTaskButton, taskList1, taskList1.title, toDoVBox)
+////            for(currTask in taskList1.tasks){
+////                val child = createTaskHbox(currTask, taskList1, toDoVBox, taskList1.title, createTaskButton)
+////                child.alignment = Pos.TOP_LEFT
+////                tasksVBox.children.add(child)
+////            }
+//        }
 
         themeButton.setOnMouseClicked {
             if (theme == 0) {
@@ -155,7 +160,9 @@ public class MainBoardDisplay {
                 base2 = lighterBlue
                 base3 = lightestBlue
             }
-            updateTheme()
+//            updateTheme()
+            mainStage?.close()
+            start_display(mainStage)
         }
 
         mainStage?.setResizable(true)
@@ -204,7 +211,7 @@ public class MainBoardDisplay {
 
     fun setDefaultButtonStyle(button: Button) {
         val buttonStyle = """
-            -fx-background-color:""" + base1 + """;
+            -fx-background-color:""" + getTheme().first + """;
             -fx-text-fill: white;  
         """
         button.style = buttonStyle
@@ -227,13 +234,13 @@ public class MainBoardDisplay {
         // create a VBox
         val taskListVBox = VBox(10.0)
         taskListVBox.style = """
-            -fx-background-color:""" + base2 + """;
+            -fx-background-color:""" + getTheme().second + """;
         """
 
         val searchBarLabel = Label("Task List Search bar")
         searchBarLabel.font = globalFont
         searchBarLabel.style = """
-            -fx-background-color:"""+ base1+ """;
+            -fx-background-color:"""+ getTheme().first+ """;
             -fx-text-fill: white;
         """
 
@@ -393,7 +400,7 @@ public class MainBoardDisplay {
         //val icons = listOf("Profile")
         val sideBar = VBox(10.0)
         sideBar.style = """
-            -fx-background-color:"""+ base2+ """;
+            -fx-background-color:"""+ getTheme().second+ """;
         """
         val themeButton = Button("Switch theme")
         val profileButton = Button("Profile")
@@ -450,35 +457,118 @@ public class MainBoardDisplay {
         vbox.children.addAll(hbox_title, hbox_desc, hbox_due, hbox_prio, hbox_diff, btn)
 
         btn.setOnMouseClicked {
-            val task = Task(id=1, title=text_title.text, desc=text_desc.text, dueDate=text_due.text)
-            data.addItem(task)
-            val title = Label(task.title)
-            title.font = globalFont
-            val c = CheckBox()
-            c.setSelected(task.complete)
-            var btn_delete = Button("delete")
-            val btn_info = Button("See info")
-            val hbox = HBox(5.0, c, title, btn_delete, btn_info)
-            setDefaultButtonStyle(btn_delete)
-            setDefaultButtonStyle(btn_info)
-            btn_delete.setOnMouseClicked {
-                data.deleteItemByID(task.id)
-                vBox.children.remove(hbox)
+            if(!validatePriority(text_prio.text)){
+                val invalidPriorityStage = Stage()
+                invalidPriorityStage.title = "Error"
+                //label
+                val errorMessage = Label("Invalid Priority Entered. Please enter one of:\n High | Medium | Low")
+                errorMessage.font = globalFont
+                errorMessage.isWrapText = true
+                //button
+                val exitPrioStageButton = Button("Exit")
+                setDefaultButtonStyle(exitPrioStageButton)
+                exitPrioStageButton.setOnMouseClicked {
+                    invalidPriorityStage.hide()
+                }
+                //container
+                val prioSceneContainer = BorderPane()
+                prioSceneContainer.center = errorMessage
+                prioSceneContainer.bottom = exitPrioStageButton
+                prioSceneContainer.style = """
+                    -fx-background-color:""" + getTheme().third + """;
+                """
+                //scene
+                val invalidPriorityScene = Scene(prioSceneContainer,500.0, 300.0)
+
+                invalidPriorityStage.scene = invalidPriorityScene
+                invalidPriorityStage.show()
+            } else if(!validateDifficulty(text_diff.text)) {
+                val invalidDiffStage = Stage()
+                invalidDiffStage.title = "Error"
+                //label
+                val errorMessage = Label("Invalid Difficulty Entered. Please enter one of:\n Hard | Medium | Easy")
+                errorMessage.font = globalFont
+                errorMessage.isWrapText = true
+                //button
+                val exitDiffStageButton = Button("Exit")
+                setDefaultButtonStyle(exitDiffStageButton)
+                exitDiffStageButton.setOnMouseClicked {
+                    invalidDiffStage.hide()
+                }
+                //container
+                val prioSceneContainer = BorderPane()
+                prioSceneContainer.center = errorMessage
+                prioSceneContainer.bottom = exitDiffStageButton
+                prioSceneContainer.style = """
+                    -fx-background-color:""" + getTheme().third + """;
+                """
+                //scene
+                val invalidPriorityScene = Scene(prioSceneContainer,500.0, 300.0)
+
+                invalidDiffStage.scene = invalidPriorityScene
+                invalidDiffStage.show()
+            } else {
+                val task = Task(id=1, title=text_title.text, desc=text_desc.text, dueDate=text_due.text,
+                    priority = strToPrio(text_prio.text), difficulty = strToDiff(text_diff.text))
+                data.addItem(task)
+                val title = Label(task.title)
+                title.font = globalFont
+                val c = CheckBox()
+                c.setSelected(task.complete)
+                var btn_delete = Button("delete")
+                val btn_info = Button("See info")
+                val hbox = HBox(5.0, c, title, btn_delete, btn_info)
+                setDefaultButtonStyle(btn_delete)
+                setDefaultButtonStyle(btn_info)
+                btn_delete.setOnMouseClicked {
+                    data.deleteItemByID(task.id)
+                    vBox.children.remove(hbox)
+                    dataChanged()
+                }
+                btn_info.setOnMouseClicked {
+                    showTaskInfoStage(task)
+                }
+                vBox.children.add(hbox)
+                create_task_stage.close()
                 dataChanged()
             }
-            btn_info.setOnMouseClicked {
-                showTaskInfoStage(task)
-            }
-            vBox.children.add(hbox)
-            create_task_stage.close()
-            dataChanged()
         }
         vbox.style = """
-            -fx-background-color:""" + base3 + """;
+            -fx-background-color:""" + getTheme().third + """;
         """
         val scene = Scene(vbox, 700.0, 400.0)
         create_task_stage.scene = scene
         return create_task_stage
+    }
+
+    fun validateDifficulty(d: String): Boolean {
+        if(d == "Hard" || d == "Medium" || d == "Easy") return true
+        return false
+    }
+
+    fun strToDiff(s: String): Difficulty {
+        var diff = Difficulty.Easy
+        when(s) {
+            "Hard" -> diff = Difficulty.Hard
+            "Medium" -> diff = Difficulty.Medium
+            "Easy" -> return diff
+        }
+        return diff
+    }
+
+    fun validatePriority(p: String): Boolean {
+        if(p == "High" || p == "Medium" || p == "Low") return true
+        return false
+    }
+
+    fun strToPrio(s: String): Priority {
+        var prio = Priority.Low
+        when(s) {
+            "High" -> prio = Priority.High
+            "Medium" -> prio = Priority.Medium
+            "Low" -> return prio
+        }
+        return prio
     }
 
     fun showTaskInfoStage(task: Task) {
@@ -519,7 +609,7 @@ public class MainBoardDisplay {
             taskInfoStage.close()
         }
         vbox.style = """
-            -fx-background-color:""" + base3 + """;
+            -fx-background-color:""" + getTheme().third + """;
         """
         val scene = Scene(vbox, 700.0, 400.0)
         taskInfoStage.scene = scene
@@ -563,7 +653,7 @@ public class MainBoardDisplay {
             taskCompletionStage.close()
         }
         vbox.style = """
-            -fx-background-color:""" + base2 + """;
+            -fx-background-color:""" + getTheme().second + """;
         """
         val scene = Scene(vbox, 500.0, 200.0)
         taskCompletionStage.scene = scene
@@ -585,7 +675,7 @@ public class MainBoardDisplay {
         hboxHeader.padding = Insets(20.0, 0.0, 0.0, 0.0)
         hboxHeader.children.addAll(labelHeader)
         hboxHeader.style = """
-            -fx-background-color:""" + base2 + """;
+            -fx-background-color:""" + getTheme().second + """;
         """
         borderPane.top = hboxHeader
         //End Header
@@ -601,7 +691,7 @@ public class MainBoardDisplay {
         footerHbox.children.add(backButton)
         footerHbox.padding = Insets(0.0, 0.0, 20.0, 20.0)
         footerHbox.style = """
-            -fx-background-color:""" + base2 + """;
+            -fx-background-color:""" + getTheme().second + """;
         """
         borderPane.bottom = footerHbox
         //END FOOTER
@@ -615,7 +705,7 @@ public class MainBoardDisplay {
         flowPane.orientation = Orientation.VERTICAL
         scrollPane.content = flowPane
         flowPane.style = """
-            -fx-background-color:""" + base3 + """;
+            -fx-background-color:""" + getTheme().third + """;
         """
         flowPane.prefHeightProperty().bind(scrollPane.heightProperty())
         flowPane.prefWidthProperty().bind(scrollPane.widthProperty())
