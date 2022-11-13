@@ -9,7 +9,7 @@ import java.time.Duration
 
 class CloudUtils {
     companion object {
-        val SERVER_ADDRESS = "http://127.0.0.1:8080"
+        val SERVER_ADDRESS = "https://taskquest-server.greenmoss-6ea3acae.eastus.azurecontainerapps.io"
 
         fun getUsers(): String {
             val client = HttpClient.newBuilder()

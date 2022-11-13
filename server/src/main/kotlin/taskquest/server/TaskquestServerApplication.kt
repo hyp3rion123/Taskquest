@@ -1,5 +1,9 @@
 package taskquest.server
 
+import com.azure.storage.blob.BlobClient
+import com.azure.storage.blob.BlobContainerClient
+import com.azure.storage.blob.BlobServiceClient
+import com.azure.storage.blob.BlobServiceClientBuilder
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.stereotype.Service
@@ -32,9 +36,22 @@ class UserResource(val service: UserService) {
 @Service
 class UserService {
     final var currentUser = User()
-    final val filename = "userdata.json"
+    private final val filename = "userdata.json"
+
+    private final val connectStr = "DefaultEndpointsProtocol=https;AccountName=taskqueststorage;AccountKey=LIJ4c9UzdCuk/RP6rXPEQFbuYMTuvrWbes/rlvuFJTLz0oQ0KRt3F1MrLToKlUCZmHQQLJ97cDck+AStv0SoRQ==;EndpointSuffix=core.windows.net"
+
+    private final val client: BlobServiceClient = BlobServiceClientBuilder()
+        .connectionString(connectStr)
+        .buildClient()
+
+    private final val blobContainerClient: BlobContainerClient = client.getBlobContainerClient("server-data")
+
+    private final val blobClient: BlobClient = blobContainerClient.getBlobClient(filename)
+
     init {
-        if (!File(filename).exists()) {
+        if (blobClient.exists()) {
+            blobClient.downloadToFile(filename, true)
+        } else {
             File(filename).createNewFile()
             SaveUtils.saveUserData(currentUser, filename)
         }
@@ -45,6 +62,7 @@ class UserService {
     fun post(user: User) {
         currentUser = user
         SaveUtils.saveUserData(currentUser, filename)
+        blobClient.uploadFromFile(filename, true)
     }
 }
 

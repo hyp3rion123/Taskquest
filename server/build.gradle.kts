@@ -20,6 +20,7 @@ dependencies {
     runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     implementation(project(":utilities"))
+    implementation("com.azure:azure-storage-blob:12.20.0")
 }
 
 tasks.withType<KotlinCompile> {
