@@ -5,8 +5,9 @@ import org.springframework.boot.runApplication
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.*
 import taskquest.utilities.controllers.SaveUtils
+import taskquest.utilities.models.Item
+import taskquest.utilities.models.Store
 import taskquest.utilities.models.User
-import taskquest.utilities.views.MainUser
 import java.io.File
 
 @SpringBootApplication
@@ -18,7 +19,7 @@ fun main(args: Array<String>) {
 
 @RestController
 @RequestMapping("/users")
-class MessageResource(val service: MessageService) {
+class UserResource(val service: UserService) {
     @GetMapping
     fun index(): User = service.get()
 
@@ -29,21 +30,51 @@ class MessageResource(val service: MessageService) {
 }
 
 @Service
-class MessageService {
+class UserService {
     final var currentUser = User()
-    final val filename = "data.json"
+    final val filename = "userdata.json"
     init {
         if (!File(filename).exists()) {
             File(filename).createNewFile()
-            SaveUtils.saveData(currentUser, filename)
+            SaveUtils.saveUserData(currentUser, filename)
         }
-        currentUser = SaveUtils.restoreData(filename)
+        currentUser = SaveUtils.restoreUserData(filename)
     }
 
     fun get() = currentUser
     fun post(user: User) {
         currentUser = user
-         SaveUtils.saveData(currentUser, filename)
+        SaveUtils.saveUserData(currentUser, filename)
     }
 }
 
+@RestController
+@RequestMapping("/stores")
+class StoreResource(val service: StoreService) {
+    @GetMapping
+    fun index(): Store = service.get()
+
+    @PostMapping
+    fun post(@RequestBody item: Item) {
+        service.post(item)
+    }
+}
+
+@Service
+class StoreService {
+    final var store = Store()
+    final val filename = "storedata.json"
+    init {
+        if (!File(filename).exists()) {
+            File(filename).createNewFile()
+            SaveUtils.saveStoreData(store, filename)
+        }
+        store = SaveUtils.restoreStoreData(filename)
+    }
+
+    fun get() = store
+    fun post(item: Item) {
+        store.addItem(item.name, item.price, item.type)
+        SaveUtils.saveStoreData(store, filename)
+    }
+}

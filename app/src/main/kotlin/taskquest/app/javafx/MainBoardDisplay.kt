@@ -14,8 +14,8 @@ import javafx.scene.input.TransferMode
 import javafx.scene.layout.*
 import javafx.scene.text.Font
 import javafx.stage.Stage
-import taskquest.utilities.controllers.SaveUtils.Companion.restoreData
-import taskquest.utilities.controllers.SaveUtils.Companion.saveData
+import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
+import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
 import taskquest.utilities.models.Task
 import taskquest.utilities.models.TaskList
 import taskquest.utilities.models.User
@@ -47,12 +47,12 @@ public class MainBoardDisplay {
     var boardViewHBox = HBox();
     fun dataChanged() {
         user.convertToString()
-        saveData(user, dataFileName)
+        saveUserData(user, dataFileName)
     }
 
     fun start_display(stage: Stage?) {
 
-        user = restoreData(dataFileName)
+        user = restoreUserData(dataFileName)
 
         // set title for the stage
         stage?.title = "TaskQuest";
@@ -227,7 +227,7 @@ public class MainBoardDisplay {
                 dataChanged()
 
                 //Update frontend
-                val newLists = restoreData(dataFileName).lists
+                val newLists = restoreUserData(dataFileName).lists
                 var newList = newLists[0]
                 tasksVBox.children.clear()
                 addVBoxNonTasks(create_button, data, title, tasksVBox)

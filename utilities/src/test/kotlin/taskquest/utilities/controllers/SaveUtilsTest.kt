@@ -22,7 +22,7 @@ internal class SaveUtilsTest {
         list.addItem("item 4")
         list.addItem("item 5")
         user.lists.add(list)
-        SaveUtils.saveData(user, filename)
+        SaveUtils.saveUserData(user, filename)
 
         val mapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
 
@@ -47,10 +47,10 @@ internal class SaveUtilsTest {
         list.addItem("item 4")
         list.addItem("item 5")
         user.lists.add(list)
-        SaveUtils.saveData(user, filename)
+        SaveUtils.saveUserData(user, filename)
 
         // ensure that restore gives us the same list
-        val user2 = SaveUtils.restoreData(filename)
+        val user2 = SaveUtils.restoreUserData(filename)
         user.lists[0].tasks.zip(user2.lists[0].tasks).forEach {pair ->
             assert(pair.component1().title == pair.component2().title)
         }

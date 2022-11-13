@@ -1,15 +1,22 @@
 package taskquest.utilities.models
 
-import taskquest.utilities.views.MainUser
+import taskquest.utilities.models.enums.ItemType
 
 class Store {
     val items = mutableListOf<Item>()
 
-    fun buyItem(itemId: Int) {
-        val results = items.filter { it.id == itemId }
-        if (!results[0].purchased && results[0].price <= MainUser.userInfo.wallet) {
-            MainUser.userInfo.wallet -= results[0].price
-            results[0].purchased = true
+    fun addItem(name: String, price: Int, type: ItemType) {
+        items.add(Item(id=this.items.size, name=name, price=price, type=type))
+    }
+
+    fun buyItem(itemId: Int, user: User): Boolean {
+        val itemToPurchase = this.items[itemId]
+        return if (!user.purchasedItems.contains(itemToPurchase) && itemToPurchase.price <= user.wallet) {
+            user.wallet -= itemToPurchase.price
+            user.purchasedItems.add(itemToPurchase)
+            true
+        } else {
+            false
         }
     }
 }

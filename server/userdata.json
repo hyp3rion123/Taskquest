@@ -1,0 +1,23 @@
+{
+  "lastUsedList" : 0,
+  "wallet" : 100,
+  "lists" : [ {
+    "id" : 0,
+    "title" : "boys",
+    "desc" : "bishop allen",
+    "tasks" : [ {
+      "id" : 0,
+      "title" : "switt",
+      "desc" : "",
+      "dueDate" : "",
+      "dateCreated" : "2022-11-12",
+      "priority" : null,
+      "difficulty" : null,
+      "complete" : false,
+      "tags" : [ ],
+      "coinValue" : null
+    } ],
+    "nextId" : 0
+  } ],
+  "purchasedItems" : [ ]
+}
