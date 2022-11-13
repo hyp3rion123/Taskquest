@@ -49,4 +49,25 @@ internal class TaskListTest {
         list.moveItem(ids[0], ids[3])
         assert(list.tasks[2].id == ids[0] && list.tasks[3].id == ids[3] && list.tasks[4].id == 4)
     }
+
+    @Test
+    fun moveItems2() {
+        val list = TaskList(0, "Test List")
+        list.addItem("item 1")
+        list.addItem("item 2")
+        list.addItem("item 3")
+        val ids: MutableList<Int> = mutableListOf<Int>()
+        ids.add(list.tasks[0].id)
+        ids.add(list.tasks[1].id)
+        ids.add(list.tasks[2].id)
+        println(list.tasks[0].id.toString() + ", " + list.tasks[1].id + ", " + list.tasks[2].id + ", ")
+
+        //Move first to second position
+        list.moveItem(ids[0], ids[1])
+        println(list.tasks[0].id.toString() + ", " + list.tasks[1].id + ", " + list.tasks[2].id + ", ")
+        //Move last to second position
+        list.moveItem(ids[2], ids[0])
+        println(list.tasks[0].id.toString() + ", " + list.tasks[1].id + ", " + list.tasks[2].id + ", ")
+        assert(list.tasks[0].id == ids[1] && list.tasks[1].id == ids[2] && list.tasks[2].id == ids[0])
+    }
 }

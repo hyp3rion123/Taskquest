@@ -3,6 +3,7 @@ package taskquest.utilities.models
 data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
     val lists = mutableListOf<TaskList>()
     val purchasedItems = mutableListOf<Item>()
+    val tags = mutableSetOf<String>()
 
     fun convertToString() {
         for (list in lists) {

@@ -38,6 +38,7 @@ fun main(args: Array<String>) {
     } catch (_: ConnectException) {}
 
     val taskCommands = listOf<String>("add", "del", "show", "edit", "sort")
+    val userCommands = listOf<String>("addtags", "deltag", "showtags", "wallet", "help")
 
     println("Welcome to TaskQuest Console.")
     println("Enter 'help' for a detailed description of each supported command.")
@@ -51,8 +52,6 @@ fun main(args: Array<String>) {
         command.execute(currentUser.lists[currentList])
     }
 
-
-
     if (args.isEmpty()) {
 
         var curInstr : List<String>?
@@ -60,7 +59,7 @@ fun main(args: Array<String>) {
         // process commands
         while (true) {
             print(">> ")
-            curInstr = readLine()?.split(' ')
+            curInstr = readLine()?.trim()?.split("\\s+".toRegex())
             if (curInstr == null || curInstr[0].trim().lowercase() == "quit"
                 || curInstr[0].trim().lowercase() == "q" || curInstr[0].trim().lowercase() == "exit") {
                 break
@@ -75,9 +74,20 @@ fun main(args: Array<String>) {
                         println("An error occurred.")
                     }
                 }
+            } else if (userCommands.contains(curInstr[0])) {
+                val userCommand = CommandFactory.createUserComFromArgs(curInstr)
+                try {
+                    userCommand.execute()
+                } catch (e: Exception) {
+                    println("An error occurred.")
+                }
             } else {
                 val taskListCommand = CommandFactory.createTaskListComFromArgs(curInstr)
-                taskListCommand.execute(currentUser.lists)
+                try {
+                    taskListCommand.execute(currentUser.lists)
+                } catch (e: Exception) {
+                    println("An error occurred.")
+                }
             }
 
             currentUser.lastUsedList = currentList
@@ -109,9 +119,20 @@ fun main(args: Array<String>) {
                         println("An error occurred.")
                     }
                 }
+            } else if (userCommands.contains(curInstr[0])) {
+                val userCommand = CommandFactory.createUserComFromArgs(curInstr)
+                try {
+                    userCommand.execute()
+                } catch (e: Exception) {
+                    println("An error occurred.")
+                }
             } else {
                 val taskListCommand = CommandFactory.createTaskListComFromArgs(curInstr)
-                taskListCommand.execute(currentUser.lists)
+                try {
+                    taskListCommand.execute(currentUser.lists)
+                } catch (e: Exception) {
+                    println("An error occurred.")
+                }
             }
             i++
 

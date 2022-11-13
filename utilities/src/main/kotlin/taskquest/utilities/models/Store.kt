@@ -3,7 +3,7 @@ package taskquest.utilities.models
 import taskquest.utilities.models.enums.ItemType
 
 class Store {
-    val items = mutableListOf<Item>()
+    var items = mutableListOf<Item>()
 
     fun addItem(name: String, price: Int, type: ItemType) {
         items.add(Item(id=this.items.size, name=name, price=price, type=type))

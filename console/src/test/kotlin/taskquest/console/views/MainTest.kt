@@ -89,5 +89,27 @@ internal class MainTest {
         mainTestFunc(arrayOf(""))
     }
 
+    @Test
+    fun mainWithWallet() {
+        mainTestFunc(arrayOf("wallet"))
+    }
+
+    @Test
+    fun mainWithShowTags() {
+        mainTestFunc(arrayOf("showtags"))
+    }
+
+    @Test
+    fun mainWithAddTags() {
+        mainTestFunc(arrayOf("addtags", "2", "tag1", "tag2"))
+        mainTestFunc(arrayOf("deltag", "tag1"))
+        mainTestFunc(arrayOf("deltag", "tag2"))
+    }
+
+    @Test
+    fun mainWithDelTag() {
+        mainTestFunc(arrayOf("deltag", "tag1"))
+        mainTestFunc(arrayOf("deltag", "tag2"))
+    }
 
 }

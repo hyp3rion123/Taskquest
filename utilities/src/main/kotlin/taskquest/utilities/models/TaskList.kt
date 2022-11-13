@@ -11,9 +11,13 @@ class TaskList(
     var nextId = 0
 
     fun addItem(title: String, desc: String = "", dueDate: String = "",
-                priority: Priority? = null, difficulty: Difficulty? = null) {
-        this.tasks.add(Task(id=this.tasks.size, title=title, desc=desc, dueDate=dueDate, priority=priority,
-                            difficulty=difficulty))
+                priority: Priority? = null, difficulty: Difficulty? = null, tags: MutableSet<String>? = null) {
+        var newTask = Task(id=this.tasks.size, title=title, desc=desc, dueDate=dueDate, priority=priority,
+            difficulty=difficulty)
+        if (tags != null) {
+            newTask.tags = tags
+        }
+        this.tasks.add(newTask)
     }
     fun addItem(task: Task) {
         task.id = nextId
