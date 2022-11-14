@@ -1,6 +1,6 @@
 {
     "lastUsedList": 0,
-    "wallet": 0,
+    "wallet": 800,
     "lists": [
         {
             "id": 0,
@@ -194,11 +194,46 @@
     ],
     "store": {
         "items": [
+            {
+                "id": 0,
+                "name": "Astronaut",
+                "price": 200,
+                "type": "ProfilePicture",
+                "purchased": false
+            },
+            {
+                "id": 1,
+                "name": "King",
+                "price": 300,
+                "type": "ProfilePicture",
+                "purchased": false
+            },
+            {
+                "id": 2,
+                "name": "Queen",
+                "price": 100,
+                "type": "ProfilePicture",
+                "purchased": true
+            },
+            {
+                "id": 3,
+                "name": "Elf",
+                "price": 100,
+                "type": "ProfilePicture",
+                "purchased": true
+            },
+            {
+                "id": 4,
+                "name": "Dwarf",
+                "price": 100,
+                "type": "ProfilePicture",
+                "purchased": true
+            }
         ]
     },
     "tags": [
     ],
     "profileImageName": "Default.png",
-    "longestStreak": 0,
-    "level": 0
+    "longestStreak": 13,
+    "level": 21
 }
