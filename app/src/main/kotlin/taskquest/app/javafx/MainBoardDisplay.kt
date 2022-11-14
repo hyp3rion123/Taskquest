@@ -90,7 +90,10 @@ public class MainBoardDisplay {
 
         //Main tasks board
 
-        var taskList1 = user.lists[0]
+        var taskList1 = TaskList(-1, "No list")
+        if (user.lists.size >= 1) {
+            taskList1 = user.lists[0]
+        }
 
         val createTaskButton = Button("Create task")
         setDefaultButtonStyle(createTaskButton)
@@ -103,6 +106,9 @@ public class MainBoardDisplay {
         var (sideBarVBox, buttonList) = createSideBarVBox() //this order is required for theme switch - need to pass scene
         var themeButton = buttonList[0]
         var profileButton = buttonList[1]
+        profileButton.setOnMouseClicked {
+            showProfileScreen(user);
+        }
         var shopButton = buttonList[2]
 
         val mainTasksSection = VBox(20.0, headerHBox, boardViewHBox)
@@ -597,6 +603,83 @@ public class MainBoardDisplay {
         taskInfoStage.show()
     }
 
+    fun showProfileScreen(user: User) {
+        val boldFont = Font.font("Courier New", FontWeight.BOLD, 20.0)
+
+        var user = restoreUserData(dataFileName)
+        val profileStage = Stage()
+        profileStage.setTitle("Profile Screen")
+
+        var profileVBox = VBox(10.0)
+
+        val path = "../assets/" + user.profileImageName
+        val image = Image(File(path).toURI().toString())
+        val imageView = ImageView()
+        imageView.image = image
+        imageView.fitWidth = 120.0
+        imageView.fitHeight = 120.0
+
+        val userInfoLabel = Label("User Information")
+        userInfoLabel.font = boldFont
+        var statisticsHBox = HBox(10.0)
+        val titles = listOf("Current coins", "Longest Streak", "Level")
+        val fields = listOf(user.wallet, user.longestStreak, user.level)
+
+        for (i in 0..titles.size - 1) {
+            val title = Label(titles[i])
+            title.font = Font.font("Courier New", FontWeight.BOLD, 15.0)
+            val field = Label(fields[i].toString())
+            val statVBox = VBox(5.0)
+            statVBox.children.addAll(title, field)
+            statisticsHBox.children.add(statVBox)
+        }
+        statisticsHBox.alignment = Pos.CENTER
+
+        val unlockablesLabel = Label("Unlockables (" + user.purchasedItems.size + ")")
+        unlockablesLabel.font = boldFont
+
+        var unlockablesHBox = FlowPane(Orientation.HORIZONTAL)
+        unlockablesHBox.hgap = 10.0
+        unlockablesHBox.vgap = 10.0
+
+        for (item in user.purchasedItems) {
+                unlockablesHBox.children.add(createShopItemVBox(item))
+
+        }
+        unlockablesHBox.alignment = Pos.CENTER
+
+        profileVBox.children.addAll(imageView, userInfoLabel, statisticsHBox, unlockablesLabel, unlockablesHBox)
+        profileVBox.alignment = Pos.CENTER
+
+        profileVBox.style = """
+            -fx-background-color:""" + base2 + """;
+        """
+        val scene = Scene(profileVBox, 600.0, 600.0)
+
+        // set flowpane to same width as window
+        unlockablesHBox.prefWidthProperty().bind(scene.widthProperty())
+
+        profileStage.scene = scene
+        profileStage.show()
+    }
+
+    fun createShopItemVBox(item: Item): VBox {
+        val vBox = VBox(10.0)
+        //Image
+        val path = "../assets/" + item.name + ".png"
+        val image = Image(File(path).toURI().toString())
+        val imageView = ImageView()
+        imageView.image = image
+        imageView.fitWidth = 120.0
+        imageView.fitHeight = 120.0
+        //Title
+        val label = Label(item.name)
+        label.font = globalFont
+        val titleBox = HBox(10.0, label)
+
+        vBox.children.addAll(imageView, titleBox)
+        return vBox
+    }
     fun showTaskCompletionStage(task: Task) {
         val taskCompletionStage = Stage()
         taskCompletionStage.setTitle("Task Completed!")
@@ -610,10 +693,8 @@ public class MainBoardDisplay {
         hbox_title.children.addAll(label_title)
 
         val hbox_desc = HBox(20.0)
-        var coinValue = 10
-        if (task.coinValue != null) {
-            coinValue = task.coinValue!!
-        }
+        val coinValue = task.coinValue
+
         val label_desc = Label("Here's " + coinValue + " TaskCoins as a reward!")
         label_desc.font = globalFont
         hbox_desc.alignment = Pos.CENTER
@@ -714,18 +795,7 @@ public class MainBoardDisplay {
     }
 
     fun createShopItem(item: Item): Pair<VBox, Button> {
-        val vBox = VBox(10.0)
-        //Image
-        val path = "../assets/" + item.name + ".png"
-        val image = Image(File(path).toURI().toString())
-        val imageView = ImageView()
-        imageView.image = image
-        imageView.fitWidth = 120.0
-        imageView.fitHeight = 120.0
-        //Title
-        val label = Label(item.name)
-        label.font = globalFont
-        val titleBox = HBox(10.0, label)
+        val vBox = createShopItemVBox(item)
         // Purchase
         val text = Text(item.price.toString() + " C")
         text.font = globalFont
@@ -734,7 +804,7 @@ public class MainBoardDisplay {
 
         val purchaseBox = HBox(20.0, text, purchaseBtn)
 
-        vBox.children.addAll(imageView, titleBox, purchaseBox)
+        vBox.children.addAll(purchaseBox)
         return vBox to purchaseBtn
     }
 
