@@ -77,6 +77,17 @@ public class MainBoardDisplay {
         return Triple(base1, base2, base3)
     }
 
+    fun ImageButton(path: String, h: Double, w: Double): Button {
+        var button = Button()
+        print(File(path).toURI().toString())
+        val originalImage = Image(File(path).toURI().toString())
+        val imageView = ImageView(originalImage)
+        imageView.fitWidth = h
+        imageView.fitHeight = w
+        imageView.isPreserveRatio = true
+        button.graphic = imageView
+        return button
+    }
     fun start_display(mainStage: Stage?) {
 
         user = restoreUserData(dataFileName)
@@ -113,8 +124,7 @@ public class MainBoardDisplay {
             taskList1 = user.lists[0]
         }
 
-        val createTaskButton = Button("Create task")
-        setDefaultButtonStyle(createTaskButton)
+        val createTaskButton = createAddButton()
 
         toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
 
@@ -268,7 +278,15 @@ public class MainBoardDisplay {
         }
         return taskListVBox
     }
-
+    fun createAddButton(): Button {
+        return ImageButton("../assets/icons/add.png",30.0,30.0)
+    }
+    fun createDeleteButton(): Button {
+        return ImageButton("../assets/icons/delete.png",30.0,30.0)
+    }
+    fun createDetailsButton(): Button {
+        return ImageButton("../assets/icons/details.png",30.0,30.0)
+    }
     fun createTaskHbox(task: Task, data:TaskList, tasksVBox: VBox, title: String, create_button: Button): HBox {
         val title2 = Label(task.title)
         title2.font = globalFont
@@ -285,8 +303,8 @@ public class MainBoardDisplay {
             }
             dataChanged()
         }
-        var btn_del = Button("delete")
-        var btn_info = Button("See info")
+        var btn_del = createDeleteButton()
+        var btn_info = createDetailsButton()
         setDefaultButtonStyle(btn_del)
         setDefaultButtonStyle(btn_info)
         val hbox = HBox(5.0, c, title2, btn_del, btn_info)
@@ -520,8 +538,8 @@ public class MainBoardDisplay {
                 title.font = globalFont
                 val c = CheckBox()
                 c.setSelected(task.complete)
-                var btn_delete = Button("delete")
-                val btn_info = Button("See info")
+                var btn_delete = createDeleteButton()
+                val btn_info = createDetailsButton()
                 val hbox = HBox(5.0, c, title, btn_delete, btn_info)
                 setDefaultButtonStyle(btn_delete)
                 setDefaultButtonStyle(btn_info)
