@@ -82,6 +82,25 @@ public class MainBoardDisplay {
         user = restoreUserData(dataFileName)
         store = restoreStoreData(storeFileName)
 
+        if (mainStage != null) {
+            mainStage.setOnCloseRequest {
+                println("Stage Closing. Save dimensions.")
+                user.x = mainStage.x
+                user.y = mainStage.y
+                user.height = mainStage.height
+                user.width = mainStage.width
+                dataChanged()
+            }
+        }
+
+        if (mainStage != null) {
+            // restore window dimensions and location
+            mainStage.x = user.x
+            mainStage.y = user.y
+            mainStage.height = user.height
+            mainStage.width = user.width
+        }
+
         // set title for the stage
         mainStage?.title = "TaskQuest";
 

@@ -7,6 +7,10 @@ data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
     var profileImageName: String = "Default.png"
     var longestStreak: Int = 0
     var level: Int = 0
+    var width = 900.0;
+    var height = 500.0;
+    var x = 0.0;
+    var y = 0.0;
 
     fun convertToString() {
         for (list in lists) {
