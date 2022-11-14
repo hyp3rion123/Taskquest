@@ -1,6 +1,7 @@
 package taskquest.utilities.models
 
 import kotlinx.serialization.Serializable
+import taskquest.utilities.views.MainUser
 
 @Serializable
 class User() {
@@ -14,7 +15,6 @@ data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
     var longestStreak: Int = 0
     var level: Int = 0
 
-    fun convertToString() {
 
     fun buyItem(itemId: Int) {
         val results = store.items.filter { it.id == itemId }
