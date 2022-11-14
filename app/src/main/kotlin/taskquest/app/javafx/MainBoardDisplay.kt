@@ -25,6 +25,8 @@ import javafx.scene.image.ImageView
 import javafx.scene.input.MouseEvent
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
+import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreData
+import taskquest.utilities.controllers.SaveUtils.Companion.saveStoreData
 import taskquest.utilities.models.*
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
@@ -49,6 +51,7 @@ val bannerTextCss = """
             """.trimIndent()
 
 val dataFileName = "../console/data.json"
+val storeFileName = "../console/store.json"
 val globalFont = Font.font("Courier New", FontWeight.BOLD, 16.0)
 val darkBlue = "#3d5a80"
 val lighterBlue = "#98c1d9"
@@ -63,6 +66,7 @@ var theme = 0
 
 public class MainBoardDisplay {
     var user = User();
+    var store = Store()
     var toDoVBox = VBox();
     var boardViewHBox = HBox();
     fun dataChanged() {
@@ -76,6 +80,7 @@ public class MainBoardDisplay {
     fun start_display(mainStage: Stage?) {
 
         user = restoreUserData(dataFileName)
+        store = restoreStoreData(storeFileName)
 
         // set title for the stage
         mainStage?.title = "TaskQuest";
@@ -123,30 +128,6 @@ public class MainBoardDisplay {
         shopButton.setOnMouseClicked {
             mainStage?.scene = createShopScene(mainStage, mainScene) //created every time for refresh purposes
         }
-
-//        fun updateTheme() {
-//            mainTasksSection.style = """
-//                -fx-background-color:""" + getTheme().third + """;
-//            """
-//            sideBarVBox.style = """
-//                -fx-background-color:""" + getTheme().second + """;
-//            """
-//            setDefaultButtonStyle(themeButton)
-//            setDefaultButtonStyle(shopButton)
-//            setDefaultButtonStyle(profileButton)
-//            mainScreenPane.right = createTaskListVBox(user.lists, createTaskButton)
-////            toDoVBox.children.clear()
-////            addVBoxNonTasks(createTaskButton)
-////            toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
-//
-////            toDoVBox.children.clear()
-////            addVBoxNonTasks(createTaskButton, taskList1, taskList1.title, toDoVBox)
-////            for(currTask in taskList1.tasks){
-////                val child = createTaskHbox(currTask, taskList1, toDoVBox, taskList1.title, createTaskButton)
-////                child.alignment = Pos.TOP_LEFT
-////                tasksVBox.children.add(child)
-////            }
-//        }
 
         themeButton.setOnMouseClicked {
             if (theme == 0) {
@@ -661,10 +642,7 @@ public class MainBoardDisplay {
     }
 
     fun createShopScene(homeStage: Stage?, homeScene: Scene): Scene {
-        var user = restoreUserData(dataFileName)
-        var store = user.store
         val borderPane = BorderPane()
-
         val shopScene = Scene(borderPane, 900.0, 600.0)
 
         //HEADER
@@ -712,13 +690,14 @@ public class MainBoardDisplay {
         for (child in store.items){
             val (childBox, purchaseBtn) = createShopItem(child)
             purchaseBtn.setOnMouseClicked {
-                user.store.buyItem(child.id)
+                store.buyItem(child.id, user)
+                saveStoreData(store, storeFileName)
                 saveUserData(user, dataFileName)
                 flowPane.children.remove(childBox)
                 homeStage?.scene = createShopScene(homeStage, homeScene)
             }
             setDefaultButtonStyle(purchaseBtn)
-            if(!child.purchased) {
+            if(user.purchasedItems.filter{it.id == child.id}.isNullOrEmpty()) {
                 flowPane.children.add(childBox)
             }
         }

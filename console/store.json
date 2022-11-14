@@ -1,0 +1,73 @@
+{
+  "items" : [ {
+    "id" : 0,
+    "name" : "Astronaut",
+    "price" : 200,
+    "type" : "ProfilePicture"
+  }, {
+    "id" : 1,
+    "name" : "King",
+    "price" : 300,
+    "type" : "ProfilePicture"
+  }, {
+    "id" : 2,
+    "name" : "Queen",
+    "price" : 100,
+    "type" : "ProfilePicture"
+  }, {
+    "id" : 3,
+    "name" : "Elf",
+    "price" : 100,
+    "type" : "ProfilePicture"
+  }, {
+    "id" : 4,
+    "name" : "Dwarf",
+    "price" : 100,
+    "type" : "ProfilePicture"
+  }, {
+    "id" : 5,
+    "name" : "Monkey",
+    "price" : 100,
+    "type" : "ProfilePicture"
+  }, {
+    "id" : 6,
+    "name" : "Panda",
+    "price" : 100,
+    "type" : "ProfilePicture"
+  }, {
+    "id" : 7,
+    "name" : "Spy",
+    "price" : 100,
+    "type" : "ProfilePicture"
+  }, {
+    "id" : 8,
+    "name" : "Triforce",
+    "price" : 1000,
+    "type" : "ProfilePicture"
+  }, {
+    "id" : 9,
+    "name" : "Yin-Yang",
+    "price" : 100,
+    "type" : "ProfilePicture"
+  }, {
+    "id" : 10,
+    "name" : "Radioactive",
+    "price" : 100,
+    "type" : "ProfilePicture"
+  }, {
+    "id" : 11,
+    "name" : "Scales",
+    "price" : 100,
+    "type" : "ProfilePicture"
+  }, {
+    "id" : 12,
+    "name" : "Pumpkin",
+    "price" : 100,
+    "type" : "ProfilePicture"
+  }, {
+    "id" : 13,
+    "name" : "Chili",
+    "price" : 100,
+    "type" : "ProfilePicture"
+  } ]
+}
