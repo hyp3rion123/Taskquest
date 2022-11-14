@@ -106,7 +106,7 @@ public class MainBoardDisplay {
             taskList1 = user.lists[0]
         }
 
-        val createTaskButton = ImageButton("../assets/icons/add.png",30.0,30.0)
+        val createTaskButton = createAddButton()
 
         toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
 
@@ -260,7 +260,15 @@ public class MainBoardDisplay {
         }
         return taskListVBox
     }
-
+    fun createAddButton(): Button {
+        return ImageButton("../assets/icons/add.png",30.0,30.0)
+    }
+    fun createDeleteButton(): Button {
+        return ImageButton("../assets/icons/delete.png",30.0,30.0)
+    }
+    fun createDetailsButton(): Button {
+        return ImageButton("../assets/icons/details.png",30.0,30.0)
+    }
     fun createTaskHbox(task: Task, data:TaskList, tasksVBox: VBox, title: String, create_button: Button): HBox {
         val title2 = Label(task.title)
         title2.font = globalFont
@@ -277,8 +285,8 @@ public class MainBoardDisplay {
             }
             dataChanged()
         }
-        var btn_del = ImageButton("../assets/icons/delete.png",30.0,30.0)
-        var btn_info = ImageButton("../assets/icons/details.png",30.0,30.0)
+        var btn_del = createDeleteButton()
+        var btn_info = createDetailsButton()
         setDefaultButtonStyle(btn_del)
         setDefaultButtonStyle(btn_info)
         val hbox = HBox(5.0, c, title2, btn_del, btn_info)
@@ -512,8 +520,8 @@ public class MainBoardDisplay {
                 title.font = globalFont
                 val c = CheckBox()
                 c.setSelected(task.complete)
-                var btn_delete = ImageButton("../assets/icons/delete.png",30.0,30.0)
-                val btn_info = ImageButton("../assets/icons/details.png",30.0,30.0)
+                var btn_delete = createDeleteButton()
+                val btn_info = createDetailsButton()
                 val hbox = HBox(5.0, c, title, btn_delete, btn_info)
                 setDefaultButtonStyle(btn_delete)
                 setDefaultButtonStyle(btn_info)
