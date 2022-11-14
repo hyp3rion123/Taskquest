@@ -88,6 +88,8 @@ public class MainBoardDisplay {
             mainStage.y = user.y
             mainStage.height = user.height
             mainStage.width = user.width
+
+            // save dimensions on close
             mainStage.setOnCloseRequest {
                 println("Stage Closing. Save dimensions.")
                 user.x = mainStage.x
