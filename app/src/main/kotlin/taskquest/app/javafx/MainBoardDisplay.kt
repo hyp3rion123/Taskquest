@@ -83,6 +83,11 @@ public class MainBoardDisplay {
         store = restoreStoreData(storeFileName)
 
         if (mainStage != null) {
+            // restore window dimensions and location
+            mainStage.x = user.x
+            mainStage.y = user.y
+            mainStage.height = user.height
+            mainStage.width = user.width
             mainStage.setOnCloseRequest {
                 println("Stage Closing. Save dimensions.")
                 user.x = mainStage.x
@@ -91,14 +96,6 @@ public class MainBoardDisplay {
                 user.width = mainStage.width
                 dataChanged()
             }
-        }
-
-        if (mainStage != null) {
-            // restore window dimensions and location
-            mainStage.x = user.x
-            mainStage.y = user.y
-            mainStage.height = user.height
-            mainStage.width = user.width
         }
 
         // set title for the stage
