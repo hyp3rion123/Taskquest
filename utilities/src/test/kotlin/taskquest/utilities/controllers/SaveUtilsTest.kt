@@ -1,7 +1,7 @@
 package taskquest.utilities.controllers
 
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Test
 import taskquest.utilities.models.TaskList
 import taskquest.utilities.models.User
@@ -22,15 +22,12 @@ internal class SaveUtilsTest {
         list.addItem("item 4")
         list.addItem("item 5")
         user.lists.add(list)
-        SaveUtils.saveData(user, filename)
+        SaveUtils.saveUserData(user, filename)
 
-        val formattedJson = Json {
-            encodeDefaults = true
-            prettyPrint = true
-        }
+        val mapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
 
         // ensure that the saved file contains the correct data
-        assert(formattedJson.encodeToString(user) == File(filename).readText())
+        assert(mapper.writeValueAsString(user) == File(filename).readText())
 
         // cleanup
         File(filename).delete()
@@ -50,10 +47,10 @@ internal class SaveUtilsTest {
         list.addItem("item 4")
         list.addItem("item 5")
         user.lists.add(list)
-        SaveUtils.saveData(user, filename)
+        SaveUtils.saveUserData(user, filename)
 
         // ensure that restore gives us the same list
-        val user2 = SaveUtils.restoreData(filename)
+        val user2 = SaveUtils.restoreUserData(filename)
         user.lists[0].tasks.zip(user2.lists[0].tasks).forEach {pair ->
             assert(pair.component1().title == pair.component2().title)
         }

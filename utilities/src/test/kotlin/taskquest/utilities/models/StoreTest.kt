@@ -2,35 +2,32 @@ package taskquest.utilities.models
 
 import org.junit.jupiter.api.Test
 import taskquest.utilities.models.enums.ItemType
-import taskquest.utilities.views.MainUser
 
 internal class StoreTest {
     @Test
     fun createStore() {
         val store = Store()
-        val item = Item(id = 0, name = "Test Item", price = 50, type = ItemType.ProfilePicture)
-        store.items.add(item)
+        store.addItem("Test Item", 50, ItemType.ProfilePicture)
         assert(store.items.size == 1)
     }
 
     @Test
     fun buyFromStoreFail() {
         val store = Store()
-        val item = Item(id = 0, name = "Test Item", price = 50, type = ItemType.ProfilePicture)
-        store.items.add(item)
-        MainUser.userInfo.wallet = 49
-        store.buyItem(0)
-        assert(!store.items[0].purchased)
+        store.addItem("Test Item", 50, ItemType.ProfilePicture)
+
+        val user = User()
+        assert(!store.buyItem(0, user))
     }
 
     @Test
     fun buyFromStoreSuccess() {
         val store = Store()
-        val item = Item(id = 0, name = "Test Item", price = 50, type = ItemType.ProfilePicture)
-        store.items.add(item)
-        MainUser.userInfo.wallet = 51
-        store.buyItem(0)
-        assert(store.items[0].purchased)
-        assert(MainUser.userInfo.wallet == 1)
+        store.addItem("Test Item", 50, ItemType.ProfilePicture)
+
+        val user = User()
+        user.wallet = 51
+        assert(store.buyItem(0, user))
+        assert(user.wallet == 1)
     }
 }

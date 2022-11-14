@@ -5,10 +5,15 @@ import java.io.File
 
 internal class MainTest {
     private fun mainTestFunc(params: Array<String>) {
-        File("data.json").copyTo(File("backup.json"), true)
-        File("data.json").delete()
+        if (File("data.json").exists()) {
+            File("data.json").copyTo(File("backup.json"), true)
+            File("data.json").delete()
+        }
         main(params)
-        File("backup.json").copyTo(File("data.json"), true)
+        if (File("backup.json").exists()) {
+            File("backup.json").copyTo(File("data.json"), true)
+            File("backup.json").delete()
+        }
     }
 
     @Test

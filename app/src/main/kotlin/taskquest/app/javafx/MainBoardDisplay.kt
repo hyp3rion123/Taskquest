@@ -14,8 +14,8 @@ import javafx.scene.input.TransferMode
 import javafx.scene.layout.*
 import javafx.scene.text.Font
 import javafx.stage.Stage
-import taskquest.utilities.controllers.SaveUtils.Companion.restoreData
-import taskquest.utilities.controllers.SaveUtils.Companion.saveData
+import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
+import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
@@ -66,8 +66,8 @@ public class MainBoardDisplay {
     var toDoVBox = VBox();
     var boardViewHBox = HBox();
     fun dataChanged() {
-        user.to_string()
-        saveData(user, dataFileName)
+        user.convertToString()
+        saveUserData(user, dataFileName)
     }
     fun getTheme(): Triple<String, String, String> {
         return Triple(base1, base2, base3)
@@ -75,7 +75,7 @@ public class MainBoardDisplay {
 
     fun start_display(mainStage: Stage?) {
 
-        user = restoreData(dataFileName)
+        user = restoreUserData(dataFileName)
 
         // set title for the stage
         mainStage?.title = "TaskQuest";
@@ -322,9 +322,9 @@ public class MainBoardDisplay {
                         break
                     }
                 }
-                saveData(user, dataFileName)
+                saveUserData(user, dataFileName)
                 //Update frontend
-                val newLists = restoreData(dataFileName).lists
+                val newLists = restoreUserData(dataFileName).lists
                 var newList = newLists[0]
                 tasksVBox.children.clear()
                 addVBoxNonTasks(create_button, data, title, tasksVBox)
@@ -347,7 +347,7 @@ public class MainBoardDisplay {
         btn_del.setOnMouseClicked {
             data.deleteItemByID(task.id)
             tasksVBox.children.remove(hbox)
-            user.to_string()
+            user.convertToString()
             dataChanged()
         }
         btn_info.setOnMouseClicked {
@@ -359,7 +359,7 @@ public class MainBoardDisplay {
 
     fun addVBoxNonTasks(create_button: Button, data: TaskList, title: String, tasksVBox: VBox) {
         tasksVBox.children.add(create_button)
-        val childLabel = Label("$title (${data.getLength()})")
+        val childLabel = Label("$title (${data.tasks.size})")
         childLabel.font = globalFont
         tasksVBox.children.add(childLabel)
 
@@ -661,7 +661,7 @@ public class MainBoardDisplay {
     }
 
     fun createShopScene(homeStage: Stage?, homeScene: Scene): Scene {
-        var user = restoreData(dataFileName)
+        var user = restoreUserData(dataFileName)
         var store = user.store
         val borderPane = BorderPane()
 
@@ -713,7 +713,7 @@ public class MainBoardDisplay {
             val (childBox, purchaseBtn) = createShopItem(child)
             purchaseBtn.setOnMouseClicked {
                 user.store.buyItem(child.id)
-                saveData(user, dataFileName)
+                saveUserData(user, dataFileName)
                 flowPane.children.remove(childBox)
                 homeStage?.scene = createShopScene(homeStage, homeScene)
             }

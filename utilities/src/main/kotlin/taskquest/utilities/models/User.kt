@@ -1,16 +1,11 @@
 package taskquest.utilities.models
 
-import kotlinx.serialization.Serializable
-
-@Serializable
-class User() {
-    var lastUsedList: Int = - 1
-    var wallet: Int = 0
+data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
     val lists = mutableListOf<TaskList>()
-    var store: Store = Store()
+    val purchasedItems = mutableListOf<Item>()
     val tags = mutableSetOf<String>()
 
-    fun to_string() {
+    fun convertToString() {
         for (list in lists) {
             println(list.title)
             for (task in list.tasks) {

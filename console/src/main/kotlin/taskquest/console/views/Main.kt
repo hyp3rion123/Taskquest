@@ -1,23 +1,41 @@
 package taskquest.console.views
 
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import taskquest.console.controllers.CommandFactory
 import taskquest.console.controllers.ShowCommand
+import taskquest.utilities.controllers.CloudUtils
 import taskquest.utilities.controllers.SaveUtils
-import taskquest.utilities.views.MainUser
+import taskquest.utilities.models.Store
+import taskquest.utilities.models.User
 import java.io.File
 import java.lang.Exception
+import java.net.ConnectException
 
-var currentUser = MainUser.userInfo
-var currentList = MainUser.userInfo.lastUsedList
+var currentUser = User()
+var currentList = -1
+var store = Store()
 
 fun main(args: Array<String>) {
-    val filename = "data.json"
-    if (!File(filename).exists()) {
-        File(filename).createNewFile()
-        SaveUtils.saveData(currentUser, filename)
+    val mapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+    currentUser = try {
+        val res = CloudUtils.getUsers()
+        mapper.readValue<User>(res)
+    } catch (_: ConnectException) {
+        val filename = "data.json"
+        if (!File(filename).exists()) {
+            File(filename).createNewFile()
+            SaveUtils.saveUserData(currentUser, filename)
+        }
+        SaveUtils.restoreUserData(filename)
     }
-    currentUser = SaveUtils.restoreData(filename)
     currentList = currentUser.lastUsedList
+
+    try {
+        val res = CloudUtils.getStores()
+        store = mapper.readValue<Store>(res)
+    } catch (_: ConnectException) {}
 
     val taskCommands = listOf<String>("add", "del", "show", "edit", "sort")
     val userCommands = listOf<String>("addtags", "deltag", "showtags", "wallet", "help")
@@ -73,7 +91,12 @@ fun main(args: Array<String>) {
             }
 
             currentUser.lastUsedList = currentList
-            SaveUtils.saveData(currentUser, filename)
+            try {
+                CloudUtils.postUsers(currentUser)
+            } catch (_: ConnectException) {
+                val filename = "data.json"
+                SaveUtils.saveUserData(currentUser, filename)
+            }
         }
     } else {
         val instructions : List<String> = args.toMutableList()
@@ -114,12 +137,22 @@ fun main(args: Array<String>) {
             i++
 
             currentUser.lastUsedList = currentList
-            SaveUtils.saveData(currentUser, filename)
+            try {
+                CloudUtils.postUsers(currentUser)
+            } catch (_: ConnectException) {
+                val filename = "data.json"
+                SaveUtils.saveUserData(currentUser, filename)
+            }
         }
 
     }
 
     // save to-do list (json)
     currentUser.lastUsedList = currentList
-    SaveUtils.saveData(currentUser, filename)
+    try {
+        CloudUtils.postUsers(currentUser)
+    } catch (_: ConnectException) {
+        val filename = "data.json"
+        SaveUtils.saveUserData(currentUser, filename)
+    }
 }
