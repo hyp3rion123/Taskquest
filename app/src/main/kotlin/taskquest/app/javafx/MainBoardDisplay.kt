@@ -697,7 +697,8 @@ public class MainBoardDisplay {
         val unlockablesLabel = Label("Unlockables")
         unlockablesLabel.font = boldFont
 
-        var unlockablesHBox = HBox(10.0)
+        var unlockablesHBox = FlowPane(Orientation.HORIZONTAL)
+        unlockablesHBox.hgap = 10.0
         print(user.store.items.size)
         for (item in user.store.items) {
             if (item.purchased) {
@@ -712,7 +713,11 @@ public class MainBoardDisplay {
         profileVBox.style = """
             -fx-background-color:""" + base2 + """;
         """
-        val scene = Scene(profileVBox, 500.0, 500.0)
+        val scene = Scene(profileVBox, 600.0, 600.0)
+
+        // set flowpane to same width as window
+        unlockablesHBox.prefWidthProperty().bind(scene.widthProperty())
+
         profileStage.scene = scene
         profileStage.show()
     }
