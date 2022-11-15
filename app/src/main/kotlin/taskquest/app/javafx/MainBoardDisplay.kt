@@ -252,6 +252,13 @@ public class MainBoardDisplay {
             -fx-background-color:""" + getTheme().second + """;
         """
 
+        val createTaskListButton = createAddButton()
+        createTaskListButton.setOnMouseClicked {
+            user.addTaskList("test")
+
+        }
+        taskListVBox.children.add(createTaskListButton)
+
         val searchBarLabel = Label("Task List Search bar")
         searchBarLabel.font = globalFont
         searchBarLabel.style = """
