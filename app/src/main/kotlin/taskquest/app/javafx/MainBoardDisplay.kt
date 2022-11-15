@@ -1,32 +1,23 @@
 package taskquest.app.javafx;
 
-import javafx.geometry.Pos
-import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.control.CheckBox
-import javafx.scene.control.Label
-import javafx.scene.control.TextField
-import javafx.scene.image.Image
-import javafx.scene.input.ClipboardContent
-import javafx.scene.input.DragEvent
-import javafx.scene.input.Dragboard
-import javafx.scene.input.TransferMode
-import javafx.scene.layout.*
-import javafx.scene.text.Font
-import javafx.stage.Stage
-import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
-import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
-import javafx.scene.Cursor
-import javafx.scene.control.ScrollPane
+import javafx.geometry.Pos
+import javafx.scene.Scene
+import javafx.scene.control.*
+import javafx.scene.image.Image
 import javafx.scene.image.ImageView
-import javafx.scene.input.MouseEvent
+import javafx.scene.input.*
+import javafx.scene.layout.*
+import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
+import javafx.stage.Stage
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreData
+import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveStoreData
+import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
 import taskquest.utilities.models.*
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
@@ -69,6 +60,7 @@ public class MainBoardDisplay {
     var store = Store()
     var toDoVBox = VBox();
     var boardViewHBox = HBox();
+    var toDoScroll = ScrollPane()
     fun dataChanged() {
         user.convertToString()
         saveUserData(user, dataFileName)
@@ -127,8 +119,19 @@ public class MainBoardDisplay {
         val createTaskButton = createAddButton()
 
         toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
+        toDoScroll.content = toDoVBox
+        toDoVBox.style = """
+            -fx-background-color:""" + getTheme().third + """;
+        """
+        toDoScroll.style = """
+            -fx-background-color:""" + getTheme().third + """;
+        """
+        boardViewHBox.style = """
+            -fx-background-color:""" + getTheme().third + """;
+        """
+        toDoScroll.prefWidth = 500.0
 
-        boardViewHBox = HBox(20.0, toDoVBox)
+        boardViewHBox = HBox(20.0, toDoScroll)
         boardViewHBox.alignment = Pos.CENTER
 
         var (sideBarVBox, buttonList) = createSideBarVBox() //this order is required for theme switch - need to pass scene
@@ -162,6 +165,9 @@ public class MainBoardDisplay {
         shopButton.setOnMouseClicked {
             mainStage?.scene = createShopScene(mainStage, mainScene) //created every time for refresh purposes
         }
+        mainTasksSection.style = """
+            -fx-background-color:""" + getTheme().third + """;
+        """
 
         themeButton.setOnMouseClicked {
             if (theme == 0) {
@@ -272,8 +278,9 @@ public class MainBoardDisplay {
             taskListVBox.children.add(title)
             title.setOnMouseClicked {
                 toDoVBox = createTasksVBox(btn_create_task_to_do, taskList, taskList.title)
+                toDoScroll.content = toDoVBox
                 boardViewHBox.children.clear()
-                boardViewHBox.children.add(toDoVBox)
+                boardViewHBox.children.add(toDoScroll)
             }
         }
         return taskListVBox
