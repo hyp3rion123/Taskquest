@@ -1,36 +1,29 @@
 package taskquest.app.javafx;
 
-import javafx.geometry.Pos
-import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.control.CheckBox
-import javafx.scene.control.Label
-import javafx.scene.control.TextField
-import javafx.scene.image.Image
-import javafx.scene.input.ClipboardContent
-import javafx.scene.input.DragEvent
-import javafx.scene.input.Dragboard
-import javafx.scene.input.TransferMode
-import javafx.scene.layout.*
-import javafx.scene.text.Font
-import javafx.stage.Stage
-import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
-import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
+import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
-import javafx.scene.Cursor
-import javafx.scene.control.ScrollPane
+import javafx.geometry.Pos
+import javafx.scene.Scene
+import javafx.scene.control.*
+import javafx.scene.image.Image
 import javafx.scene.image.ImageView
-import javafx.scene.input.MouseEvent
+import javafx.scene.input.*
+import javafx.scene.layout.*
+import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
+import javafx.stage.Stage
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreData
+import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveStoreData
+import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
 import taskquest.utilities.models.*
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
 import java.io.File
+import java.util.*
 
 
 // for outlining layout borders
@@ -65,10 +58,10 @@ var base3 = lightestBlue
 var theme = 0
 
 public class MainBoardDisplay {
-    var user = User();
+    var user = User()
     var store = Store()
-    var toDoVBox = VBox();
-    var boardViewHBox = HBox();
+    var toDoVBox = VBox()
+    var boardViewHBox = HBox()
     fun dataChanged() {
         user.convertToString()
         saveUserData(user, dataFileName)
@@ -79,7 +72,7 @@ public class MainBoardDisplay {
 
     fun ImageButton(path: String, h: Double, w: Double): Button {
         var button = Button()
-        print(File(path).toURI().toString())
+        // print(File(path).toURI().toString())
         val originalImage = Image(File(path).toURI().toString())
         val imageView = ImageView(originalImage)
         imageView.fitWidth = h
@@ -102,7 +95,7 @@ public class MainBoardDisplay {
 
             // save dimensions on close
             mainStage.setOnCloseRequest {
-                println("Stage Closing. Save dimensions.")
+                // println("Stage Closing. Save dimensions.")
                 user.x = mainStage.x
                 user.y = mainStage.y
                 user.height = mainStage.height
@@ -294,10 +287,10 @@ public class MainBoardDisplay {
         c.setSelected(task.complete)
         c.setOnMouseClicked {
             if (task.complete) {
-                println("Mark incomplete: " + task.title)
+                // println("Mark incomplete: " + task.title)
                 task.complete = false
             } else {
-                println("Mark complete: " + task.title)
+                // println("Mark complete: " + task.title)
                 task.complete = true
                 showTaskCompletionStage(task)
             }
@@ -753,9 +746,27 @@ public class MainBoardDisplay {
         vbox.style = """
             -fx-background-color:""" + getTheme().second + """;
         """
-        val scene = Scene(vbox, 500.0, 200.0)
+        val scene = Scene(vbox, 400.0, 150.0)
         taskCompletionStage.scene = scene
         taskCompletionStage.show()
+
+        // close completion automatically after 3 seconds
+        val timer = Timer();
+        val countdown: TimerTask = object : TimerTask() {
+            var counter = 3
+            override fun run() {
+                Platform.runLater(Runnable {
+                    // close task after
+                    if (counter == 0) {
+                        taskCompletionStage.close()
+                    } else {
+                        btn.text = "Exit ($counter)"
+                        counter--
+                    }
+                })
+            }
+        }
+        timer.scheduleAtFixedRate(countdown,0,1000L)
     }
 
     fun createShopScene(homeStage: Stage?, homeScene: Scene): Scene {
