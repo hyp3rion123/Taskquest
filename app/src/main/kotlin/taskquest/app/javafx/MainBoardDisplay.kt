@@ -72,7 +72,7 @@ public class MainBoardDisplay {
 
     fun ImageButton(path: String, h: Double, w: Double): Button {
         var button = Button()
-        print(File(path).toURI().toString())
+        // print(File(path).toURI().toString())
         val originalImage = Image(File(path).toURI().toString())
         val imageView = ImageView(originalImage)
         imageView.fitWidth = h
@@ -95,7 +95,7 @@ public class MainBoardDisplay {
 
             // save dimensions on close
             mainStage.setOnCloseRequest {
-                println("Stage Closing. Save dimensions.")
+                // println("Stage Closing. Save dimensions.")
                 user.x = mainStage.x
                 user.y = mainStage.y
                 user.height = mainStage.height
@@ -287,10 +287,10 @@ public class MainBoardDisplay {
         c.setSelected(task.complete)
         c.setOnMouseClicked {
             if (task.complete) {
-                println("Mark incomplete: " + task.title)
+                // println("Mark incomplete: " + task.title)
                 task.complete = false
             } else {
-                println("Mark complete: " + task.title)
+                // println("Mark complete: " + task.title)
                 task.complete = true
                 showTaskCompletionStage(task)
             }
@@ -760,7 +760,6 @@ public class MainBoardDisplay {
                     if (counter == 0) {
                         taskCompletionStage.close()
                     } else {
-                        println("$counter seconds elapsed.")
                         btn.text = "Exit ($counter)"
                         counter--
                     }
