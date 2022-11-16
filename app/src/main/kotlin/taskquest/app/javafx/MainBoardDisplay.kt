@@ -804,8 +804,8 @@ class MainBoardDisplay {
         val userInfoLabel = Label("User Information")
         userInfoLabel.font = boldFont
         var statisticsHBox = HBox(10.0)
-        val titles = listOf("Current coins", "Longest Streak", "Tasks Done Today", "Level")
-        val fields = listOf(user.wallet, user.longestStreak, user.tasksDoneToday, user.level)
+        val titles = listOf("Current coins", "Longest Streak", "Tasks Done Today", "Rank")
+        val fields = listOf(user.wallet, user.longestStreak, user.tasksDoneToday, user.bannerRank)
 
         for (i in 0..titles.size - 1) {
             val title = Label(titles[i])
@@ -831,7 +831,7 @@ class MainBoardDisplay {
         unlockablesHBox.alignment = Pos.CENTER
 
         profileVBox.children.addAll(bannerCopy, imageView, userInfoLabel, statisticsHBox, unlockablesLabel, unlockablesHBox)
-        profileVBox.alignment = Pos.CENTER
+        profileVBox.alignment = Pos.TOP_CENTER
 
         profileVBox.style = """
             -fx-background-color:""" + base2 + """;

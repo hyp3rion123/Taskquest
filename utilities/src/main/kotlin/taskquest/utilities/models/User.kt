@@ -11,7 +11,7 @@ data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
     var bannerRank: Int = 0
     var longestStreak: Int = 0
     var tasksDoneToday: Int = 0
-    var level: Int = 0
+    var level: Int = 0 // unused - rank used instead
     var width = 900.0;
     var height = 500.0;
     var x = 0.0;
