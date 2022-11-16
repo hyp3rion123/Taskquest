@@ -62,6 +62,7 @@ var base1 = darkBlue
 var base2 = lighterBlue
 var base3 = lightestBlue
 var theme = 0
+val iconSize = 20.0
 
 class MainBoardDisplay {
     var user = User()
@@ -308,17 +309,17 @@ class MainBoardDisplay {
 
     }
     fun createAddButton(): Button {
-        var btn = ImageButton("../assets/icons/add.png",30.0,30.0)
+        var btn = ImageButton("../assets/icons/add.png",iconSize,iconSize)
         btn.setMinSize(btn.prefWidth, btn.prefHeight)
         return btn
     }
     fun createDeleteButton(): Button {
-        var btn = ImageButton("../assets/icons/delete.png",30.0,30.0)
+        var btn = ImageButton("../assets/icons/delete.png",iconSize,iconSize)
         btn.setMinSize(btn.prefWidth, btn.prefHeight)
         return btn
     }
     fun createDetailsButton(): Button {
-        var btn = ImageButton("../assets/icons/details.png",30.0,30.0)
+        var btn = ImageButton("../assets/icons/details.png",iconSize,iconSize)
         btn.setMinSize(btn.prefWidth, btn.prefHeight)
         return btn
     }
