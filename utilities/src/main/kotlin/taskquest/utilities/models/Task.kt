@@ -13,30 +13,34 @@ class Task(
     var difficulty: Difficulty? = null, var complete: Boolean = false, var completeOnce: Boolean = false
 ) {
     var tags: MutableSet<String> = mutableSetOf<String>()
-    var coinValue: Int = when(difficulty) {
-        Difficulty.Hard -> 3
-        Difficulty.Medium -> 2
-        Difficulty.Easy -> 1
-        else -> 0
-    }
-    var multiplier: Int = when(priority) {
-        Priority.High -> 3
-        Priority.Medium -> 2
-        Priority.Low -> 1
-        else -> 0
-    }
+    var rewardCoins : Int = 0
 
     fun calcCoinValue() {
-        if (coinValue == 0 && multiplier != 0) {
-            coinValue = multiplier
-        } else if (coinValue != 0 && multiplier != 0) {
-            coinValue *= multiplier
-        } else if (coinValue == 0) {
-            coinValue = 1
+        var coinsFromDiff: Int = when(difficulty) {
+            Difficulty.Hard -> 3
+            Difficulty.Medium -> 2
+            Difficulty.Easy -> 1
+            else -> 0
+        }
+        var coinsFromPrio: Int = when(priority) {
+            Priority.High -> 3
+            Priority.Medium -> 2
+            Priority.Low -> 1
+            else -> 0
+        }
+
+        if (coinsFromDiff == 0 && coinsFromPrio != 0) {
+            this.rewardCoins = coinsFromPrio
+        } else if (coinsFromDiff != 0 && coinsFromPrio != 0) {
+            this.rewardCoins = coinsFromDiff * coinsFromPrio
+        } else if (coinsFromDiff == 0) {
+            this.rewardCoins = 1
+        } else {
+            this.rewardCoins = coinsFromDiff
         }
     }
 
     init {
-        calcCoinValue()
+        this.calcCoinValue()
     }
 }
