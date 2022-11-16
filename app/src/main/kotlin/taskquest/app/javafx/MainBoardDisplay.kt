@@ -134,7 +134,6 @@ class MainBoardDisplay {
             }
 
         }
-
         boardViewHBox = HBox(20.0, toDoVBox)
         boardViewHBox.alignment = Pos.CENTER
 
@@ -423,19 +422,19 @@ class MainBoardDisplay {
     }
 
     fun addVBoxNonTasks(create_button: Button, data: TaskList, title: String, tasksVBox: VBox) {
+        val hbox = HBox(10.0)
+        val vbox = VBox(10.0)
         val childLabel = Label("$title (${data.tasks.size})")
         childLabel.font = globalFont
-        tasksVBox.children.add(childLabel)
-
-        val searchBar = Label("Tasks Search bar")
-        searchBar.font = globalFont
-        tasksVBox.children.add(searchBar)
 
         val textField = TextField()
         textField.promptText = "Search here!"
-        tasksVBox.children.add(textField)
+        vbox.children.addAll(childLabel, textField)
 
-        tasksVBox.children.add(create_button)
+        hbox.children.addAll(vbox, create_button)
+        hbox.alignment = Pos.BOTTOM_CENTER
+
+        tasksVBox.children.add(hbox)
     }
 
     fun createTasksVBox(create_button: Button, data : TaskList, title: String = "To do"): VBox {
@@ -478,7 +477,8 @@ class MainBoardDisplay {
         sideBar.style = """
             -fx-background-color:"""+ getTheme().second+ """;
         """
-        sideBar.prefWidth = 50.0
+        sideBar.prefWidth = 80.0
+        sideBar.alignment = Pos.TOP_CENTER
         val themeButton = ImageButton("../assets/icons/theme.png",30.0,30.0)
         val profileButton = ImageButton("../assets/icons/profile.png",30.0,30.0)
         val shopButton = ImageButton("../assets/icons/shop.png",30.0,30.0)
