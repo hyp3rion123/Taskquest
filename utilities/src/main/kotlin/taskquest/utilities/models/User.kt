@@ -6,7 +6,7 @@ data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
     val lists = mutableListOf<TaskList>()
     val purchasedItems = mutableListOf<Item>()
     val tags = mutableSetOf<String>()
-    var profileImageName: String = "Default"
+    var profileImageName: String = "Default.png"
     var bannerRank: Int = 0
     var longestStreak: Int = 0
     var tasksDoneToday: Int = 0

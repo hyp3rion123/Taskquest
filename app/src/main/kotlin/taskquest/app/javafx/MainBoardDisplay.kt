@@ -659,7 +659,7 @@ public class MainBoardDisplay {
         bannerCopy.fitWidth = 200.0
         bannerCopy.fitHeight = 100.0
 
-        val path = "../assets/" + user.profileImageName + ".png"
+        val path = "../assets/" + user.profileImageName
         val image = Image(File(path).toURI().toString())
         val imageView = ImageView()
         imageView.image = image
