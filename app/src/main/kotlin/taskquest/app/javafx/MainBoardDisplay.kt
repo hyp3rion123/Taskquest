@@ -48,8 +48,8 @@ val bannerTextCss = """
             -fx-border-style: dashed;
             """.trimIndent()
 
-val dataFileName = "../console/data.json"
-val storeFileName = "../console/store.json"
+val dataFileName = "data.json"
+val storeFileName = "store.json"
 val globalFont = Font.font("Courier New", FontWeight.BOLD, 16.0)
 val darkBlue = "#3d5a80"
 val lighterBlue = "#98c1d9"
