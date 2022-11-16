@@ -7,6 +7,7 @@ import taskquest.utilities.models.enums.Priority
 import taskquest.console.views.currentList
 import taskquest.console.views.currentUser
 import taskquest.utilities.controllers.DateValidator
+import taskquest.utilities.controllers.FunctionClass
 
 // Factory pattern
 // generate a command based on the arguments passed in
@@ -127,6 +128,8 @@ class AddCommand(private val args: List<String>) : TaskCommand {
 
                         if (userDate[2].length == 1) {
                             userDate[2] = "0" + userDate[2]
+                        } else if (userDate[2].length > 2) {
+                            userDate[2] = userDate[2].substring(0, 2)
                         }
 
                         dueDateInput = userDate[0] + "-" + userDate[1] + "-" + userDate[2]
@@ -322,6 +325,8 @@ class EditCommand(private val args: List<String>) : TaskCommand {
 
                                 if (userDate[2].length == 1) {
                                     userDate[2] = "0" + userDate[2]
+                                } else if (userDate[2].length > 2) {
+                                    userDate[2] = userDate[2].substring(0, 2)
                                 }
 
                                 if (userDate[1].length == 1) {
@@ -337,12 +342,6 @@ class EditCommand(private val args: List<String>) : TaskCommand {
                             val priorityNum = readLine()!!.trim()
                             try {
                                 task.priority = Priority.values()[priorityNum.toInt() - 1]
-                                task.multiplier = when (priorityNum) {
-                                    "1" -> 3
-                                    "2" -> 2
-                                    "3" -> 1
-                                    else -> 0
-                                }
                                 task.calcCoinValue()
                             } catch (e: RuntimeException) {
                                 println("Priority was not successfully updated.")
@@ -353,12 +352,6 @@ class EditCommand(private val args: List<String>) : TaskCommand {
                             val difficultyNum = readLine()!!.trim()
                             try {
                                 task.difficulty = Difficulty.values()[difficultyNum.toInt() - 1]
-                                task.coinValue = when (difficultyNum) {
-                                    "1" -> 3
-                                    "2" -> 2
-                                    "3" -> 1
-                                    else -> 0
-                                }
                                 task.calcCoinValue()
                             } catch (e: RuntimeException) {
                                 println("Difficulty was not successfully updated.")
@@ -371,10 +364,10 @@ class EditCommand(private val args: List<String>) : TaskCommand {
                                 task.complete = !task.complete
                                 if (task.complete == true && task.completeOnce == false) {
                                     task.completeOnce = true
-                                    println("You have earned ${task.coinValue} coins!!")
-                                    currentUser.wallet += task.coinValue
+                                    println("You have earned ${task.rewardCoins} coin${if (task.rewardCoins > 1) "s" else ""}!!")
+                                    currentUser.wallet += task.rewardCoins
                                 } else if (task.complete == true) {
-                                    println("You have already been rewarded for completing this task.")
+                                    println("This task is now marked as complete, but you have already been rewarded for completing this task.")
                                 }
                             } else {
                                 println("The completion status was not updated.")
@@ -422,23 +415,7 @@ class SortCommand(private val args: List<String>) : TaskCommand {
             return
         }
 
-        val sortMethod = args[1]
-
-        when (sortMethod) {
-            "byTitleAsc" -> list.tasks.sortBy { it.title }
-            "byTitleDesc" -> list.tasks.sortByDescending { it.title }
-            "byDueDateAsc" -> list.tasks.sortBy { it.dueDate }
-            "byDueDateDesc" -> list.tasks.sortByDescending { it.dueDate }
-            "byDateCreatedAsc" -> list.tasks.sortBy { it.dateCreated }
-            "byDateCreatedDesc" -> list.tasks.sortByDescending { it.dateCreated }
-            "byPriorityAsc" -> list.tasks.sortByDescending { it.priority }
-            "byPriorityDesc" -> list.tasks.sortBy { it.priority }
-            "byDifficultyAsc" -> list.tasks.sortByDescending { it.difficulty }
-            "byDifficultyDesc" -> list.tasks.sortBy { it.difficulty }
-            "byCompletion" -> list.tasks.sortBy { it.complete }
-            "default" -> list.tasks.sortBy { it.id }
-            else -> println("Sorting method not supported.")
-        }
+        FunctionClass.sortTasksBy(args[1], list)
 
     }
 
@@ -463,7 +440,8 @@ class AddListCommand(private val args: List<String>) : TaskListCommand {
         print("Add an optional description for this list (enter return to skip): ")
         val desc = readLine()!!.trim().lowercase()
 
-        lists.add(TaskList(lists.size, title, desc))
+        currentUser.addList(title, desc)
+
         if (currentList == -1) {
             currentList = lists.size - 1
             println("Your currently active list has been changed to the ${title} list.")
@@ -520,10 +498,18 @@ class DeleteListCommand(private val args: List<String>) : TaskListCommand {
                     currentList = -1
                     println("You deleted your currently active list. Now you have no active list. ")
                 } else {
-                    println("You successfully deleted list ${listNum}: ${lists[listNum -1]}")
+                    println("You successfully deleted list ${listNum}: ${lists[listNum - 1].title}")
                 }
                 lists.removeAt(listNum - 1)
+
+                if (lists.size == 0) {
+                    currentUser.nextId = 0
+                    currentList = -1
+                } else if (listNum - 1 < currentList) {
+                    currentList--
+                }
             }
+
         }
 
     }
@@ -699,7 +685,7 @@ class ShowTagsCommand() : UserCommand {
 class ShowCoins() : UserCommand {
 
     override fun execute() {
-        println("You have ${currentUser.wallet} coins in your wallet.")
+        println("You have ${currentUser.wallet} coin${if (currentUser.wallet > 1) "s " else " "}in your wallet.")
     }
 
 }
