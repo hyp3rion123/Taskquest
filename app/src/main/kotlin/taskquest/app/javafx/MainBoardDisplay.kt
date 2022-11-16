@@ -11,6 +11,7 @@ import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.input.*
 import javafx.scene.layout.*
+import javafx.scene.shape.Line
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
@@ -307,7 +308,6 @@ public class MainBoardDisplay {
         HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS)
         spacer.setMinSize(10.0, 10.0)
         var btn_info = createDetailsButton()
-
         setDefaultButtonStyle(btn_del)
         setDefaultButtonStyle(btn_info)
         hbox.children.addAll(c, taskTitle, spacer, btn_del, btn_info)
@@ -322,6 +322,14 @@ public class MainBoardDisplay {
             content.putString(task.id.toString())
             db.setContent(content)
             event.consume()
+        }
+
+        hbox.onDragEntered = EventHandler<DragEvent?> { event ->
+            if (event.gestureSource !== hbox) hbox.opacity = 0.5
+        }
+
+        hbox.onDragExited = EventHandler<DragEvent?> { _ ->
+            hbox.opacity = 1.0
         }
 
         hbox.onDragOver = EventHandler<DragEvent?> {event ->
@@ -341,27 +349,21 @@ public class MainBoardDisplay {
             val db = event.dragboard
             var success = data.moveItem(db.string.toInt(), task.id)
             if(success) {
+                var currList = user.lists[0]
                 //Update backend-needed if user switches back and forth between lists
                 for((index, list) in user.lists.withIndex()){
                     if(list.id == data.id){
+                        currList = list
                         user.lists.remove(list)
                         user.lists.add(index,data)
                         break
                     }
                 }
-                saveUserData(user, dataFileName)
                 //Update frontend
-                val newLists = restoreUserData(dataFileName).lists
-                var newList = newLists[0]
                 tasksVBox.children.clear()
                 addVBoxNonTasks(create_button, data, title, tasksVBox)
-                for(list in newLists) {
-                    if (list.id == data.id) {
-                        newList = list
-                    }
-                }
-                for(currTask in newList.tasks){
-                    val child = createTaskHbox(currTask, newList, tasksVBox, title, create_button)
+                for(currTask in currList.tasks){
+                    val child = createTaskHbox(currTask, currList, tasksVBox, title, create_button)
                     child.alignment = Pos.TOP_LEFT
                     tasksVBox.children.add(child)
                 }
