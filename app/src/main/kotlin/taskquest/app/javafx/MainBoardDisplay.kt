@@ -188,8 +188,15 @@ public class MainBoardDisplay {
         }
     }
 
-    fun createBanner(): HBox {
-        val image = Image("https://3.bp.blogspot.com/-Y5k2sJfG5Ro/UoFMFpmbJmI/AAAAAAAAJHw/HVKNUY1Srog/s1600/image+5.png")
+    fun createBanner(): VBox {
+        val vbox = VBox(10.0)
+
+        val bannerPath = "../assets/banners/" + user.bannerRank + ".png"
+        val banner = Image(File(bannerPath).toURI().toString())
+        val bannerImageView = ImageView()
+        bannerImageView.image = banner
+        bannerImageView.fitWidth = 200.0
+        bannerImageView.fitHeight = 100.0
 
         var headerLabel = Label("Welcome back, USER_NAME.")
         headerLabel.alignment = Pos.CENTER
@@ -198,23 +205,10 @@ public class MainBoardDisplay {
         var headerHBox = HBox(10.0, headerLabel)
         headerHBox.alignment = Pos.CENTER
 
-        val backgroundSize = BackgroundSize(
-            1064.0,
-            176.0,
-            true,
-            true,
-            true,
-            false
-        )
-        val backgroundImage = BackgroundImage(
-            image,
-            BackgroundRepeat.NO_REPEAT,
-            BackgroundRepeat.NO_REPEAT,
-            BackgroundPosition.CENTER,
-            backgroundSize
-        )
-        headerHBox.setBackground(Background(backgroundImage))
-        return headerHBox
+
+        vbox.children.addAll(bannerImageView, headerHBox)
+
+        return vbox
     }
 
     fun setDefaultButtonStyle(button: Button) {
@@ -539,7 +533,7 @@ public class MainBoardDisplay {
                 val title = Label(task.title)
                 title.font = globalFont
                 val c = CheckBox()
-                c.setSelected(task.complete)
+                c.isSelected = task.complete
                 var btn_delete = createDeleteButton()
                 val btn_info = createDetailsButton()
                 val hbox = HBox(5.0, c, title, btn_delete, btn_info)
@@ -650,7 +644,14 @@ public class MainBoardDisplay {
 
         var profileVBox = VBox(10.0)
 
-        val path = "../assets/" + user.profileImageName
+        val bannerPath = "../assets/banners/" + user.bannerRank + ".png"
+        val banner = Image(File(bannerPath).toURI().toString())
+        val bannerImageView = ImageView()
+        bannerImageView.image = banner
+        bannerImageView.fitWidth = 200.0
+        bannerImageView.fitHeight = 100.0
+
+        val path = "../assets/" + user.profileImageName + ".png"
         val image = Image(File(path).toURI().toString())
         val imageView = ImageView()
         imageView.image = image
@@ -660,8 +661,8 @@ public class MainBoardDisplay {
         val userInfoLabel = Label("User Information")
         userInfoLabel.font = boldFont
         var statisticsHBox = HBox(10.0)
-        val titles = listOf("Current coins", "Longest Streak", "Level")
-        val fields = listOf(user.wallet, user.longestStreak, user.level)
+        val titles = listOf("Current coins", "Longest Streak", "Tasks Done Today", "Level")
+        val fields = listOf(user.wallet, user.longestStreak, user.tasksDoneToday, user.level)
 
         for (i in 0..titles.size - 1) {
             val title = Label(titles[i])
@@ -681,12 +682,12 @@ public class MainBoardDisplay {
         unlockablesHBox.vgap = 10.0
 
         for (item in user.purchasedItems) {
-                unlockablesHBox.children.add(createShopItemVBox(item))
+                unlockablesHBox.children.add(createShopItemVBox(item, 100.0))
 
         }
         unlockablesHBox.alignment = Pos.CENTER
 
-        profileVBox.children.addAll(imageView, userInfoLabel, statisticsHBox, unlockablesLabel, unlockablesHBox)
+        profileVBox.children.addAll(bannerImageView, imageView, userInfoLabel, statisticsHBox, unlockablesLabel, unlockablesHBox)
         profileVBox.alignment = Pos.CENTER
 
         profileVBox.style = """
@@ -701,15 +702,15 @@ public class MainBoardDisplay {
         profileStage.show()
     }
 
-    fun createShopItemVBox(item: Item): VBox {
+    fun createShopItemVBox(item: Item, size: Double): VBox {
         val vBox = VBox(10.0)
         //Image
         val path = "../assets/" + item.name + ".png"
         val image = Image(File(path).toURI().toString())
         val imageView = ImageView()
         imageView.image = image
-        imageView.fitWidth = 120.0
-        imageView.fitHeight = 120.0
+        imageView.fitWidth = size
+        imageView.fitHeight = size
         //Title
         val label = Label(item.name)
         label.font = globalFont
@@ -719,6 +720,8 @@ public class MainBoardDisplay {
         return vBox
     }
     fun showTaskCompletionStage(task: Task) {
+        user.taskCompleteCounter() // count new task completed
+
         val taskCompletionStage = Stage()
         taskCompletionStage.setTitle("Task Completed!")
         val btn = Button("Exit")
@@ -851,7 +854,7 @@ public class MainBoardDisplay {
     }
 
     fun createShopItem(item: Item): Pair<VBox, Button> {
-        val vBox = createShopItemVBox(item)
+        val vBox = createShopItemVBox(item, 120.0)
         // Purchase
         val text = Text(item.price.toString() + " C")
         text.font = globalFont
