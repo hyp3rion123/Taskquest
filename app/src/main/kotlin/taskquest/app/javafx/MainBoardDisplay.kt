@@ -122,16 +122,6 @@ public class MainBoardDisplay {
 
         toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
         toDoScroll.content = toDoVBox
-        toDoVBox.style = """
-            -fx-background-color:""" + getTheme().third + """;
-        """
-        toDoScroll.style = """
-            -fx-background-color:""" + getTheme().third + """;
-        """
-        boardViewHBox.style = """
-            -fx-background-color:""" + getTheme().third + """;
-        """
-        toDoScroll.prefWidth = 500.0
 
         boardViewHBox = HBox(20.0, toDoScroll)
         boardViewHBox.alignment = Pos.CENTER
@@ -146,9 +136,6 @@ public class MainBoardDisplay {
 
         val mainTasksSection = VBox(20.0, headerHBox, boardViewHBox)
         mainTasksSection.padding = Insets(100.0, 0.0, 0.0, 0.0)
-        mainTasksSection.style = """
-            -fx-background-color:""" + getTheme().third + """;
-        """
 
         val mainScreenPane = BorderPane()
         mainScreenPane.right = createTaskListVBox(user.lists, createTaskButton)
