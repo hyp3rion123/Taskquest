@@ -272,35 +272,46 @@ public class MainBoardDisplay {
         return taskListVBox
     }
     fun createAddButton(): Button {
-        return ImageButton("../assets/icons/add.png",30.0,30.0)
+        var btn = ImageButton("../assets/icons/add.png",30.0,30.0)
+        btn.setMinSize(btn.prefWidth, btn.prefHeight)
+        return btn
     }
     fun createDeleteButton(): Button {
-        return ImageButton("../assets/icons/delete.png",30.0,30.0)
+        var btn = ImageButton("../assets/icons/delete.png",30.0,30.0)
+        btn.setMinSize(btn.prefWidth, btn.prefHeight)
+        return btn
     }
     fun createDetailsButton(): Button {
-        return ImageButton("../assets/icons/details.png",30.0,30.0)
+        var btn = ImageButton("../assets/icons/details.png",30.0,30.0)
+        btn.setMinSize(btn.prefWidth, btn.prefHeight)
+        return btn
     }
+
     fun createTaskHbox(task: Task, data:TaskList, tasksVBox: VBox, title: String, create_button: Button): HBox {
-        val title2 = Label(task.title)
-        title2.font = globalFont
+        val hbox = HBox(5.0)
+        val taskTitle = Label(task.title)
+        taskTitle.font = globalFont
         val c = CheckBox()
         c.setSelected(task.complete)
         c.setOnMouseClicked {
             if (task.complete) {
-                // println("Mark incomplete: " + task.title)
                 task.complete = false
             } else {
-                // println("Mark complete: " + task.title)
                 task.complete = true
                 showTaskCompletionStage(task)
             }
             dataChanged()
         }
         var btn_del = createDeleteButton()
+        val spacer = Pane()
+        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS)
+        spacer.setMinSize(10.0, 10.0)
         var btn_info = createDetailsButton()
+
         setDefaultButtonStyle(btn_del)
         setDefaultButtonStyle(btn_info)
-        val hbox = HBox(5.0, c, title2, btn_del, btn_info)
+        hbox.children.addAll(c, taskTitle, spacer, btn_del, btn_info)
+        hbox.setPrefSize(400.0, 50.0)
         hbox.onDragDetected = EventHandler<MouseEvent?> {event ->
             /* drag was detected, start a drag-and-drop gesture*/
             /* allow any transfer mode */
@@ -374,7 +385,6 @@ public class MainBoardDisplay {
     }
 
     fun addVBoxNonTasks(create_button: Button, data: TaskList, title: String, tasksVBox: VBox) {
-        tasksVBox.children.add(create_button)
         val childLabel = Label("$title (${data.tasks.size})")
         childLabel.font = globalFont
         tasksVBox.children.add(childLabel)
@@ -386,6 +396,8 @@ public class MainBoardDisplay {
         val textField = TextField()
         textField.promptText = "Search here!"
         tasksVBox.children.add(textField)
+
+        tasksVBox.children.add(create_button)
     }
 
     fun createTasksVBox(create_button: Button, data : TaskList, title: String = "To do"): VBox {
@@ -394,15 +406,12 @@ public class MainBoardDisplay {
         var tasksVBox = VBox(10.0)
         addVBoxNonTasks(create_button, data, title, tasksVBox)
 
-//        var tasksContainer = VBox(10.0) //used for left aligning only the tasks
         // add tasks to VBox
         for (task in data.tasks) {
             val hbox = createTaskHbox(task, data, tasksVBox, title, create_button)
+            hbox.alignment = Pos.TOP_LEFT
             tasksVBox.children.add(hbox)
-//            hbox.alignment = Pos.TOP_LEFT
-//            tasksContainer.children.add(hbox)
         }
-//        tasksVBox.children.add(tasksContainer)
 
         //Map create button to current tasklist
         create_button.setOnMouseClicked {
