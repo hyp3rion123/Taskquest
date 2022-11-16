@@ -18,7 +18,9 @@ data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
 
     fun taskCompleteCounter() {
         tasksDoneToday += 1 // increment tasks done today
-        bannerRank += 1 // increment counter
+        if (tasksDoneToday % 3 == 0) { // for every 3 tasks done
+            bannerRank += 1 // increment counter
+        }
         if (bannerRank > bannerMax) {
             bannerRank = bannerMax
         }

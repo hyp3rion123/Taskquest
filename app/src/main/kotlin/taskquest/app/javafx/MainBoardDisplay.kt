@@ -62,6 +62,7 @@ public class MainBoardDisplay {
     var store = Store()
     var toDoVBox = VBox()
     var boardViewHBox = HBox()
+    var bannerImageView = ImageView()
     fun dataChanged() {
         user.convertToString()
         saveUserData(user, dataFileName)
@@ -133,7 +134,7 @@ public class MainBoardDisplay {
         var shopButton = buttonList[2]
 
         val mainTasksSection = VBox(20.0, headerHBox, boardViewHBox)
-        mainTasksSection.padding = Insets(100.0, 0.0, 0.0, 0.0)
+        mainTasksSection.padding = Insets(0.0, 0.0, 0.0, 0.0)
         mainTasksSection.style = """
             -fx-background-color:""" + getTheme().third + """;
         """
@@ -188,12 +189,17 @@ public class MainBoardDisplay {
         }
     }
 
+    fun updateBanner() {
+        val bannerPath = "../assets/banners/" + user.bannerRank + ".png"
+        val banner = Image(File(bannerPath).toURI().toString())
+        bannerImageView.image = banner
+    }
+
     fun createBanner(): VBox {
         val vbox = VBox(10.0)
 
         val bannerPath = "../assets/banners/" + user.bannerRank + ".png"
         val banner = Image(File(bannerPath).toURI().toString())
-        val bannerImageView = ImageView()
         bannerImageView.image = banner
         bannerImageView.fitWidth = 200.0
         bannerImageView.fitHeight = 100.0
@@ -207,6 +213,7 @@ public class MainBoardDisplay {
 
 
         vbox.children.addAll(bannerImageView, headerHBox)
+        vbox.alignment = Pos.TOP_CENTER
 
         return vbox
     }
@@ -235,6 +242,7 @@ public class MainBoardDisplay {
 
         // create a VBox
         val taskListVBox = VBox(10.0)
+        taskListVBox.alignment = Pos.TOP_CENTER
         taskListVBox.style = """
             -fx-background-color:""" + getTheme().second + """;
         """
@@ -644,12 +652,12 @@ public class MainBoardDisplay {
 
         var profileVBox = VBox(10.0)
 
+        var bannerCopy = ImageView()
         val bannerPath = "../assets/banners/" + user.bannerRank + ".png"
         val banner = Image(File(bannerPath).toURI().toString())
-        val bannerImageView = ImageView()
-        bannerImageView.image = banner
-        bannerImageView.fitWidth = 200.0
-        bannerImageView.fitHeight = 100.0
+        bannerCopy.image = banner
+        bannerCopy.fitWidth = 200.0
+        bannerCopy.fitHeight = 100.0
 
         val path = "../assets/" + user.profileImageName + ".png"
         val image = Image(File(path).toURI().toString())
@@ -687,7 +695,7 @@ public class MainBoardDisplay {
         }
         unlockablesHBox.alignment = Pos.CENTER
 
-        profileVBox.children.addAll(bannerImageView, imageView, userInfoLabel, statisticsHBox, unlockablesLabel, unlockablesHBox)
+        profileVBox.children.addAll(bannerCopy, imageView, userInfoLabel, statisticsHBox, unlockablesLabel, unlockablesHBox)
         profileVBox.alignment = Pos.CENTER
 
         profileVBox.style = """
@@ -721,6 +729,7 @@ public class MainBoardDisplay {
     }
     fun showTaskCompletionStage(task: Task) {
         user.taskCompleteCounter() // count new task completed
+        updateBanner() // update banner displayed
 
         val taskCompletionStage = Stage()
         taskCompletionStage.setTitle("Task Completed!")
