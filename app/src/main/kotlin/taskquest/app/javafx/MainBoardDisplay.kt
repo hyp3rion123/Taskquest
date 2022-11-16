@@ -410,6 +410,7 @@ public class MainBoardDisplay {
         var tasksScrollPane = ScrollPane()
         var tasks = VBox(10.0)
         tasksScrollPane.content = tasks
+        tasksScrollPane.fitToWidthProperty().set(true);
         // add tasks to VBox
         for (task in data.tasks) {
             val hbox = createTaskHbox(task, data, tasks, title, create_button)
