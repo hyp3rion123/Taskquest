@@ -395,14 +395,25 @@ public class MainBoardDisplay {
         addVBoxNonTasks(create_button, data, title, tasksVBox)
 
 //        var tasksContainer = VBox(10.0) //used for left aligning only the tasks
+        var tasksScrollPane = ScrollPane()
+        var tasks = VBox(10.0)
+        tasksScrollPane.content = tasks
         // add tasks to VBox
         for (task in data.tasks) {
             val hbox = createTaskHbox(task, data, tasksVBox, title, create_button)
-            tasksVBox.children.add(hbox)
-//            hbox.alignment = Pos.TOP_LEFT
+            tasks.children.add(hbox)
+            hbox.alignment = Pos.TOP_LEFT // make left aligned
 //            tasksContainer.children.add(hbox)
         }
-//        tasksVBox.children.add(tasksContainer)
+        tasksVBox.children.add(tasksScrollPane)
+
+        // make task vbox same background color
+        tasks.style = """
+            -fx-background-color:""" + getTheme().third + """;
+        """
+        tasksScrollPane.style = """
+            -fx-background-color:""" + getTheme().third + """;
+        """
 
         //Map create button to current tasklist
         create_button.setOnMouseClicked {
