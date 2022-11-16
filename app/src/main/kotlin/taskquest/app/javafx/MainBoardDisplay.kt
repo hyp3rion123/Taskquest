@@ -412,7 +412,7 @@ public class MainBoardDisplay {
         tasksScrollPane.content = tasks
         // add tasks to VBox
         for (task in data.tasks) {
-            val hbox = createTaskHbox(task, data, tasksVBox, title, create_button)
+            val hbox = createTaskHbox(task, data, tasks, title, create_button)
             tasks.children.add(hbox)
             hbox.alignment = Pos.TOP_LEFT // make left aligned
 //            tasksContainer.children.add(hbox)
