@@ -12,26 +12,26 @@ class TaskList(
 
     fun addItem(title: String, desc: String = "", dueDate: String = "",
                 priority: Priority? = null, difficulty: Difficulty? = null, tags: MutableSet<String>? = null) {
-        var newTask = Task(id=this.tasks.size, title=title, desc=desc, dueDate=dueDate, priority=priority,
+        var newTask = Task(id=nextId, title=title, desc=desc, dueDate=dueDate, priority=priority,
             difficulty=difficulty)
         if (tags != null) {
             newTask.tags = tags
         }
         this.tasks.add(newTask)
-    }
-    fun addItem(task: Task) {
-        task.id = nextId
-        this.tasks.add(task)
-        nextId += 1
+        this.nextId += 1
     }
 
     fun deleteItemByID(id: Int) {
         this.tasks.removeIf { it.id == id }
+        if (this.tasks.size == 0) {
+            this.nextId = 0
+        }
     }
     fun deleteItem(idx: Int) {
-        val currentId = this.tasks[idx].id
-        this.tasks.forEach { if (it.id > currentId) it.id -= 1 }
         this.tasks.removeAt(idx)
+        if (this.tasks.size == 0) {
+            this.nextId = 0
+        }
     }
 
     fun moveItem(from: Int, to: Int): Boolean {
