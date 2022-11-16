@@ -15,6 +15,7 @@ import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Stage
+import taskquest.app.main
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveStoreData
@@ -81,17 +82,7 @@ public class MainBoardDisplay {
         button.graphic = imageView
         return button
     }
-    
-    fun closeMainStage(mainStage: Stage?) {
-        if (mainStage != null) {
-            // println("Stage Closing. Save dimensions.")
-            user.x = mainStage.x
-            user.y = mainStage.y
-            user.height = mainStage.height
-            user.width = mainStage.width
-            dataChanged()
-        }
-    }
+
     fun start_display(mainStage: Stage?) {
 
         user = restoreUserData(dataFileName)
@@ -106,7 +97,11 @@ public class MainBoardDisplay {
 
             // save dimensions on close
             mainStage.setOnCloseRequest {
-                closeMainStage(mainStage)
+                user.x = mainStage.x
+                user.y = mainStage.y
+                user.height = mainStage.height
+                user.width = mainStage.width
+                dataChanged()
             }
         }
 
@@ -175,7 +170,14 @@ public class MainBoardDisplay {
                 base3 = lightestBlue
             }
 //            updateTheme()
-            closeMainStage(mainStage)
+            if (mainStage != null) {
+                user.x = mainStage.x
+                user.y = mainStage.y
+                user.height = mainStage.height
+                user.width = mainStage.width
+                dataChanged()
+                mainStage.close()
+            }
             start_display(mainStage)
         }
 
