@@ -18,6 +18,7 @@ import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Stage
+import taskquest.app.main
 import org.controlsfx.control.CheckComboBox
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
@@ -86,6 +87,7 @@ class MainBoardDisplay {
         button.graphic = imageView
         return button
     }
+
     fun start_display(mainStage: Stage?) {
 
         user = restoreUserData(dataFileName)
@@ -100,7 +102,6 @@ class MainBoardDisplay {
 
             // save dimensions on close
             mainStage.setOnCloseRequest {
-                // println("Stage Closing. Save dimensions.")
                 user.x = mainStage.x
                 user.y = mainStage.y
                 user.height = mainStage.height
@@ -176,7 +177,14 @@ class MainBoardDisplay {
                 base3 = lightestBlue
             }
 //            updateTheme()
-            mainStage?.close()
+            if (mainStage != null) {
+                user.x = mainStage.x
+                user.y = mainStage.y
+                user.height = mainStage.height
+                user.width = mainStage.width
+                dataChanged()
+                mainStage.close()
+            }
             start_display(mainStage)
         }
 
@@ -468,9 +476,10 @@ class MainBoardDisplay {
         sideBar.style = """
             -fx-background-color:"""+ getTheme().second+ """;
         """
-        val themeButton = Button("Switch theme")
-        val profileButton = Button("Profile")
-        val shopButton = Button("Shop")
+        sideBar.prefWidth = 50.0
+        val themeButton = ImageButton("../assets/icons/theme.png",30.0,30.0)
+        val profileButton = ImageButton("../assets/icons/profile.png",30.0,30.0)
+        val shopButton = ImageButton("../assets/icons/shop.png",30.0,30.0)
         setDefaultButtonStyle(themeButton)
         setDefaultButtonStyle(profileButton)
         setDefaultButtonStyle(shopButton)
