@@ -6,6 +6,7 @@ data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
     val lists = mutableListOf<TaskList>()
     val purchasedItems = mutableListOf<Item>()
     val tags = mutableSetOf<String>()
+    var nextId = 0
     var profileImageName: String = "Default.png"
     var bannerRank: Int = 0
     var longestStreak: Int = 0
@@ -37,5 +38,40 @@ data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
                 println(task.title)
             }
         }
+    }
+
+    fun deleteList(id: Int) {
+
+        for (idx in this.lists.indices) {
+            if (this.lists[idx].id == id) {
+
+                this.lists.removeAt(idx)
+
+                if (this.lastUsedList == idx) {
+                    this.lastUsedList = -1
+                } else if (this.lastUsedList > idx) {
+                    this.lastUsedList--
+                }
+
+                break
+
+            }
+        }
+
+    }
+
+    fun updateActiveList(id: Int) {
+
+        for (idx in this.lists.indices) {
+            if (this.lists[idx].id == id) {
+                this.lastUsedList = idx
+                break
+            }
+        }
+    }
+
+    fun addList(title : String, desc : String = "") {
+        this.lists.add(TaskList(this.nextId, title, desc))
+        this.nextId += 1
     }
 }

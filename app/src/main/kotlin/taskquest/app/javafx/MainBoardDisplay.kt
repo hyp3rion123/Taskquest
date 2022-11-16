@@ -1,9 +1,11 @@
-package taskquest.app.javafx;
+package taskquest.app.javafx
 
-import javafx.application.Platform
+import javafx.collections.FXCollections
+import javafx.collections.ObservableList
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
+import javafx.application.Platform
 import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.*
@@ -11,10 +13,12 @@ import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.input.*
 import javafx.scene.layout.*
+import javafx.scene.shape.Line
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Stage
+import org.controlsfx.control.CheckComboBox
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveStoreData
@@ -23,6 +27,7 @@ import taskquest.utilities.models.*
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
 import java.io.File
+import javafx.beans.value.ChangeListener
 import java.util.*
 
 
@@ -43,8 +48,8 @@ val bannerTextCss = """
             -fx-border-style: dashed;
             """.trimIndent()
 
-val dataFileName = "../console/data.json"
-val storeFileName = "../console/store.json"
+val dataFileName = "data.json"
+val storeFileName = "store.json"
 val globalFont = Font.font("Courier New", FontWeight.BOLD, 16.0)
 val darkBlue = "#3d5a80"
 val lighterBlue = "#98c1d9"
@@ -57,10 +62,10 @@ var base2 = lighterBlue
 var base3 = lightestBlue
 var theme = 0
 
-public class MainBoardDisplay {
+class MainBoardDisplay {
     var user = User()
-    var store = Store()
     var toDoVBox = VBox()
+    var store = Store()
     var boardViewHBox = HBox()
     var bannerImageView = ImageView()
     fun dataChanged() {
@@ -113,14 +118,21 @@ public class MainBoardDisplay {
 
         //Main tasks board
 
-        var taskList1 = TaskList(-1, "No list")
-        if (user.lists.size >= 1) {
-            taskList1 = user.lists[0]
-        }
+        var taskList1 : TaskList
 
         val createTaskButton = createAddButton()
 
-        toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
+        if (user.lastUsedList != -1) {
+            taskList1 = user.lists[user.lastUsedList]
+            toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
+        } else {
+            if (user.lists.size == 0) {
+                toDoVBox = createEmptyVBox("You have no lists to display. Create a list!")
+            } else {
+                toDoVBox = createEmptyVBox("Select or create a list!")
+            }
+
+        }
 
         boardViewHBox = HBox(20.0, toDoVBox)
         boardViewHBox.alignment = Pos.CENTER
@@ -139,19 +151,14 @@ public class MainBoardDisplay {
             -fx-background-color:""" + getTheme().third + """;
         """
 
+        val taskListVBox = createTaskListVBox(user.lists, createTaskButton)
+
         val mainScreenPane = BorderPane()
-        mainScreenPane.right = createTaskListVBox(user.lists, createTaskButton)
+        mainScreenPane.right = taskListVBox
         mainScreenPane.center = mainTasksSection
         mainScreenPane.left = sideBarVBox
 
         var mainScene = Scene(mainScreenPane, 900.0, 600.0)
-
-        //Create task popup scene
-        val createTaskMenu = createTaskStage(taskList1, toDoVBox)
-
-        createTaskButton.setOnMouseClicked {
-            createTaskMenu.show()
-        }
 
         shopButton.setOnMouseClicked {
             mainStage?.scene = createShopScene(mainStage, mainScene) //created every time for refresh purposes
@@ -260,18 +267,38 @@ public class MainBoardDisplay {
         textField.setPromptText("Search here!")
         taskListVBox.children.add(textField)
 
-        // add buttons to VBox
+        // add buttons to VBox for each list
         for (taskList in data) {
-            val title = Button(taskList.title)
-            setDefaultButtonStyle(title)
-            taskListVBox.children.add(title)
-            title.setOnMouseClicked {
-                toDoVBox = createTasksVBox(btn_create_task_to_do, taskList, taskList.title)
-                boardViewHBox.children.clear()
-                boardViewHBox.children.add(toDoVBox)
-            }
+            createListHbox(taskList, taskListVBox, btn_create_task_to_do)
         }
+
+        val createTaskListMenu = createTaskListStage(taskListVBox, btn_create_task_to_do)
+
+        val addList = Button("New List")
+        setDefaultButtonStyle(addList)
+        taskListVBox.children.add(addList)
+        addList.setOnMouseClicked {
+            createTaskListMenu.show()
+            println("Show create a list")
+        }
+
         return taskListVBox
+    }
+
+    fun deleteList(id : Int, taskListVBox : VBox, hbox : HBox) {
+        // delete list in the backend
+        user.deleteList(id)
+        taskListVBox.children.remove(hbox)
+        if (user.lists.size == 0) {
+            user.nextId = 0
+            boardViewHBox.children.clear()
+            boardViewHBox.children.add(createEmptyVBox("You have no lists to display. Create a list!"))
+        } else if (user.lastUsedList == -1) {
+            boardViewHBox.children.clear()
+            boardViewHBox.children.add(createEmptyVBox("Select or create a list!"))
+        }
+
+
     }
     fun createAddButton(): Button {
         var btn = ImageButton("../assets/icons/add.png",30.0,30.0)
@@ -309,7 +336,6 @@ public class MainBoardDisplay {
         HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS)
         spacer.setMinSize(10.0, 10.0)
         var btn_info = createDetailsButton()
-
         setDefaultButtonStyle(btn_del)
         setDefaultButtonStyle(btn_info)
         hbox.children.addAll(c, taskTitle, spacer, btn_del, btn_info)
@@ -324,6 +350,14 @@ public class MainBoardDisplay {
             content.putString(task.id.toString())
             db.setContent(content)
             event.consume()
+        }
+
+        hbox.onDragEntered = EventHandler<DragEvent?> { event ->
+            if (event.gestureSource !== hbox) hbox.opacity = 0.5
+        }
+
+        hbox.onDragExited = EventHandler<DragEvent?> { _ ->
+            hbox.opacity = 1.0
         }
 
         hbox.onDragOver = EventHandler<DragEvent?> {event ->
@@ -343,27 +377,21 @@ public class MainBoardDisplay {
             val db = event.dragboard
             var success = data.moveItem(db.string.toInt(), task.id)
             if(success) {
+                var currList = user.lists[0]
                 //Update backend-needed if user switches back and forth between lists
                 for((index, list) in user.lists.withIndex()){
                     if(list.id == data.id){
+                        currList = list
                         user.lists.remove(list)
                         user.lists.add(index,data)
                         break
                     }
                 }
-                saveUserData(user, dataFileName)
                 //Update frontend
-                val newLists = restoreUserData(dataFileName).lists
-                var newList = newLists[0]
                 tasksVBox.children.clear()
                 addVBoxNonTasks(create_button, data, title, tasksVBox)
-                for(list in newLists) {
-                    if (list.id == data.id) {
-                        newList = list
-                    }
-                }
-                for(currTask in newList.tasks){
-                    val child = createTaskHbox(currTask, newList, tasksVBox, title, create_button)
+                for(currTask in currList.tasks){
+                    val child = createTaskHbox(currTask, currList, tasksVBox, title, create_button)
                     child.alignment = Pos.TOP_LEFT
                     tasksVBox.children.add(child)
                 }
@@ -417,10 +445,23 @@ public class MainBoardDisplay {
 
         //Map create button to current tasklist
         create_button.setOnMouseClicked {
-            val create_task_stage = createTaskStage(data, tasksVBox)
-            create_task_stage.show()
+            println("Always prints here")
+            createTaskStage(data, tasksVBox, create_button)
         }
         return tasksVBox
+    }
+
+    fun createEmptyVBox(msg : String): VBox {
+
+        var emptyVBox = VBox(10.0)
+
+        val label = Label(msg)
+        label.font = globalFont
+
+        emptyVBox.children.add(label)
+
+        return emptyVBox
+
     }
 
     fun createSideBarVBox(): Pair<VBox, List<Button>>{
@@ -439,16 +480,44 @@ public class MainBoardDisplay {
         return sideBar to listOf(themeButton, profileButton, shopButton)
     }
 
-    fun createTaskStage(data: TaskList, vBox: VBox): Stage {
+    fun errorStage(errMsg : String) {
+        val invalidDiffStage = Stage()
+        invalidDiffStage.title = "Error"
+        //label
+        val errorMessage = Label(errMsg)
+        errorMessage.font = globalFont
+        errorMessage.isWrapText = true
+        //button
+        val exitDiffStageButton = Button("Exit")
+        setDefaultButtonStyle(exitDiffStageButton)
+        exitDiffStageButton.setOnMouseClicked {
+            invalidDiffStage.hide()
+        }
+        //container
+        val prioSceneContainer = BorderPane()
+        prioSceneContainer.center = errorMessage
+        prioSceneContainer.bottom = exitDiffStageButton
+        prioSceneContainer.style = """
+                    -fx-background-color:""" + getTheme().third + """;
+                """
+        //scene
+        val invalidPriorityScene = Scene(prioSceneContainer,500.0, 300.0)
+
+        invalidDiffStage.scene = invalidPriorityScene
+        invalidDiffStage.show()
+    }
+
+    fun createTaskStage(data: TaskList, tasksVBox: VBox, create_button: Button) {
         val create_task_stage = Stage()
         create_task_stage.setTitle("Create Task")
         val btn = Button("Confirm")
         setDefaultButtonStyle(btn)
+        val instruction = Label("Only 'Title' is mandatory when creating a task.")
 
         val hbox_title = HBox(20.0)
         val label_title = Label("Title")
         label_title.font = globalFont
-        val text_title= TextField()
+        val text_title = TextField()
         text_title.promptText = "Enter Title here"
         hbox_title.children.addAll(label_title, text_title)
 
@@ -460,102 +529,94 @@ public class MainBoardDisplay {
         hbox_desc.children.addAll(label_desc, text_desc)
 
         val hbox_due = HBox(20.0)
-        val label_due = Label("Due Date")
+        val label_due = Label("Due Date: ")
         label_due.font = globalFont
-        val text_due = TextField()
-        text_due.promptText = "Enter Due Date here"
-        hbox_due.children.addAll(label_due, text_due)
+        val due_date = DatePicker()
+        due_date.isEditable = false
+        hbox_due.children.addAll(label_due, due_date)
 
         val hbox_prio = HBox(20.0)
         val label_prio = Label("Priority")
         label_prio.font = globalFont
-        val text_prio = TextField()
-        text_prio.promptText = "Enter Priority here"
-        hbox_prio.children.addAll(label_prio, text_prio)
+        val priority = FXCollections.observableArrayList("Low", "Medium", "High")
+        val select_prio = ComboBox(priority)
+        hbox_prio.children.addAll(label_prio, select_prio)
 
         val hbox_diff = HBox(20.0)
         val label_diff = Label("Difficulty")
         label_diff.font = globalFont
-        val text_diff = TextField()
-        text_diff.promptText = "Enter difficulty here"
-        hbox_diff.children.addAll(label_diff, text_diff)
+        val difficulty = FXCollections.observableArrayList("Easy", "Medium", "Hard")
+        val select_diff = ComboBox(difficulty)
+        hbox_diff.children.addAll(label_diff, select_diff)
+
+        val hbox_tags = HBox(20.0)
+        val label_tags = Label("Tags")
+        label_tags.font = globalFont
+
+        val strings: ObservableList<String> = FXCollections.observableArrayList()
+        for (tag in user.tags) {
+            strings.add(tag)
+        }
+
+//        for (i in 1..50) {
+//            strings.add("Item $i")
+//        }
+
+        val selected_tags = CheckComboBox(strings)
+
+        if (strings.size == 0) {
+            selected_tags.title = "No tags to select"
+        }
+
+        hbox_tags.children.addAll(label_tags, selected_tags)
 
         val vbox = VBox(10.0)
-        vbox.children.addAll(hbox_title, hbox_desc, hbox_due, hbox_prio, hbox_diff, btn)
+        vbox.children.addAll(instruction, hbox_title, hbox_desc, hbox_due, hbox_prio, hbox_diff, hbox_tags, btn)
+        vbox.padding = Insets(10.0)
 
         btn.setOnMouseClicked {
-            if(!validatePriority(text_prio.text)){
-                val invalidPriorityStage = Stage()
-                invalidPriorityStage.title = "Error"
-                //label
-                val errorMessage = Label("Invalid Priority Entered. Please enter one of:\n High | Medium | Low")
-                errorMessage.font = globalFont
-                errorMessage.isWrapText = true
-                //button
-                val exitPrioStageButton = Button("Exit")
-                setDefaultButtonStyle(exitPrioStageButton)
-                exitPrioStageButton.setOnMouseClicked {
-                    invalidPriorityStage.hide()
-                }
-                //container
-                val prioSceneContainer = BorderPane()
-                prioSceneContainer.center = errorMessage
-                prioSceneContainer.bottom = exitPrioStageButton
-                prioSceneContainer.style = """
-                    -fx-background-color:""" + getTheme().third + """;
-                """
-                //scene
-                val invalidPriorityScene = Scene(prioSceneContainer,500.0, 300.0)
-
-                invalidPriorityStage.scene = invalidPriorityScene
-                invalidPriorityStage.show()
-            } else if(!validateDifficulty(text_diff.text)) {
-                val invalidDiffStage = Stage()
-                invalidDiffStage.title = "Error"
-                //label
-                val errorMessage = Label("Invalid Difficulty Entered. Please enter one of:\n Hard | Medium | Easy")
-                errorMessage.font = globalFont
-                errorMessage.isWrapText = true
-                //button
-                val exitDiffStageButton = Button("Exit")
-                setDefaultButtonStyle(exitDiffStageButton)
-                exitDiffStageButton.setOnMouseClicked {
-                    invalidDiffStage.hide()
-                }
-                //container
-                val prioSceneContainer = BorderPane()
-                prioSceneContainer.center = errorMessage
-                prioSceneContainer.bottom = exitDiffStageButton
-                prioSceneContainer.style = """
-                    -fx-background-color:""" + getTheme().third + """;
-                """
-                //scene
-                val invalidPriorityScene = Scene(prioSceneContainer,500.0, 300.0)
-
-                invalidDiffStage.scene = invalidPriorityScene
-                invalidDiffStage.show()
+            if (text_title.text.trim() == "") {
+                errorStage("Title of task can not be empty.")
             } else {
-                val task = Task(id=1, title=text_title.text, desc=text_desc.text, dueDate=text_due.text,
-                    priority = strToPrio(text_prio.text), difficulty = strToDiff(text_diff.text))
-                data.addItem(task)
-                val title = Label(task.title)
-                title.font = globalFont
-                val c = CheckBox()
-                c.isSelected = task.complete
-                var btn_delete = createDeleteButton()
-                val btn_info = createDetailsButton()
-                val hbox = HBox(5.0, c, title, btn_delete, btn_info)
-                setDefaultButtonStyle(btn_delete)
-                setDefaultButtonStyle(btn_info)
-                btn_delete.setOnMouseClicked {
-                    data.deleteItemByID(task.id)
-                    vBox.children.remove(hbox)
-                    dataChanged()
+                val taskTags = mutableSetOf<String>()
+                val addTags = selected_tags.checkModel.checkedItems
+                for (tag in addTags) {
+                    taskTags.add(tag)
                 }
-                btn_info.setOnMouseClicked {
-                    showTaskInfoStage(task)
+
+                if (due_date.value == null) {
+                    data.addItem(text_title.text.trim(), text_desc.text.trim(), "",
+                        strToPrio(select_prio.value), strToDiff(select_diff.value), taskTags)
+                } else {
+                    data.addItem(text_title.text.trim(), text_desc.text.trim(), due_date.value.toString(),
+                        strToPrio(select_prio.value), strToDiff(select_diff.value), taskTags)
                 }
-                vBox.children.add(hbox)
+
+                val curTask = data.tasks[data.tasks.size - 1]
+
+                var hbox = createTaskHbox(curTask, data, tasksVBox, data.title, create_button)
+//                val title = Label(text_title.text.trim())
+//                title.font = globalFont
+//                val c = CheckBox()
+//                c.isSelected = false
+//                var btn_delete = Button("X")
+//                val btn_info = Button("Info")
+//                val hbox = HBox(5.0, c, title, btn_delete, btn_info)
+//                setDefaultButtonStyle(btn_delete)
+//                setDefaultButtonStyle(btn_info)
+//                btn_delete.setOnMouseClicked {
+//                    data.deleteItemByID(curTask.id)
+//                    tasksVBox.children.remove(hbox)
+//                    dataChanged()
+//                }
+//                btn_info.setOnMouseClicked {
+//                    showTaskInfoStage(curTask)
+//                }
+//                c.setOnMouseClicked {
+//                    curTask.complete = !curTask.complete
+//                    dataChanged()
+//                }
+                tasksVBox.children.add(hbox)
                 create_task_stage.close()
                 dataChanged()
             }
@@ -565,38 +626,112 @@ public class MainBoardDisplay {
         """
         val scene = Scene(vbox, 700.0, 400.0)
         create_task_stage.scene = scene
-        return create_task_stage
+        create_task_stage.show()
+
+        create_task_stage.widthProperty().addListener(ChangeListener {
+                _, _, newValue ->  selected_tags.maxWidth = newValue.toDouble() - (label_tags.width + 50)
+        })
+
+        selected_tags.maxWidth = create_task_stage.width - (label_tags.width + 50)
     }
 
-    fun validateDifficulty(d: String): Boolean {
-        if(d == "Hard" || d == "Medium" || d == "Easy") return true
-        return false
-    }
+    fun createTaskListStage(taskListVBox : VBox, btn_create_task_to_do: Button) : Stage {
+        val tasklist_stage = Stage()
+        tasklist_stage.setTitle("Create List")
+        val btn = Button("Confirm")
+        setDefaultButtonStyle(btn)
 
-    fun strToDiff(s: String): Difficulty {
-        var diff = Difficulty.Easy
-        when(s) {
-            "Hard" -> diff = Difficulty.Hard
-            "Medium" -> diff = Difficulty.Medium
-            "Easy" -> return diff
+        val hbox_title = HBox(20.0)
+        val label_title = Label("Title")
+        label_title.font = globalFont
+        val text_title = TextField()
+        text_title.promptText = "Enter Title here"
+        hbox_title.children.addAll(label_title, text_title)
+
+        val hbox_desc = HBox(20.0)
+        val label_desc = Label("Description")
+        label_desc.font = globalFont
+        val text_desc = TextField()
+        text_desc.promptText = "Enter Description here"
+        hbox_desc.children.addAll(label_desc, text_desc)
+
+        val vbox = VBox(10.0)
+        vbox.children.addAll(hbox_title, hbox_desc, btn)
+
+        btn.setOnMouseClicked {
+            if (text_title.text.trim() == "") {
+                errorStage("Title of new list can not be empty.")
+            } else {
+                user.addList(text_title.text, text_desc.text)
+
+                var curTaskList = user.lists[user.lists.size - 1]
+
+                createListHbox(curTaskList, taskListVBox, btn_create_task_to_do)
+
+                if (user.lastUsedList == -1) {
+                    user.lastUsedList = 0
+
+                    // set it here
+                    toDoVBox = createTasksVBox(btn_create_task_to_do, curTaskList, curTaskList.title)
+                    boardViewHBox.children.clear()
+                    boardViewHBox.children.add(toDoVBox)
+
+                }
+
+                dataChanged()
+                text_desc.clear()
+                text_title.clear()
+                tasklist_stage.close()
+            }
         }
-        return diff
+
+        vbox.style = """
+            -fx-background-color:""" + getTheme().third + """;
+        """
+        val scene = Scene(vbox, 700.0, 400.0)
+        tasklist_stage.scene = scene
+        return tasklist_stage
     }
 
-    fun validatePriority(p: String): Boolean {
-        if(p == "High" || p == "Medium" || p == "Low") return true
-        return false
-    }
+    fun createListHbox(curTaskList: TaskList, taskListVBox: VBox, btn_create_task_to_do: Button) {
 
-    fun strToPrio(s: String): Priority {
-        var prio = Priority.Low
-        when(s) {
-            "High" -> prio = Priority.High
-            "Medium" -> prio = Priority.Medium
-            "Low" -> return prio
+        val title = Button(curTaskList.title)
+        setDefaultButtonStyle(title)
+        val delBtn = Button("-")
+        setDefaultButtonStyle(delBtn)
+        val hbox = HBox(2.0, title, delBtn)
+        taskListVBox.children.add(2, hbox)
+        title.setOnMouseClicked {
+            toDoVBox = createTasksVBox(btn_create_task_to_do, curTaskList, curTaskList.title)
+            boardViewHBox.children.clear()
+            boardViewHBox.children.add(toDoVBox)
+            user.updateActiveList(curTaskList.id)
+            println("Selected list: ${user.lastUsedList}")
         }
-        return prio
+        delBtn.setOnMouseClicked {
+            deleteList(curTaskList.id, taskListVBox, hbox)
+            dataChanged()
+        }
+
     }
+
+    fun strToDiff(s: String?): Difficulty? =
+        when(s) {
+            "Hard" -> Difficulty.Hard
+            "Medium" -> Difficulty.Medium
+            "Easy" -> Difficulty.Easy
+            else -> null
+        }
+
+
+
+    fun strToPrio(s: String?): Priority? =
+        when(s) {
+            "High" -> Priority.High
+            "Medium" -> Priority.Medium
+            "Low" -> Priority.Low
+            else -> null
+        }
 
     fun showTaskInfoStage(task: Task) {
         val taskInfoStage = Stage()
@@ -743,8 +878,7 @@ public class MainBoardDisplay {
         hbox_title.children.addAll(label_title)
 
         val hbox_desc = HBox(20.0)
-        val coinValue = task.coinValue
-
+        var coinValue = task.rewardCoins
         val label_desc = Label("Here's " + coinValue + " TaskCoins as a reward!")
         label_desc.font = globalFont
         hbox_desc.alignment = Pos.CENTER

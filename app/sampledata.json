@@ -1,0 +1,211 @@
+{
+  "lastUsedList" : 0,
+  "wallet" : 99400,
+  "lists" : [ {
+    "id" : 0,
+    "title" : "CS 341",
+    "desc" : "0",
+    "tasks" : [ {
+      "id" : 1,
+      "title" : "sprint 2 - test",
+      "desc" : "",
+      "dueDate" : "",
+      "dateCreated" : "2022-10-24",
+      "priority" : null,
+      "difficulty" : null,
+      "complete" : true,
+      "completeOnce" : false,
+      "tags" : [ ],
+      "rewardCoins" : 20
+    }, {
+      "id" : 5,
+      "title" : "test6",
+      "desc" : "",
+      "dueDate" : "",
+      "dateCreated" : "2022-10-27",
+      "priority" : null,
+      "difficulty" : null,
+      "complete" : true,
+      "completeOnce" : false,
+      "tags" : [ ],
+      "rewardCoins" : 20
+    }, {
+      "id" : 4,
+      "title" : "test5",
+      "desc" : "",
+      "dueDate" : "",
+      "dateCreated" : "2022-10-27",
+      "priority" : null,
+      "difficulty" : null,
+      "complete" : true,
+      "completeOnce" : false,
+      "tags" : [ ],
+      "rewardCoins" : 20
+    }, {
+      "id" : 6,
+      "title" : "test7",
+      "desc" : "",
+      "dueDate" : "",
+      "dateCreated" : "2022-10-27",
+      "priority" : null,
+      "difficulty" : null,
+      "complete" : false,
+      "completeOnce" : false,
+      "tags" : [ ],
+      "rewardCoins" : 20
+    } ],
+    "nextId" : 8
+  }, {
+    "id" : 1,
+    "title" : "CS 350",
+    "desc" : "0",
+    "tasks" : [ {
+      "id" : 0,
+      "title" : "sprint 2",
+      "desc" : "",
+      "dueDate" : "",
+      "dateCreated" : "2022-10-24",
+      "priority" : null,
+      "difficulty" : null,
+      "complete" : false,
+      "completeOnce" : false,
+      "tags" : [ ],
+      "rewardCoins" : 20
+    }, {
+      "id" : 3,
+      "title" : "last",
+      "desc" : "",
+      "dueDate" : "",
+      "dateCreated" : "2022-10-27",
+      "priority" : null,
+      "difficulty" : null,
+      "complete" : false,
+      "completeOnce" : false,
+      "tags" : [ ],
+      "rewardCoins" : 20
+    }, {
+      "id" : 4,
+      "title" : "test",
+      "desc" : "test",
+      "dueDate" : "test",
+      "dateCreated" : "2022-11-11",
+      "priority" : "High",
+      "difficulty" : "Hard",
+      "complete" : false,
+      "completeOnce" : false,
+      "tags" : [ ],
+      "rewardCoins" : 81
+    }, {
+      "id" : 5,
+      "title" : "ds",
+      "desc" : "ds",
+      "dueDate" : "ds",
+      "dateCreated" : "2022-11-11",
+      "priority" : "High",
+      "difficulty" : "Hard",
+      "complete" : false,
+      "completeOnce" : false,
+      "tags" : [ ],
+      "rewardCoins" : 27
+    } ],
+    "nextId" : 6
+  }, {
+    "id" : 2,
+    "title" : "CS 346",
+    "desc" : "0",
+    "tasks" : [ {
+      "id" : 4,
+      "title" : "hard",
+      "desc" : "hard",
+      "dueDate" : "hard",
+      "dateCreated" : "2022-11-11",
+      "priority" : "High",
+      "difficulty" : "Hard",
+      "complete" : false,
+      "completeOnce" : false,
+      "tags" : [ ],
+      "rewardCoins" : 27
+    }, {
+      "id" : 2,
+      "title" : "Merge changes",
+      "desc" : "",
+      "dueDate" : "",
+      "dateCreated" : "2022-10-27",
+      "priority" : null,
+      "difficulty" : null,
+      "complete" : false,
+      "completeOnce" : false,
+      "tags" : [ ],
+      "rewardCoins" : 15
+    }, {
+      "id" : 0,
+      "title" : "Finish PR reviews",
+      "desc" : "",
+      "dueDate" : "",
+      "dateCreated" : "2022-10-24",
+      "priority" : null,
+      "difficulty" : null,
+      "complete" : false,
+      "completeOnce" : false,
+      "tags" : [ ],
+      "rewardCoins" : 10
+    }, {
+      "id" : 3,
+      "title" : "Do Sprint Demo 2",
+      "desc" : "",
+      "dueDate" : "",
+      "dateCreated" : "2022-10-27",
+      "priority" : null,
+      "difficulty" : null,
+      "complete" : false,
+      "completeOnce" : false,
+      "tags" : [ ],
+      "rewardCoins" : 20
+    }, {
+      "id" : 5,
+      "title" : "test",
+      "desc" : "test",
+      "dueDate" : "test",
+      "dateCreated" : "2022-11-11",
+      "priority" : "High",
+      "difficulty" : "Hard",
+      "complete" : false,
+      "completeOnce" : false,
+      "tags" : [ ],
+      "rewardCoins" : 9
+    }, {
+      "id" : 6,
+      "title" : "test2",
+      "desc" : "test2",
+      "dueDate" : "test2",
+      "dateCreated" : "2022-11-11",
+      "priority" : "High",
+      "difficulty" : "Hard",
+      "complete" : false,
+      "completeOnce" : false,
+      "tags" : [ ],
+      "rewardCoins" : 9
+    } ],
+    "nextId" : 7
+  } ],
+  "purchasedItems" : [ {
+    "id" : 13,
+    "name" : "Chili",
+    "price" : 100,
+    "type" : "ProfilePicture"
+  }, {
+    "id" : 0,
+    "name" : "Astronaut",
+    "price" : 200,
+    "type" : "ProfilePicture"
+  } ],
+  "tags" : [ ],
+  "nextId" : 0,
+  "profileImageName" : "Default.png",
+  "longestStreak" : 0,
+  "level" : 0,
+  "width" : 1098.0,
+  "height" : 722.0,
+  "x" : 0.0,
+  "y" : 25.0
+}
