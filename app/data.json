@@ -1,3 +1,19 @@
 {
-
+  "lastUsedList" : -1,
+  "wallet" : 0,
+  "bannerMax" : 9,
+  "bannerMin" : 0,
+  "lists" : [ ],
+  "purchasedItems" : [ ],
+  "tags" : [ ],
+  "nextId" : 0,
+  "profileImageName" : "Default.png",
+  "bannerRank" : 0,
+  "longestStreak" : 0,
+  "tasksDoneToday" : 0,
+  "level" : 0,
+  "width" : 900.0,
+  "height" : 590.0,
+  "x" : 155.3333282470703,
+  "y" : 82.0
 }
