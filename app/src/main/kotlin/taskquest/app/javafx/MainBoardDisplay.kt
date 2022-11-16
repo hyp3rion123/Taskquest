@@ -449,6 +449,8 @@ public class MainBoardDisplay {
         setDefaultButtonStyle(profileButton)
         setDefaultButtonStyle(shopButton)
         sideBar.children.addAll(themeButton, profileButton, shopButton)
+        sideBar.alignment = Pos.TOP_CENTER
+
         return sideBar to listOf(themeButton, profileButton, shopButton)
     }
 
