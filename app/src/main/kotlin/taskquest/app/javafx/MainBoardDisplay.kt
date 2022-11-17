@@ -218,7 +218,7 @@ class MainBoardDisplay {
     }
 
     fun updateBanner() {
-        val bannerPath = "../assets/banners/" + user.bannerRank + ".png"
+        val bannerPath = "/assets/banners/" + user.bannerRank + ".png"
         val banner = Image(File(bannerPath).toURI().toString())
         bannerImageView.image = banner
     }
@@ -226,7 +226,7 @@ class MainBoardDisplay {
     fun createBanner(): VBox {
         val vbox = VBox(10.0)
 
-        val bannerPath = "../assets/banners/" + user.bannerRank + ".png"
+        val bannerPath = "/assets/banners/" + user.bannerRank + ".png"
         val banner = Image(File(bannerPath).toURI().toString())
         bannerImageView.image = banner
         bannerImageView.fitWidth = 200.0
@@ -493,9 +493,9 @@ class MainBoardDisplay {
         """
         sideBar.prefWidth = 80.0
         sideBar.alignment = Pos.TOP_CENTER
-        val themeButton = ImageButton("../assets/icons/theme.png",30.0,30.0)
-        val profileButton = ImageButton("../assets/icons/profile.png",30.0,30.0)
-        val shopButton = ImageButton("../assets/icons/shop.png",30.0,30.0)
+        val themeButton = ImageButton("/assets/icons/theme.png",30.0,30.0)
+        val profileButton = ImageButton("/assets/icons/profile.png",30.0,30.0)
+        val shopButton = ImageButton("/assets/icons/shop.png",30.0,30.0)
         setDefaultButtonStyle(themeButton)
         setDefaultButtonStyle(profileButton)
         setDefaultButtonStyle(shopButton)
@@ -811,13 +811,13 @@ class MainBoardDisplay {
         var profileVBox = VBox(10.0)
 
         var bannerCopy = ImageView()
-        val bannerPath = "../assets/banners/" + user.bannerRank + ".png"
+        val bannerPath = "/assets/banners/" + user.bannerRank + ".png"
         val banner = Image(File(bannerPath).toURI().toString())
         bannerCopy.image = banner
         bannerCopy.fitWidth = 200.0
         bannerCopy.fitHeight = 100.0
 
-        val path = "../assets/" + user.profileImageName
+        val path = "/assets/" + user.profileImageName
         val image = Image(File(path).toURI().toString())
         val imageView = ImageView()
         imageView.image = image
