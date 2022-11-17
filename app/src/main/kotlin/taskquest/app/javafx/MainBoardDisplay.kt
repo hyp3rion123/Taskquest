@@ -1,11 +1,12 @@
 package taskquest.app.javafx
 
+import javafx.application.Platform
+import javafx.beans.value.ChangeListener
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
-import javafx.application.Platform
 import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.*
@@ -13,12 +14,10 @@ import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.input.*
 import javafx.scene.layout.*
-import javafx.scene.shape.Line
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Stage
-import taskquest.app.main
 import org.controlsfx.control.CheckComboBox
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
@@ -28,7 +27,6 @@ import taskquest.utilities.models.*
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
 import java.io.File
-import javafx.beans.value.ChangeListener
 import java.util.*
 
 
@@ -70,6 +68,7 @@ class MainBoardDisplay {
     var store = Store()
     var boardViewHBox = HBox()
     var bannerImageView = ImageView()
+    var createTaskListMenu = Stage()
     fun dataChanged() {
         user.convertToString()
         saveUserData(user, dataFileName)
@@ -159,7 +158,7 @@ class MainBoardDisplay {
             -fx-background-color:""" + getTheme().third + """;
         """
 
-        val taskListVBox = createTaskListVBox(user.lists, createTaskButton)
+        var taskListVBox = createTaskListVBox(user.lists, createTaskButton)
 
         val mainScreenPane = BorderPane()
         mainScreenPane.right = taskListVBox
@@ -195,6 +194,22 @@ class MainBoardDisplay {
             }
             start_display(mainStage)
         }
+
+        // hotkeys
+        val createListKeyCombo: KeyCombination = KeyCodeCombination(KeyCode.EQUALS, KeyCombination.CONTROL_DOWN)
+        val createListAction = Runnable {
+            println("Create list shortcut worked")
+            createTaskListMenu.show()
+        }
+        mainScene.getAccelerators().put(createListKeyCombo, createListAction);
+
+        val deleteListKeyCombo: KeyCombination = KeyCodeCombination(KeyCode.MINUS, KeyCombination.CONTROL_DOWN)
+        val deleteListAction = Runnable {
+            println("Delete list shortcut worked")
+            user.deleteList(user.lastUsedList)
+            taskListVBox = createTaskListVBox(user.lists, createTaskButton)
+        }
+        mainScene.getAccelerators().put(deleteListKeyCombo, deleteListAction);
 
         mainStage?.setResizable(true)
         mainStage?.setScene(mainScene)
@@ -287,7 +302,7 @@ class MainBoardDisplay {
             createListHbox(taskList, taskListVBox, btn_create_task_to_do)
         }
 
-        val createTaskListMenu = createTaskListStage(taskListVBox, btn_create_task_to_do)
+        createTaskListMenu = createTaskListStage(taskListVBox, btn_create_task_to_do)
 
         val addList = Button("New List")
         setDefaultButtonStyle(addList)
