@@ -136,7 +136,14 @@ class MainBoardDisplay {
 
         }
         boardViewHBox = HBox(20.0, toDoVBox)
-        boardViewHBox.alignment = Pos.CENTER
+        boardViewHBox.alignment = Pos.TOP_CENTER
+        var boardViewScroll = ScrollPane()
+        boardViewScroll.content = boardViewHBox
+        boardViewScroll.style = """
+            -fx-background-color:""" + getTheme().third + """;
+            -fx-background:""" + getTheme().third + """;
+        """
+        boardViewScroll.isFitToWidth = true;
 
         var (sideBarVBox, buttonList) = createSideBarVBox() //this order is required for theme switch - need to pass scene
         var themeButton = buttonList[0]
@@ -146,7 +153,7 @@ class MainBoardDisplay {
         }
         var shopButton = buttonList[2]
 
-        val mainTasksSection = VBox(20.0, headerHBox, boardViewHBox)
+        val mainTasksSection = VBox(20.0, headerHBox, boardViewScroll)
         mainTasksSection.padding = Insets(0.0, 0.0, 0.0, 0.0)
         mainTasksSection.style = """
             -fx-background-color:""" + getTheme().third + """;
