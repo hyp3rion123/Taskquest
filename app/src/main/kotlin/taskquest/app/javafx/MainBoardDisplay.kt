@@ -15,7 +15,7 @@ import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Stage
-import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreData
+import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreDataFromText
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveStoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
@@ -43,8 +43,8 @@ val bannerTextCss = """
             -fx-border-style: dashed;
             """.trimIndent()
 
-val dataFileName = "../console/data.json"
-val storeFileName = "../console/store.json"
+val dataFileName = "data.json"
+val storeFileName = "default/store.json"
 val globalFont = Font.font("Courier New", FontWeight.BOLD, 16.0)
 val darkBlue = "#3d5a80"
 val lighterBlue = "#98c1d9"
@@ -72,8 +72,7 @@ public class MainBoardDisplay {
 
     fun ImageButton(path: String, h: Double, w: Double): Button {
         var button = Button()
-        // print(File(path).toURI().toString())
-        val originalImage = Image(File(path).toURI().toString())
+        val originalImage = Image(path)
         val imageView = ImageView(originalImage)
         imageView.fitWidth = h
         imageView.fitHeight = w
@@ -83,8 +82,14 @@ public class MainBoardDisplay {
     }
     fun start_display(mainStage: Stage?) {
 
+        if (!File(dataFileName).exists()) {
+            File(dataFileName).createNewFile()
+            saveUserData(user, dataFileName)
+        }
         user = restoreUserData(dataFileName)
-        store = restoreStoreData(storeFileName)
+
+        val fileContent = javaClass.getResource("/default/store.json").readText()
+        store = restoreStoreDataFromText(fileContent)
 
         if (mainStage != null) {
             // restore window dimensions and location
@@ -272,17 +277,17 @@ public class MainBoardDisplay {
         return taskListVBox
     }
     fun createAddButton(): Button {
-        var btn = ImageButton("../assets/icons/add.png",30.0,30.0)
+        var btn = ImageButton("/assets/icons/add.png",30.0,30.0)
         btn.setMinSize(btn.prefWidth, btn.prefHeight)
         return btn
     }
     fun createDeleteButton(): Button {
-        var btn = ImageButton("../assets/icons/delete.png",30.0,30.0)
+        var btn = ImageButton("/assets/icons/delete.png",30.0,30.0)
         btn.setMinSize(btn.prefWidth, btn.prefHeight)
         return btn
     }
     fun createDetailsButton(): Button {
-        var btn = ImageButton("../assets/icons/details.png",30.0,30.0)
+        var btn = ImageButton("/assets/icons/details.png",30.0,30.0)
         btn.setMinSize(btn.prefWidth, btn.prefHeight)
         return btn
     }
@@ -704,8 +709,8 @@ public class MainBoardDisplay {
     fun createShopItemVBox(item: Item): VBox {
         val vBox = VBox(10.0)
         //Image
-        val path = "../assets/" + item.name + ".png"
-        val image = Image(File(path).toURI().toString())
+        val path = "/assets/" + item.name + ".png"
+        val image = Image(path)
         val imageView = ImageView()
         imageView.image = image
         imageView.fitWidth = 120.0

@@ -30,5 +30,9 @@ class SaveUtils {
             val json = File(filename).readText()
             return mapper.readValue<Store>(json)
         }
+
+        fun restoreStoreDataFromText(text: String): Store {
+            return mapper.readValue<Store>(text)
+        }
     }
 }

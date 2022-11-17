@@ -23,3 +23,23 @@ javafx {
     version = '18.0.2'
     modules = ['javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.media']
 }
+
+tasks.register('uberJar', Jar) {
+    group 'build'
+    description 'Creates a JAR for our Desktop app'
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    archiveClassifier = 'uber'
+
+    from sourceSets.main.output
+
+    manifest {
+        attributes['Main-Class'] = 'taskquest.app.AppKt'
+    }
+
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+}
