@@ -23,9 +23,9 @@ data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
 
     fun convertToString() {
         for (list in lists) {
-            println(list.title)
+            //println(list.title)
             for (task in list.tasks) {
-                println(task.title)
+                //println(task.title)
             }
         }
     }
@@ -98,4 +98,15 @@ data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
             bannerRank = bannerMin
         }
     }
+
+    fun findIdx(id: Int) : Int {
+        for (idx in this.lists.indices) {
+            if (this.lists[idx].id == id) {
+                return idx
+            }
+        }
+
+        return 0
+    }
+
 }

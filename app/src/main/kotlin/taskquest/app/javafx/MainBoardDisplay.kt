@@ -1,11 +1,11 @@
 package taskquest.app.javafx
 
+import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
-import javafx.application.Platform
 import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.*
@@ -22,11 +22,13 @@ import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreDataFromT
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveStoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
+import taskquest.utilities.controllers.FunctionClass
 import taskquest.utilities.models.*
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
 import java.io.File
 import javafx.beans.value.ChangeListener
+import java.time.LocalDate
 import java.util.*
 
 // for outlining layout borders
@@ -68,6 +70,11 @@ class MainBoardDisplay {
     var boardViewHBox = HBox()
     var bannerImageView = ImageView()
     var profileImgView = ImageView()
+    var sortCalled = false
+    var sortingMethodForBox = ""
+    var groupCalled = false
+    var groupingMethodForBox = ""
+
     fun dataChanged() {
         user.convertToString()
         saveUserData(user)
@@ -115,6 +122,13 @@ class MainBoardDisplay {
 
         val headerContainer = createHeaderContainer()
 
+        // updates x and y of window
+        mainStage?.xProperty()?.addListener { _, _, newValue -> user.x = newValue.toDouble() }
+        mainStage?.yProperty()?.addListener { _, _, newValue -> user.y = newValue.toDouble() }
+
+        //Banner
+        val headerHBox = createBanner() //<--fix the sizing of banner
+
         //Main tasks board
 
         var taskList1 : TaskList
@@ -160,6 +174,8 @@ class MainBoardDisplay {
         mainScreenPane.center = mainTasksSection
         mainScreenPane.left = sideBarVBox
 
+        mainScreenPane.right.minHeight(250.0)
+
         var mainScene = Scene(mainScreenPane, 900.0, 600.0)
 
         shopButton.setOnMouseClicked {
@@ -194,6 +210,104 @@ class MainBoardDisplay {
             }
             start_display(mainStage)
         }
+
+        val createListHotkey: KeyCombination = KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN)
+        val createListAction = Runnable {
+            createTaskListStage(taskListVBox, createTaskButton)
+        }
+        mainScene.accelerators[createListHotkey] = createListAction
+
+        val deleteListHotkey: KeyCombination = KeyCodeCombination(KeyCode.MINUS, KeyCombination.CONTROL_DOWN)
+        val deleteListAction = Runnable {
+            if (user.lastUsedList != -1) {
+                deleteList(user.lists[user.lastUsedList].id, taskListVBox, null)
+            }
+        }
+        mainScene.accelerators[deleteListHotkey] = deleteListAction
+
+        val createTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN)
+        val createTaskAction = Runnable {
+            if (user.lastUsedList != -1) {
+                createTaskStage(user.lists[user.lastUsedList], toDoVBox, createTaskButton)
+            }
+        }
+        mainScene.accelerators[createTaskHotkey] = createTaskAction
+
+
+        val deleteTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN)
+        val deleteTaskAction = Runnable {
+            if (user.lastUsedList != -1 && user.lists[user.lastUsedList].curTask != -1) {
+                val curList = user.lists[user.lastUsedList]
+                val task = curList.tasks[curList.curTask]
+                toDoVBox.children.removeAt(curList.curTask + 1)
+                curList.deleteItemByID(task.id)
+                if (curList.tasks.size == 0) {
+                    val lbl = Label("You have no tasks for this list. Create some!")
+                    lbl.font = globalFont
+                    toDoVBox.children.add(lbl)
+                }
+                user.convertToString()
+                curList.updateCurTask(task.id)
+                dataChanged()
+            }
+        }
+        mainScene.accelerators[deleteTaskHotkey] = deleteTaskAction
+
+        val toShopHotkey: KeyCombination = KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN)
+        val toShopAction = Runnable {
+            mainStage?.scene = createShopScene(mainStage, mainScene)
+        }
+        mainScene.accelerators[toShopHotkey] = toShopAction
+
+        val toProfileHotkey: KeyCombination = KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN)
+        val toProfileAction = Runnable {
+            val profileScene = showProfileScreen(mainStage, mainScene);
+            mainStage?.scene = profileScene
+        }
+        mainScene.accelerators[toProfileHotkey] = toProfileAction
+
+        val switchThemeHotkey: KeyCombination = KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN)
+        val switchThemeAction = Runnable {
+            if (theme == 0) {
+                theme = 1
+                base1 = darkY
+                base2 = lighterY
+                base3 = lightestY
+            } else if (theme == 1) {
+                theme = 0
+                base1 = darkBlue
+                base2 = lighterBlue
+                base3 = lightestBlue
+            }
+//            updateTheme()
+            if (mainStage != null) {
+                user.x = mainStage.x
+                user.y = mainStage.y
+                user.height = mainStage.height
+                user.width = mainStage.width
+                dataChanged()
+                mainStage.close()
+            }
+            start_display(mainStage)
+        }
+        mainScene.accelerators[switchThemeHotkey] = switchThemeAction
+
+        val editListHotkey: KeyCombination = KeyCodeCombination(KeyCode.PERIOD, KeyCombination.CONTROL_DOWN)
+        val editListAction = Runnable {
+            if (user.lastUsedList != -1) {
+                editTaskListStage(user.lists[user.lastUsedList], createTaskButton, taskListVBox)
+            }
+        }
+        mainScene.accelerators[editListHotkey] = editListAction
+
+        val editTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN)
+        val editTaskAction = Runnable {
+            if (user.lastUsedList != -1 && user.lists[user.lastUsedList].curTask != -1) {
+                val curList = user.lists[user.lastUsedList]
+                editTaskStage(curList.tasks[curList.curTask], toDoVBox, createTaskButton)
+            }
+        }
+        mainScene.accelerators[editTaskHotkey] = editTaskAction
 
         mainStage?.setResizable(true)
         mainStage?.setScene(mainScene)
@@ -289,47 +403,51 @@ class MainBoardDisplay {
     fun createTaskListVBox(data: List<TaskList>, btn_create_task_to_do: Button): VBox {
 
         // create a VBox
-        val taskListVBox = VBox(10.0)
+        val taskListVBox = VBox(15.0)
         taskListVBox.alignment = Pos.TOP_CENTER
         taskListVBox.style = """
             -fx-background-color:""" + getTheme().second + """;
         """
 
-        val searchBarLabel = Label("Task List Search bar")
+        val searchBarLabel = Label("    Task Lists    ")
         searchBarLabel.font = globalFont
         searchBarLabel.style = """
             -fx-background-color:"""+ getTheme().first+ """;
             -fx-text-fill: white;
         """
+        searchBarLabel.alignment = Pos.TOP_CENTER
 
         taskListVBox.children.add(searchBarLabel)
 
-        val textField = TextField()
-        textField.setPromptText("Search here!")
-        taskListVBox.children.add(textField)
+//        val textField = TextField()
+//        textField.setPromptText("Search here!")
+//        taskListVBox.children.add(textField)
 
         // add buttons to VBox for each list
         for (taskList in data) {
-            createListHbox(taskList, taskListVBox, btn_create_task_to_do)
+            createListHbox(taskList, taskListVBox, btn_create_task_to_do, false)
         }
 
-        val createTaskListMenu = createTaskListStage(taskListVBox, btn_create_task_to_do)
-
-        val addList = Button("New List")
+        val addList = createAddButton()
         setDefaultButtonStyle(addList)
         taskListVBox.children.add(addList)
         addList.setOnMouseClicked {
-            createTaskListMenu.show()
-            println("Show create a list")
+            createTaskListStage(taskListVBox, btn_create_task_to_do)
         }
+
+        taskListVBox.padding = Insets(10.0)
 
         return taskListVBox
     }
 
-    fun deleteList(id : Int, taskListVBox : VBox, hbox : HBox) {
+    fun deleteList(id : Int, taskListVBox : VBox, hbox : HBox?) {
         // delete list in the backend
+        if (hbox == null) {
+            taskListVBox.children.removeAt(user.lastUsedList + 1)
+        } else {
+            taskListVBox.children.remove(hbox)
+        }
         user.deleteList(id)
-        taskListVBox.children.remove(hbox)
         if (user.lists.size == 0) {
             user.nextId = 0
             boardViewHBox.children.clear()
@@ -365,6 +483,13 @@ class MainBoardDisplay {
 
     fun createTaskHbox(task: Task, data:TaskList, tasksVBox: VBox, title: String, create_button: Button): HBox {
         val hbox = HBox(5.0)
+        hbox.style = """
+            -fx-border-color: """ + getTheme().second + """;
+            -fx-border-width: 2;
+            -fx-border-style: solid;
+            -fx-border-radius: 10px;
+            """.trimIndent()
+        hbox.padding = Insets(7.0)
         val taskTitle = Label(task.title)
         taskTitle.font = globalFont
         val c = CheckBox()
@@ -382,12 +507,12 @@ class MainBoardDisplay {
         val spacer = Pane()
         HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS)
         spacer.setMinSize(10.0, 10.0)
-        var btn_info = createDetailsButton()
+        var btn_edit = createDetailsButton()
         var btn_copy = createCopyButton()
         setDefaultButtonStyle(btn_del)
-        setDefaultButtonStyle(btn_info)
+        setDefaultButtonStyle(btn_edit)
         setDefaultButtonStyle(btn_copy)
-        hbox.children.addAll(c, taskTitle, spacer, btn_del, btn_info, btn_copy)
+        hbox.children.addAll(c, taskTitle, spacer, btn_del, btn_edit, btn_copy)
         hbox.setPrefSize(400.0, 50.0)
         btn_copy.onDragDetected = EventHandler<MouseEvent?> {event ->
             /* drag was detected, start a drag-and-drop gesture*/
@@ -453,7 +578,7 @@ class MainBoardDisplay {
                 addVBoxNonTasks(create_button, data, title, tasksVBox)
                 for(currTask in currList.tasks){
                     val child = createTaskHbox(currTask, currList, tasksVBox, title, create_button)
-                    child.alignment = Pos.TOP_LEFT
+                    child.alignment = Pos.CENTER_LEFT
                     tasksVBox.children.add(child)
                 }
             }
@@ -462,14 +587,61 @@ class MainBoardDisplay {
             event.consume()
         }
 
+        hbox.onMouseClicked = EventHandler<MouseEvent?> {
+            if (data.curTask != -1) {
+                tasksVBox.children[data.curTask + 1].style = """
+                    -fx-border-color: """ + getTheme().second + """;
+                    -fx-border-width: 2;
+                    -fx-border-style: solid;
+                    -fx-border-radius: 10px;
+                    """.trimIndent()
+            }
+            val prevTask = data.curTask
+            data.updateCurTask(task.id)
+            if (prevTask == data.curTask) {
+                hbox.style = """
+                    -fx-border-color: """ + getTheme().second + """;
+                    -fx-border-width: 2;
+                    -fx-border-style: solid;
+                    -fx-border-radius: 10px;
+                    """.trimIndent()
+                data.curTask = -1
+            } else {
+                hbox.style += "\n" + """
+                    -fx-background-color: """ + getTheme().second + """;
+                    -fx-background-radius: 10px;
+                    """.trimIndent()
+            }
+        }
+
         btn_del.setOnMouseClicked {
             data.deleteItemByID(task.id)
             tasksVBox.children.remove(hbox)
+            if (data.tasks.size == 0) {
+                val lbl = Label("You have no tasks for this list. Create some!")
+                lbl.font = globalFont
+                tasksVBox.children.add(lbl)
+            }
             user.convertToString()
+            data.updateCurTask(task.id)
             dataChanged()
         }
-        btn_info.setOnMouseClicked {
-            showTaskInfoStage(task)
+
+        btn_edit.setOnMouseClicked {
+            if (data.curTask != -1) {
+                tasksVBox.children[data.curTask + 1].style = """
+                    -fx-border-color: """ + getTheme().second + """;
+                    -fx-border-width: 2;
+                    -fx-border-style: solid;
+                    -fx-border-radius: 10px;
+                    """.trimIndent()
+            }
+            data.updateCurTask(task.id)
+            hbox.style += "\n" + """
+                -fx-background-color: """ + getTheme().second + """;
+                -fx-background-radius: 10px;
+                """.trimIndent()
+            editTaskStage(task, tasksVBox, create_button)
         }
         hbox.alignment = Pos.CENTER
         return hbox
@@ -477,38 +649,169 @@ class MainBoardDisplay {
 
     fun addVBoxNonTasks(create_button: Button, data: TaskList, title: String, tasksVBox: VBox) {
         val hbox = HBox(10.0)
-        val vbox = VBox(10.0)
-        val childLabel = Label("$title (${data.tasks.size})")
-        childLabel.font = globalFont
+       // val vbox = VBox(10.0)
+        val childLabel = Label(title)
+        childLabel.font = Font.font("Courier New", FontWeight.BOLD, 22.0)
 
-        val textField = TextField()
-        textField.promptText = "Search here!"
-        vbox.children.addAll(childLabel, textField)
+//        val textField = TextField()
+//        textField.promptText = "Search here!"
 
-        hbox.children.addAll(vbox, create_button)
-        hbox.alignment = Pos.BOTTOM_CENTER
+        val methods = FXCollections.observableArrayList("Default", "Priority Asc", "Priority Desc",
+            "Title Asc", "Title Desc", "Due Date Asc", "Due Date Desc", "Date Created Asc", "Date Created Desc", "Difficulty Asc",
+            "Difficulty Desc", "Completion")
+        val sortBox = ComboBox(methods)
+        sortBox.minWidth = 130.0
+
+        val group = FXCollections.observableArrayList("High Priority", "Medium Priority", "Low Priority", "None", "Reset")
+        val groupBox = ComboBox(group)
+        groupBox.minWidth = 130.0
+
+
+        if (!sortCalled) {
+            sortBox.promptText = "Sorting Method"
+        } else {
+            sortBox.promptText = sortingMethodForBox
+        }
+
+        sortBox.setOnAction {
+
+            groupBox.promptText = "Filter By"
+            groupCalled = false
+            if (sortBox.value == "Default") {
+                sortCalled = false
+                FunctionClass.sortTasksBy("default", data)
+            } else {
+                sortCalled = true
+                sortingMethodForBox = sortBox.value
+                var sortMethod = sortBox.value.filter { !it.isWhitespace() }
+                FunctionClass.sortTasksBy("by${sortMethod}", data)
+            }
+
+            val updateVbox = createTasksVBox(create_button, data, title)
+            boardViewHBox.children.clear()
+            boardViewHBox.children.add(updateVbox)
+            dataChanged()
+        }
+
+        if (!groupCalled) {
+            groupBox.promptText = "Filter By"
+        } else {
+            groupBox.promptText = groupingMethodForBox
+        }
+
+        groupBox.setOnAction {
+            sortBox.promptText = "Sorting Method"
+            sortCalled = false
+            if (groupBox.value == "Reset") {
+                groupCalled = false
+                val resetVBox = createTasksVBox(create_button, data, title)
+                boardViewHBox.children.clear()
+                boardViewHBox.children.add(resetVBox)
+            } else {
+                groupCalled = true
+                groupingMethodForBox = groupBox.value
+                val prio = when (groupBox.value) {
+                    "High Priority" -> Priority.High
+                    "Medium Priority" -> Priority.Medium
+                    "Low Priority" -> Priority.Low
+                    "None" -> null
+                    else -> null
+                }
+                val filteredVBox = createFilteredTasksVBox(create_button, data, title, prio)
+                boardViewHBox.children.clear()
+                boardViewHBox.children.add(filteredVBox)
+            }
+
+        }
+
+        hbox.children.addAll(childLabel, create_button, sortBox, groupBox)
+        hbox.alignment = Pos.CENTER
+//        vbox.children.addAll(hbox, textField)
+//        vbox.alignment = Pos.CENTER
+
+        //textField.maxWidth = 200.0
 
         tasksVBox.children.add(hbox)
+    }
+
+    fun createFilteredTasksVBox(create_button: Button, data : TaskList, title: String = "To do", priority: Priority?): VBox {
+
+        // create a VBox
+        var tasksVBox = VBox(25.0)
+        addVBoxNonTasks(create_button, data, title, tasksVBox)
+
+        // add tasks to VBox
+        for (task in data.tasks) {
+            if (task.priority == priority) {
+                val hbox = createTaskHbox(task, data, tasksVBox, title, create_button)
+                hbox.alignment = Pos.CENTER_LEFT
+                tasksVBox.children.add(hbox)
+            }
+        }
+
+        if (tasksVBox.children.size == 1) {
+            val lbl = Label("No tasks met your criteria.")
+            lbl.font = globalFont
+            tasksVBox.children.add(lbl)
+        }
+
+        setDefaultButtonStyle(create_button)
+        //Map create button to current tasklist
+        create_button.setOnMouseClicked {
+            createTaskStage(data, tasksVBox, create_button)
+        }
+
+        tasksVBox.padding = Insets(25.0)
+        tasksVBox.style = """
+            -fx-border-color: """ + getTheme().first + """;
+            -fx-border-insets: 5;
+            -fx-border-width: 2;
+            -fx-border-style: solid;
+            """.trimIndent()
+        tasksVBox.alignment = Pos.CENTER
+        return tasksVBox
+
     }
 
     fun createTasksVBox(create_button: Button, data : TaskList, title: String = "To do"): VBox {
 
         // create a VBox
-        var tasksVBox = VBox(10.0)
+        var tasksVBox = VBox(25.0)
         addVBoxNonTasks(create_button, data, title, tasksVBox)
 
         // add tasks to VBox
         for (task in data.tasks) {
             val hbox = createTaskHbox(task, data, tasksVBox, title, create_button)
-            hbox.alignment = Pos.TOP_LEFT
+            hbox.alignment = Pos.CENTER_LEFT
             tasksVBox.children.add(hbox)
         }
 
+        if (data.curTask != -1) {
+            tasksVBox.children[data.curTask + 1].style += "\n" + """
+                -fx-background-color: """ + getTheme().second + """;
+                -fx-background-radius: 10px;
+            """.trimIndent()
+        }
+
+        if (data.tasks.size == 0) {
+            val lbl = Label("You have no tasks for this list. Create some!")
+            lbl.font = globalFont
+            tasksVBox.children.add(lbl)
+        }
+
+        setDefaultButtonStyle(create_button)
         //Map create button to current tasklist
         create_button.setOnMouseClicked {
-            println("Always prints here")
             createTaskStage(data, tasksVBox, create_button)
         }
+
+        tasksVBox.padding = Insets(25.0)
+        tasksVBox.style = """
+            -fx-border-color: """ + getTheme().first + """;
+            -fx-border-insets: 5;
+            -fx-border-width: 2;
+            -fx-border-style: solid;
+            """.trimIndent()
         return tasksVBox
     }
 
@@ -533,6 +836,7 @@ class MainBoardDisplay {
         """
         sideBar.prefWidth = 80.0
         sideBar.alignment = Pos.TOP_CENTER
+        sideBar.padding = Insets(10.0)
         val themeButton = ImageButton("/assets/icons/theme.png",30.0,30.0)
         val profileButton = ImageButton("/assets/icons/profile.png",30.0,30.0)
         val shopButton = ImageButton("/assets/icons/shop.png",30.0,30.0)
@@ -567,6 +871,8 @@ class MainBoardDisplay {
         val invalidPriorityScene = Scene(prioSceneContainer,500.0, 300.0)
 
         invalidDiffStage.scene = invalidPriorityScene
+        invalidDiffStage.x = user.x
+        invalidDiffStage.y = user.y
         invalidDiffStage.show()
     }
 
@@ -576,44 +882,51 @@ class MainBoardDisplay {
         val btn = Button("Confirm")
         setDefaultButtonStyle(btn)
         val instruction = Label("Only 'Title' is mandatory when creating a task.")
+        instruction.font = globalFont
 
-        val hbox_title = HBox(20.0)
-        val label_title = Label("Title")
+        val mainVBox = VBox(20.0)
+        val mainHBox = HBox(5.0)
+        val leftvbox = VBox(21.0)
+        val rightvbox = VBox(16.0)
+        leftvbox.alignment = Pos.CENTER_RIGHT
+        rightvbox.alignment = Pos.CENTER_LEFT
+
+        val label_title = Label("Title:")
         label_title.font = globalFont
         val text_title = TextField()
         text_title.promptText = "Enter Title here"
-        hbox_title.children.addAll(label_title, text_title)
+        leftvbox.children.add(label_title)
+        rightvbox.children.add(text_title)
 
-        val hbox_desc = HBox(20.0)
-        val label_desc = Label("Description")
+        val label_desc = Label("Description:")
         label_desc.font = globalFont
         val text_desc = TextField()
         text_desc.promptText = "Enter Description here"
-        hbox_desc.children.addAll(label_desc, text_desc)
+        leftvbox.children.add(label_desc)
+        rightvbox.children.add(text_desc)
 
-        val hbox_due = HBox(20.0)
-        val label_due = Label("Due Date: ")
+        val label_due = Label("Due Date:")
         label_due.font = globalFont
         val due_date = DatePicker()
         due_date.isEditable = false
-        hbox_due.children.addAll(label_due, due_date)
+        leftvbox.children.add(label_due)
+        rightvbox.children.add(due_date)
 
-        val hbox_prio = HBox(20.0)
-        val label_prio = Label("Priority")
+        val label_prio = Label("Priority:")
         label_prio.font = globalFont
         val priority = FXCollections.observableArrayList("Low", "Medium", "High")
         val select_prio = ComboBox(priority)
-        hbox_prio.children.addAll(label_prio, select_prio)
+        leftvbox.children.add(label_prio)
+        rightvbox.children.add(select_prio)
 
-        val hbox_diff = HBox(20.0)
-        val label_diff = Label("Difficulty")
+        val label_diff = Label("Difficulty:")
         label_diff.font = globalFont
         val difficulty = FXCollections.observableArrayList("Easy", "Medium", "Hard")
         val select_diff = ComboBox(difficulty)
-        hbox_diff.children.addAll(label_diff, select_diff)
+        leftvbox.children.add(label_diff)
+        rightvbox.children.add(select_diff)
 
-        val hbox_tags = HBox(20.0)
-        val label_tags = Label("Tags")
+        val label_tags = Label("Tags:")
         label_tags.font = globalFont
 
         val strings: ObservableList<String> = FXCollections.observableArrayList()
@@ -625,17 +938,76 @@ class MainBoardDisplay {
 //            strings.add("Item $i")
 //        }
 
-        val selected_tags = CheckComboBox(strings)
+        val labelAddTags = Label("Add/Delete Tags:")
+        labelAddTags.font = globalFont
+        val newTag = TextField()
+        newTag.promptText = "Add/Delete tags here"
 
-        if (strings.size == 0) {
-            selected_tags.title = "No tags to select"
+        var selected_tags = CheckComboBox(strings)
+        selected_tags.title = "\t\t\tTags for this task"
+
+        val addTagBtn = createAddButton()
+        setDefaultButtonStyle(addTagBtn)
+        val delTagBtn = createDeleteButton()
+        setDefaultButtonStyle(delTagBtn)
+
+        addTagBtn.setOnMouseClicked {
+            if (newTag.text.trim() != "") {
+                if (strings.size == 0) {
+                    leftvbox.children.removeAt(6)
+                    rightvbox.children.removeAt(6)
+                }
+                if (!strings.contains(newTag.text.trim())) {
+                    strings.add(newTag.text.trim())
+                }
+                user.tags.add(newTag.text.trim())
+            }
+            newTag.clear()
         }
 
-        hbox_tags.children.addAll(label_tags, selected_tags)
+        val noTagsMsg1 = Label("You have no tags")
+        val noTagsMsg2 = Label("to add. Create some below!")
+        noTagsMsg1.font = globalFont
+        noTagsMsg2.font = globalFont
 
-        val vbox = VBox(10.0)
-        vbox.children.addAll(instruction, hbox_title, hbox_desc, hbox_due, hbox_prio, hbox_diff, hbox_tags, btn)
-        vbox.padding = Insets(10.0)
+        delTagBtn.setOnMouseClicked {
+            if (newTag.text.trim() != "") {
+                if (strings.size == 1 && strings.contains(newTag.text.trim())) {
+                    leftvbox.children.add(6, noTagsMsg1)
+                    rightvbox.children.add(6, noTagsMsg2)
+                    selected_tags.checkModel.clearCheck(0)
+                }
+
+                strings.remove(newTag.text.trim())
+                user.tags.remove(newTag.text.trim())
+                for (item in selected_tags.checkModel.checkedItems) {
+                    selected_tags.checkModel.check(item)
+                }
+                selected_tags.title = "\t\t\tTags for this task"
+            }
+            newTag.clear()
+        }
+
+        val hboxAddTags = HBox(5.0)
+        hboxAddTags.children.addAll(newTag, addTagBtn, delTagBtn)
+
+        leftvbox.children.add(label_tags)
+        rightvbox.children.add(selected_tags)
+        leftvbox.children.add(labelAddTags)
+        rightvbox.children.add(hboxAddTags)
+
+
+        mainHBox.children.addAll(leftvbox, rightvbox)
+        mainHBox.alignment = Pos.TOP_CENTER
+        mainVBox.children.addAll(instruction, mainHBox, btn)
+        mainVBox.padding = Insets(5.0)
+        mainVBox.alignment = Pos.CENTER
+
+
+        if (strings.size == 0) {
+            leftvbox.children.add(6, noTagsMsg1)
+            rightvbox.children.add(6, noTagsMsg2)
+        }
 
         btn.setOnMouseClicked {
             if (text_title.text.trim() == "") {
@@ -644,7 +1016,13 @@ class MainBoardDisplay {
                 val taskTags = mutableSetOf<String>()
                 val addTags = selected_tags.checkModel.checkedItems
                 for (tag in addTags) {
-                    taskTags.add(tag)
+                    if (tag != null) {
+                        taskTags.add(tag)
+                    }
+                }
+
+                if (data.tasks.size == 0) {
+                    tasksVBox.children.removeAt(1)
                 }
 
                 if (due_date.value == null) {
@@ -663,42 +1041,61 @@ class MainBoardDisplay {
                 dataChanged()
             }
         }
-        vbox.style = """
+
+        mainVBox.style = """
             -fx-background-color:""" + getTheme().third + """;
         """
-        val scene = Scene(vbox, 700.0, 400.0)
+        val scene = Scene(mainVBox, 700.0, 450.0)
         create_task_stage.scene = scene
+        create_task_stage.x = user.x
+        create_task_stage.y = user.y
         create_task_stage.show()
 
-        create_task_stage.widthProperty().addListener(ChangeListener {
-                _, _, newValue ->  selected_tags.maxWidth = newValue.toDouble() - (label_tags.width + 50)
-        })
+        val spacer = Region()
+        spacer.prefWidth = mainHBox.width - leftvbox.width - rightvbox.width - 200.0
+        mainHBox.children.add(spacer)
 
-        selected_tags.maxWidth = create_task_stage.width - (label_tags.width + 50)
+        selected_tags.minWidth = 240.0
+        text_title.maxWidth = 240.0
+        text_desc.maxWidth = 240.0
+        selected_tags.maxWidth = 240.0
+        newTag.maxWidth = 240.0
     }
 
-    fun createTaskListStage(taskListVBox : VBox, btn_create_task_to_do: Button) : Stage {
+    fun createTaskListStage(taskListVBox : VBox, btn_create_task_to_do: Button) {
         val tasklist_stage = Stage()
         tasklist_stage.setTitle("Create List")
         val btn = Button("Confirm")
         setDefaultButtonStyle(btn)
+        val instruction = Label("Only 'Title' is mandatory when creating a list.")
+        instruction.font = globalFont
 
-        val hbox_title = HBox(20.0)
-        val label_title = Label("Title")
+        val mainVBox = VBox(20.0)
+        val mainHBox = HBox(5.0)
+        val leftvbox = VBox(21.0)
+        val rightvbox = VBox(16.0)
+        leftvbox.alignment = Pos.CENTER_RIGHT
+        rightvbox.alignment = Pos.CENTER_LEFT
+
+        val label_title = Label("Title: ")
         label_title.font = globalFont
         val text_title = TextField()
         text_title.promptText = "Enter Title here"
-        hbox_title.children.addAll(label_title, text_title)
+        leftvbox.children.add(label_title)
+        rightvbox.children.add(text_title)
 
-        val hbox_desc = HBox(20.0)
-        val label_desc = Label("Description")
+        val label_desc = Label("Description: ")
         label_desc.font = globalFont
         val text_desc = TextField()
         text_desc.promptText = "Enter Description here"
-        hbox_desc.children.addAll(label_desc, text_desc)
+        leftvbox.children.add(label_desc)
+        rightvbox.children.add(text_desc)
 
-        val vbox = VBox(10.0)
-        vbox.children.addAll(hbox_title, hbox_desc, btn)
+        mainHBox.children.addAll(leftvbox, rightvbox)
+        mainVBox.children.addAll(instruction, mainHBox, btn)
+        mainVBox.padding = Insets(10.0)
+        mainHBox.alignment = Pos.TOP_CENTER
+        mainVBox.alignment = Pos.CENTER
 
         btn.setOnMouseClicked {
             if (text_title.text.trim() == "") {
@@ -708,7 +1105,7 @@ class MainBoardDisplay {
 
                 var curTaskList = user.lists[user.lists.size - 1]
 
-                createListHbox(curTaskList, taskListVBox, btn_create_task_to_do)
+                createListHbox(curTaskList, taskListVBox, btn_create_task_to_do, false)
 
                 if (user.lastUsedList == -1) {
                     user.lastUsedList = 0
@@ -727,27 +1124,148 @@ class MainBoardDisplay {
             }
         }
 
-        vbox.style = """
+        mainVBox.style = """
             -fx-background-color:""" + getTheme().third + """;
         """
-        val scene = Scene(vbox, 700.0, 400.0)
+        val scene = Scene(mainVBox, 500.0, 300.0)
         tasklist_stage.scene = scene
-        return tasklist_stage
+        tasklist_stage.x = user.x
+        tasklist_stage.y = user.y
+        tasklist_stage.show()
+
+        val spacer = Region()
+        spacer.prefWidth = mainHBox.width - leftvbox.width - rightvbox.width - 150.0
+        mainHBox.children.add(spacer)
+
+
     }
 
-    fun createListHbox(curTaskList: TaskList, taskListVBox: VBox, btn_create_task_to_do: Button) {
+    // function for deselecting, weird crutch with javafx
+    fun deselect(textfield : TextField) {
+        Platform.runLater {
+            if (textfield.text.length > 0 &&
+                textfield.selectionProperty().get().end == 0
+            ) {
+                deselect(textfield)
+            } else {
+                textfield.selectEnd()
+                textfield.deselect()
+            }
+        }
+    }
+
+    fun editTaskListStage(curTaskList: TaskList, create_button: Button, taskListVBox : VBox) {
+        val tasklist_stage = Stage()
+        tasklist_stage.setTitle("Edit List")
+        val btn = Button("Confirm")
+        setDefaultButtonStyle(btn)
+
+        val mainVBox = VBox(20.0)
+        val mainHBox = HBox(5.0)
+        val leftvbox = VBox(21.0)
+        val rightvbox = VBox(16.0)
+        leftvbox.alignment = Pos.CENTER_RIGHT
+        rightvbox.alignment = Pos.CENTER_LEFT
+
+        val label_title = Label("Title: ")
+        label_title.font = globalFont
+        val text_title = TextField()
+        text_title.promptText = "Enter Title here"
+        text_title.text = curTaskList.title
+        leftvbox.children.add(label_title)
+        rightvbox.children.add(text_title)
+
+        val label_desc = Label("Description: ")
+        label_desc.font = globalFont
+        val text_desc = TextField()
+        text_desc.promptText = "Enter Description here"
+        if (curTaskList.desc != "") {
+            text_desc.text = curTaskList.desc
+        }
+        leftvbox.children.add(label_desc)
+        rightvbox.children.add(text_desc)
+
+        mainHBox.children.addAll(leftvbox, rightvbox)
+        mainVBox.children.addAll(mainHBox, btn)
+        mainVBox.padding = Insets(10.0)
+        mainHBox.alignment = Pos.TOP_CENTER
+        mainVBox.alignment = Pos.CENTER
+
+        btn.setOnMouseClicked {
+            if (text_title.text.trim() == "") {
+                errorStage("Title of a list can not be empty.")
+            } else {
+                curTaskList.title = text_title.text.trim()
+                curTaskList.desc = text_desc.text.trim()
+
+                createListHbox(curTaskList, taskListVBox, create_button, true)
+
+                // update title of list in middle pane if user is editing active list
+                if (user.lastUsedList == user.findIdx(curTaskList.id)) {
+                    toDoVBox = createTasksVBox(create_button, curTaskList, curTaskList.title)
+                    boardViewHBox.children.clear()
+                    boardViewHBox.children.add(toDoVBox)
+                }
+
+                dataChanged()
+                text_desc.clear()
+                text_title.clear()
+                tasklist_stage.close()
+            }
+        }
+
+        mainVBox.style = """
+            -fx-background-color:""" + getTheme().third + """;
+        """
+        val scene = Scene(mainVBox, 500.0, 300.0)
+        tasklist_stage.scene = scene
+        tasklist_stage.x = user.x
+        tasklist_stage.y = user.y
+        tasklist_stage.show()
+
+        deselect(text_title)
+
+        val spacer = Region()
+        spacer.prefWidth = mainHBox.width - leftvbox.width - rightvbox.width - 150.0
+        mainHBox.children.add(spacer)
+
+    }
+
+    fun createListHbox(curTaskList: TaskList, taskListVBox: VBox, btn_create_task_to_do: Button, edit : Boolean) {
+
         val title = Button(curTaskList.title)
         setDefaultButtonStyle(title)
-        val delBtn = Button("-")
+        title.minWidth = 100.0
+        val delBtn = createDeleteButton()
         setDefaultButtonStyle(delBtn)
-        val hbox = HBox(2.0, title, delBtn)
-        taskListVBox.children.add(2, hbox)
+        val editBtn = createDetailsButton()
+        setDefaultButtonStyle(editBtn)
+
+        val spacer = Pane()
+        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS)
+        spacer.setMinSize(10.0, 10.0)
+
+        val hbox = HBox(5.0, title, spacer, delBtn, editBtn)
+        hbox.alignment = Pos.CENTER
+        hbox.padding = Insets(5.0)
+
+        if (edit) {
+            val idx = user.findIdx(curTaskList.id)
+            taskListVBox.children.removeAt(idx + 1)
+            taskListVBox.children.add(idx + 1, hbox)
+        } else {
+            if (user.lists.size + 1 == taskListVBox.children.size) {
+                taskListVBox.children.add(taskListVBox.children.size - 1, hbox)
+            } else {
+                taskListVBox.children.add(taskListVBox.children.size, hbox)
+            }
+        }
+
         title.setOnMouseClicked {
             toDoVBox = createTasksVBox(btn_create_task_to_do, curTaskList, curTaskList.title)
             boardViewHBox.children.clear()
             boardViewHBox.children.add(toDoVBox)
             user.updateActiveList(curTaskList.id)
-            println("Selected list: ${user.lastUsedList}")
         }
 
         hbox.onDragEntered = EventHandler<DragEvent?> { event ->
@@ -776,6 +1294,13 @@ class MainBoardDisplay {
             title=props[0], desc = props[1], dueDate = props[2],
             priority = strToPrio(props[3]), difficulty = strToDiff(props[4])
             )
+
+            if (user.lastUsedList == user.findIdx(curTaskList.id)) {
+                toDoVBox = createTasksVBox(btn_create_task_to_do, curTaskList, curTaskList.title)
+                boardViewHBox.children.clear()
+                boardViewHBox.children.add(toDoVBox)
+            }
+
             /* let the source know whether the string was successfully transferred and used */
             event.consume()
         }
@@ -783,6 +1308,10 @@ class MainBoardDisplay {
         delBtn.setOnMouseClicked {
             deleteList(curTaskList.id, taskListVBox, hbox)
             dataChanged()
+        }
+
+        editBtn.setOnMouseClicked {
+            editTaskListStage(curTaskList, btn_create_task_to_do, taskListVBox)
         }
 
     }
@@ -805,49 +1334,231 @@ class MainBoardDisplay {
             else -> null
         }
 
-    fun showTaskInfoStage(task: Task) {
-        val taskInfoStage = Stage()
-        taskInfoStage.setTitle("Task Info")
-        val btn = Button("Exit")
+    fun editTaskStage(task: Task, tasksVBox: VBox, create_button: Button) {
+        val taskEditStage = Stage()
+        taskEditStage.setTitle("Edit Task")
+        val btn = Button("Confirm")
         setDefaultButtonStyle(btn)
 
-        val hbox_title = HBox(20.0)
-        val label_title = Label("Title: " + task.title)
+        val mainVBox = VBox(10.0)
+        val mainHBox = HBox(5.0)
+        val leftvbox = VBox(21.0)
+        val rightvbox = VBox(16.0)
+        leftvbox.alignment = Pos.CENTER_RIGHT
+        rightvbox.alignment = Pos.CENTER_LEFT
+
+        val label_title = Label("Title:")
         label_title.font = globalFont
-        hbox_title.children.addAll(label_title)
+        val text_title = TextField()
+        text_title.text = task.title
+        text_title.promptText = "Enter Title here"
+        leftvbox.children.add(label_title)
+        rightvbox.children.add(text_title)
 
-        val hbox_desc = HBox(20.0)
-        val label_desc = Label("Description: " + task.desc)
+        val label_desc = Label("Description:")
         label_desc.font = globalFont
-        hbox_desc.children.addAll(label_desc)
+        val text_desc = TextField()
+        text_desc.promptText = "Enter Description here"
+        if (task.desc != "") {
+            text_desc.text = task.desc
+        }
+        leftvbox.children.add(label_desc)
+        rightvbox.children.add(text_desc)
 
-        val hbox_due = HBox(20.0)
-        val label_due = Label("Due Date: " + task.dueDate)
+        val label_due = Label("Due Date:")
         label_due.font = globalFont
-        hbox_due.children.addAll(label_due)
+        val due_date = DatePicker()
+        if (task.dueDate != "") {
+            val (yr, month, day) = task.dueDate.split("-")
+            due_date.value = LocalDate.of(yr.toInt(), month.toInt(), day.toInt())
+        }
+        due_date.isEditable = false
+        leftvbox.children.add(label_due)
+        rightvbox.children.add(due_date)
 
-        val hbox_prio = HBox(20.0)
-        val label_prio = Label("Priority: " + task.priority)
+        val label_date_created = Label("Date Created (yyyy-mm-dd):")
+        label_date_created.font = globalFont
+        val date_created = TextField(task.dateCreated)
+        date_created.isEditable = false
+        leftvbox.children.add(label_date_created)
+        rightvbox.children.add(date_created)
+
+        val label_prio = Label("Priority:")
         label_prio.font = globalFont
-        hbox_prio.children.addAll(label_prio)
+        val priority = FXCollections.observableArrayList("Low", "Medium", "High")
+        val select_prio = ComboBox(priority)
+        if (task.priority != null) {
+            when (task.priority) {
+                Priority.Low -> select_prio.selectionModel.select(0)
+                Priority.Medium -> select_prio.selectionModel.select(1)
+                Priority.High -> select_prio.selectionModel.select(2)
+                else -> {}
+            }
+        }
+        leftvbox.children.add(label_prio)
+        rightvbox.children.add(select_prio)
 
-        val hbox_diff = HBox(20.0)
-        val label_diff = Label("Difficulty: " + task.difficulty)
+        val label_diff = Label("Difficulty:")
         label_diff.font = globalFont
-        hbox_diff.children.addAll(label_diff)
+        val difficulty = FXCollections.observableArrayList("Easy", "Medium", "Hard")
+        val select_diff = ComboBox(difficulty)
+        if (task.difficulty != null) {
+            when (task.difficulty) {
+                Difficulty.Easy -> select_diff.selectionModel.select(0)
+                Difficulty.Medium -> select_diff.selectionModel.select(1)
+                Difficulty.Hard -> select_diff.selectionModel.select(2)
+                else -> {}
+            }
+        }
+        leftvbox.children.add(label_diff)
+        rightvbox.children.add(select_diff)
 
-        val vbox = VBox(10.0)
-        vbox.children.addAll(hbox_title, hbox_desc, hbox_due, hbox_prio, hbox_diff, btn)
+        val label_tags = Label("Tags:")
+        label_tags.font = globalFont
+
+        val strings: ObservableList<String> = FXCollections.observableArrayList()
+        for (tag in user.tags) {
+            strings.add(tag)
+        }
+
+        val labelAddTags = Label("Add/Delete Tags:")
+        labelAddTags.font = globalFont
+        val newTag = TextField()
+        newTag.promptText = "Add/Delete tags here"
+
+        var selected_tags = CheckComboBox(strings)
+        selected_tags.title = "\t\t\tTags for this task"
+
+        for (tag in strings) {
+            if (task.tags.contains(tag)) {
+                selected_tags.checkModel.check(tag)
+            }
+        }
+
+        val addTagBtn = createAddButton()
+        setDefaultButtonStyle(addTagBtn)
+        val delTagBtn = createDeleteButton()
+        setDefaultButtonStyle(delTagBtn)
+
+        addTagBtn.setOnMouseClicked {
+            if (newTag.text.trim() != "") {
+                if (strings.size == 0) {
+                    leftvbox.children.removeAt(7)
+                    rightvbox.children.removeAt(7)
+                }
+                if (!strings.contains(newTag.text.trim())) {
+                    strings.add(newTag.text.trim())
+                }
+                user.tags.add(newTag.text.trim())
+            }
+            newTag.clear()
+        }
+
+        val noTagsMsg1 = Label("You have no tags")
+        val noTagsMsg2 = Label("to add. Create some below!")
+        noTagsMsg1.font = globalFont
+        noTagsMsg2.font = globalFont
+
+        delTagBtn.setOnMouseClicked {
+            if (newTag.text.trim() != "") {
+                if (strings.size == 1 && strings.contains(newTag.text.trim())) {
+                    leftvbox.children.add(7, noTagsMsg1)
+                    rightvbox.children.add(7, noTagsMsg2)
+                    selected_tags.checkModel.clearCheck(0)
+                }
+
+                strings.remove(newTag.text.trim())
+                user.tags.remove(newTag.text.trim())
+                for (item in selected_tags.checkModel.checkedItems) {
+                    selected_tags.checkModel.check(item)
+                }
+                selected_tags.title = "\t\t\tTags for this task"
+            }
+            newTag.clear()
+        }
+
+        val hboxAddTags = HBox(5.0)
+        hboxAddTags.children.addAll(newTag, addTagBtn, delTagBtn)
+
+        leftvbox.children.add(label_tags)
+        rightvbox.children.add(selected_tags)
+        leftvbox.children.add(labelAddTags)
+        rightvbox.children.add(hboxAddTags)
+
+
+        mainHBox.children.addAll(leftvbox, rightvbox)
+        mainHBox.alignment = Pos.TOP_CENTER
+        mainVBox.children.addAll(mainHBox, btn)
+        mainVBox.padding = Insets(5.0)
+        mainVBox.alignment = Pos.CENTER
+
+        if (strings.size == 0) {
+            leftvbox.children.add(7, noTagsMsg1)
+            rightvbox.children.add(7, noTagsMsg2)
+        }
 
         btn.setOnMouseClicked {
-            taskInfoStage.close()
+            if (text_title.text.trim() == "") {
+                errorStage("Title of task can not be empty.")
+            } else {
+                val addTags = selected_tags.checkModel.checkedItems
+
+                task.tags.clear()
+                for (tag in addTags) {
+                    if (tag != null) {
+                        task.tags.add(tag)
+                    }
+                }
+
+                task.title = text_title.text.trim()
+                task.desc = text_desc.text.trim()
+                if (due_date.value == null) {
+                    task.dueDate = ""
+                } else {
+                    task.dueDate = due_date.value.toString()
+                }
+
+                task.priority = strToPrio(select_prio.value)
+                task.difficulty = strToDiff(select_diff.value)
+                task.calcCoinValue() // update reward coins
+
+                val listOfTask = user.lists[user.lastUsedList]
+
+                tasksVBox.children.removeAt(listOfTask.curTask + 1)
+                var hbox = createTaskHbox(task, listOfTask, tasksVBox, listOfTask.title, create_button)
+                hbox.style += "\n" + """
+                    -fx-background-color: """ + getTheme().second + """;
+                    -fx-background-radius: 10px;
+                    """.trimIndent()
+                tasksVBox.children.add(listOfTask.curTask + 1, hbox)
+                taskEditStage.close()
+                dataChanged()
+            }
         }
-        vbox.style = """
+
+        mainVBox.style = """
             -fx-background-color:""" + getTheme().third + """;
         """
-        val scene = Scene(vbox, 700.0, 400.0)
-        taskInfoStage.scene = scene
-        taskInfoStage.show()
+        val scene = Scene(mainVBox, 700.0, 450.0)
+        taskEditStage.scene = scene
+        taskEditStage.x = user.x
+        taskEditStage.y = user.y
+        taskEditStage.show()
+
+        val spacer = Region()
+        spacer.prefWidth = mainHBox.width - leftvbox.width - rightvbox.width - 125.0
+        mainHBox.children.add(spacer)
+
+        deselect(text_title)
+
+        selected_tags.minWidth = 240.0
+        text_title.maxWidth = 240.0
+        date_created.maxWidth = 92.0
+        text_desc.maxWidth = 240.0
+        selected_tags.maxWidth = 240.0
+        newTag.maxWidth = 240.0
+
+
     }
 
     fun showProfileScreen(homeStage: Stage?, homeScene: Scene): Scene {
