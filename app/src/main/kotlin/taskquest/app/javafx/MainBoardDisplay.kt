@@ -231,7 +231,7 @@ class MainBoardDisplay {
     }
     fun updateBanner() {
         val bannerPath = "/assets/banners/" + user.bannerRank + ".png"
-        val banner = Image(File(bannerPath).toURI().toString())
+        val banner = Image(bannerPath)
         bannerImageView.image = banner
     }
 
@@ -245,7 +245,7 @@ class MainBoardDisplay {
 
     fun createBanner(): StackPane {
         val bannerPath = "/assets/banners/" + user.bannerRank + ".png"
-        val banner = Image(File(bannerPath).toURI().toString())
+        val banner = Image(bannerPath)
         bannerImageView.image = banner
 //        bannerImageView.fitWidth = 250.0
         bannerImageView.fitHeight = 60.0
@@ -857,13 +857,13 @@ class MainBoardDisplay {
 
         var bannerCopy = ImageView()
         val bannerPath = "/assets/banners/" + user.bannerRank + ".png"
-        val banner = Image(File(bannerPath).toURI().toString())
+        val banner = Image(bannerPath)
         bannerCopy.image = banner
         bannerCopy.fitWidth = 125.0
         bannerCopy.fitHeight =160.0
 
         val path = "/assets/" + user.profileImageName
-        val profileImage = Image(File(path).toURI().toString())
+        val profileImage = Image(path)
         val profileImageView = ImageView()
         profileImageView.image = profileImage
         profileImageView.fitWidth = 120.0
