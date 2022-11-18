@@ -18,7 +18,7 @@ import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Stage
 import org.controlsfx.control.CheckComboBox
-import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreData
+import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreDataFromText
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveStoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
@@ -47,7 +47,7 @@ val bannerTextCss = """
             """.trimIndent()
 
 val dataFileName = "data.json"
-val storeFileName = "store.json"
+val storeFileName = "default/store.json"
 val globalFont = Font.font("Courier New", FontWeight.BOLD, 16.0)
 val darkBlue = "#3d5a80"
 val lighterBlue = "#98c1d9"
@@ -62,7 +62,7 @@ var theme = 0
 val iconSize = 20.0
 
 class MainBoardDisplay {
-    var user = restoreUserData(dataFileName)
+    var user = User()
     var toDoVBox = VBox()
     var store = Store()
     var boardViewHBox = HBox()
@@ -70,7 +70,7 @@ class MainBoardDisplay {
     var profileImgView = ImageView()
     fun dataChanged() {
         user.convertToString()
-        saveUserData(user, dataFileName)
+        saveUserData(user)
     }
     fun getTheme(): Triple<String, String, String> {
         return Triple(base1, base2, base3)
@@ -78,8 +78,7 @@ class MainBoardDisplay {
 
     fun ImageButton(path: String, h: Double, w: Double): Button {
         var button = Button()
-        // print(File(path).toURI().toString())
-        val originalImage = Image(File(path).toURI().toString())
+        val originalImage = Image(path)
         val imageView = ImageView(originalImage)
         imageView.fitWidth = h
         imageView.fitHeight = w
@@ -89,9 +88,10 @@ class MainBoardDisplay {
     }
 
     fun start_display(mainStage: Stage?) {
+        user = restoreUserData()
 
-        user = restoreUserData(dataFileName)
-        store = restoreStoreData(storeFileName)
+        val fileContent = javaClass.getResource("/default/store.json").readText()
+        store = restoreStoreDataFromText(fileContent)
 
         if (mainStage != null) {
             // restore window dimensions and location
@@ -230,21 +230,21 @@ class MainBoardDisplay {
         return headerContainer
     }
     fun updateBanner() {
-        val bannerPath = "../assets/banners/" + user.bannerRank + ".png"
+        val bannerPath = "/assets/banners/" + user.bannerRank + ".png"
         val banner = Image(File(bannerPath).toURI().toString())
         bannerImageView.image = banner
     }
 
     fun createProfilePic() {
         //Profile Pic
-        val profileImage = Image(File("../assets/" + user.profileImageName).toURI().toString())
+        val profileImage = Image("/assets/" + user.profileImageName)
         profileImgView.image = profileImage
         profileImgView.fitWidth = 120.0
         profileImgView.fitHeight = 120.0
     }
 
     fun createBanner(): StackPane {
-        val bannerPath = "../assets/banners/" + user.bannerRank + ".png"
+        val bannerPath = "/assets/banners/" + user.bannerRank + ".png"
         val banner = Image(File(bannerPath).toURI().toString())
         bannerImageView.image = banner
 //        bannerImageView.fitWidth = 250.0
@@ -342,17 +342,17 @@ class MainBoardDisplay {
 
     }
     fun createAddButton(): Button {
-        var btn = ImageButton("../assets/icons/add.png",iconSize,iconSize)
+        var btn = ImageButton("/assets/icons/add.png",iconSize,iconSize)
         btn.setMinSize(btn.prefWidth, btn.prefHeight)
         return btn
     }
     fun createDeleteButton(): Button {
-        var btn = ImageButton("../assets/icons/delete.png",iconSize,iconSize)
+        var btn = ImageButton("/assets/icons/delete.png",iconSize,iconSize)
         btn.setMinSize(btn.prefWidth, btn.prefHeight)
         return btn
     }
     fun createDetailsButton(): Button {
-        var btn = ImageButton("../assets/icons/details.png",iconSize,iconSize)
+        var btn = ImageButton("/assets/icons/details.png",iconSize,iconSize)
         btn.setMinSize(btn.prefWidth, btn.prefHeight)
         return btn
     }
@@ -533,9 +533,9 @@ class MainBoardDisplay {
         """
         sideBar.prefWidth = 80.0
         sideBar.alignment = Pos.TOP_CENTER
-        val themeButton = ImageButton("../assets/icons/theme.png",30.0,30.0)
-        val profileButton = ImageButton("../assets/icons/profile.png",30.0,30.0)
-        val shopButton = ImageButton("../assets/icons/shop.png",30.0,30.0)
+        val themeButton = ImageButton("/assets/icons/theme.png",30.0,30.0)
+        val profileButton = ImageButton("/assets/icons/profile.png",30.0,30.0)
+        val shopButton = ImageButton("/assets/icons/shop.png",30.0,30.0)
         setDefaultButtonStyle(themeButton)
         setDefaultButtonStyle(profileButton)
         setDefaultButtonStyle(shopButton)
@@ -856,13 +856,14 @@ class MainBoardDisplay {
         var scene = Scene(profileVBox, 600.0, 600.0)
 
         var bannerCopy = ImageView()
-        val bannerPath = "../assets/banners/" + user.bannerRank + ".png"
+        val bannerPath = "/assets/banners/" + user.bannerRank + ".png"
         val banner = Image(File(bannerPath).toURI().toString())
         bannerCopy.image = banner
         bannerCopy.fitWidth = 125.0
         bannerCopy.fitHeight =160.0
 
-        val profileImage = Image(File("../assets/" + user.profileImageName).toURI().toString())
+        val path = "/assets/" + user.profileImageName
+        val profileImage = Image(File(path).toURI().toString())
         val profileImageView = ImageView()
         profileImageView.image = profileImage
         profileImageView.fitWidth = 120.0
@@ -937,8 +938,8 @@ class MainBoardDisplay {
     fun createShopItemVBox(item: Item, size: Double): VBox {
         val vBox = VBox(10.0)
         //Image
-        val path = "../assets/" + item.name + ".png"
-        val image = Image(File(path).toURI().toString())
+        val path = "/assets/" + item.name + ".png"
+        val image = Image(path)
         val imageView = ImageView()
         imageView.image = image
         imageView.fitWidth = size
@@ -952,7 +953,7 @@ class MainBoardDisplay {
         return vBox
     }
     fun showTaskCompletionStage(task: Task) {
-        user.taskCompleteCounter() // count new task completed
+        user.completeTask(task) // count new task completed
         updateBanner() // update banner displayed
 
         val taskCompletionStage = Stage()
@@ -967,7 +968,7 @@ class MainBoardDisplay {
         hbox_title.children.addAll(label_title)
 
         val hbox_desc = HBox(20.0)
-        var coinValue = task.rewardCoins
+        var coinValue = (task.rewardCoins * user.multiplier).toInt()
         val label_desc = Label("Here's " + coinValue + " TaskCoins as a reward!")
         label_desc.font = globalFont
         hbox_desc.alignment = Pos.CENTER
@@ -1064,7 +1065,7 @@ class MainBoardDisplay {
             purchaseBtn.setOnMouseClicked {
                 store.buyItem(child.id, user)
                 saveStoreData(store, storeFileName)
-                saveUserData(user, dataFileName)
+                saveUserData(user)
                 flowPane.children.remove(childBox)
                 homeStage?.scene = createShopScene(homeStage, homeScene)
             }
