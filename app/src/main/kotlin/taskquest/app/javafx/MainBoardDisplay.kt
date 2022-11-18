@@ -266,7 +266,7 @@ class MainBoardDisplay {
         }
         mainScene.accelerators[toProfileHotkey] = toProfileAction
 
-        val switchThemeHotkey: KeyCombination = KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN)
+        val switchThemeHotkey: KeyCombination = KeyCodeCombination(KeyCode.T, KeyCombination.CONTROL_DOWN)
         val switchThemeAction = Runnable {
             if (theme == 0) {
                 theme = 1
