@@ -65,11 +65,12 @@ var theme = 0
 val iconSize = 20.0
 
 class MainBoardDisplay {
-    var user = User()
+    var user = restoreUserData(dataFileName)
     var toDoVBox = VBox()
     var store = Store()
     var boardViewHBox = HBox()
     var bannerImageView = ImageView()
+    var profileImgView = ImageView()
     fun dataChanged() {
         user.convertToString()
         saveUserData(user, dataFileName)
@@ -115,8 +116,7 @@ class MainBoardDisplay {
         // set title for the stage
         mainStage?.title = "TaskQuest";
 
-        //Banner
-        val headerHBox = createBanner() //<--fix the sizing of banner
+        val headerContainer = createHeaderContainer()
 
         //Main tasks board
 
@@ -148,12 +148,9 @@ class MainBoardDisplay {
         var (sideBarVBox, buttonList) = createSideBarVBox() //this order is required for theme switch - need to pass scene
         var themeButton = buttonList[0]
         var profileButton = buttonList[1]
-        profileButton.setOnMouseClicked {
-            showProfileScreen(user);
-        }
         var shopButton = buttonList[2]
 
-        val mainTasksSection = VBox(20.0, headerHBox, boardViewScroll)
+        val mainTasksSection = VBox(20.0, headerContainer, boardViewScroll)
         mainTasksSection.padding = Insets(0.0, 0.0, 0.0, 0.0)
         mainTasksSection.style = """
             -fx-background-color:""" + getTheme().third + """;
@@ -170,6 +167,11 @@ class MainBoardDisplay {
 
         shopButton.setOnMouseClicked {
             mainStage?.scene = createShopScene(mainStage, mainScene) //created every time for refresh purposes
+        }
+
+        profileButton.setOnMouseClicked {
+            val profileScene = showProfileScreen(mainStage, mainScene);
+            mainStage?.scene = profileScene
         }
 
         themeButton.setOnMouseClicked {
@@ -211,33 +213,60 @@ class MainBoardDisplay {
         }
     }
 
+    fun createHeaderContainer(): BorderPane{
+        //Banner
+        val bannerContainer = createBanner()
+
+        //Profile Img
+        createProfilePic()
+
+        //Coins
+        val coinsLabel = Label("Current coins\n" + user.wallet)
+        coinsLabel.font = globalFont
+
+        //Header container
+        val headerContainer = BorderPane()
+        headerContainer.padding = Insets(10.0, 10.0, 0.0, 10.0)
+        headerContainer.left = coinsLabel
+        headerContainer.center = bannerContainer
+        headerContainer.right = profileImgView
+        return headerContainer
+    }
     fun updateBanner() {
         val bannerPath = "../assets/banners/" + user.bannerRank + ".png"
         val banner = Image(File(bannerPath).toURI().toString())
         bannerImageView.image = banner
     }
 
-    fun createBanner(): VBox {
-        val vbox = VBox(10.0)
+    fun createProfilePic() {
+        //Profile Pic
+        val profileImage = Image(File("../assets/" + user.profileImageName).toURI().toString())
+        profileImgView.image = profileImage
+        profileImgView.fitWidth = 120.0
+        profileImgView.fitHeight = 120.0
+    }
 
+    fun createBanner(): StackPane {
         val bannerPath = "../assets/banners/" + user.bannerRank + ".png"
         val banner = Image(File(bannerPath).toURI().toString())
         bannerImageView.image = banner
-        bannerImageView.fitWidth = 200.0
-        bannerImageView.fitHeight = 100.0
+//        bannerImageView.fitWidth = 250.0
+        bannerImageView.fitHeight = 60.0
 
-        var headerLabel = Label("Welcome back, USER_NAME.")
+        var headerLabel = Label(".Welcome back, USER_NAME.") //<--when putting the actual user_name leave the dots, they help with alignment
         headerLabel.alignment = Pos.CENTER
         headerLabel.font = globalFont
+        bannerImageView.fitWidthProperty().bind(headerLabel.widthProperty())
+//        bannerImageView.fitHeightProperty().bind(headerLabel.heightProperty())
 
         var headerHBox = HBox(10.0, headerLabel)
         headerHBox.alignment = Pos.CENTER
 
+        val container = StackPane()
+        container.children.addAll(bannerImageView, headerHBox)
+        container.alignment = Pos.CENTER
 
-        vbox.children.addAll(bannerImageView, headerHBox)
-        vbox.alignment = Pos.TOP_CENTER
-
-        return vbox
+        return container
     }
 
     fun setDefaultButtonStyle(button: Button) {
@@ -612,27 +641,6 @@ class MainBoardDisplay {
                 val curTask = data.tasks[data.tasks.size - 1]
 
                 var hbox = createTaskHbox(curTask, data, tasksVBox, data.title, create_button)
-//                val title = Label(text_title.text.trim())
-//                title.font = globalFont
-//                val c = CheckBox()
-//                c.isSelected = false
-//                var btn_delete = Button("X")
-//                val btn_info = Button("Info")
-//                val hbox = HBox(5.0, c, title, btn_delete, btn_info)
-//                setDefaultButtonStyle(btn_delete)
-//                setDefaultButtonStyle(btn_info)
-//                btn_delete.setOnMouseClicked {
-//                    data.deleteItemByID(curTask.id)
-//                    tasksVBox.children.remove(hbox)
-//                    dataChanged()
-//                }
-//                btn_info.setOnMouseClicked {
-//                    showTaskInfoStage(curTask)
-//                }
-//                c.setOnMouseClicked {
-//                    curTask.complete = !curTask.complete
-//                    dataChanged()
-//                }
                 tasksVBox.children.add(hbox)
                 create_task_stage.close()
                 dataChanged()
@@ -795,38 +803,36 @@ class MainBoardDisplay {
         taskInfoStage.show()
     }
 
-    fun showProfileScreen(user: User) {
-        val boldFont = Font.font("Courier New", FontWeight.BOLD, 20.0)
-
-        var user = restoreUserData(dataFileName)
-        val profileStage = Stage()
-        profileStage.setTitle("Profile Screen")
-
+    fun showProfileScreen(homeStage: Stage?, homeScene: Scene): Scene {
+//        var user = restoreUserData(dataFileName)
         var profileVBox = VBox(10.0)
+        var scene = Scene(profileVBox, 600.0, 600.0)
 
         var bannerCopy = ImageView()
         val bannerPath = "../assets/banners/" + user.bannerRank + ".png"
         val banner = Image(File(bannerPath).toURI().toString())
         bannerCopy.image = banner
-        bannerCopy.fitWidth = 200.0
-        bannerCopy.fitHeight = 100.0
+        bannerCopy.fitWidth = 125.0
+        bannerCopy.fitHeight =160.0
 
-        val path = "../assets/" + user.profileImageName
-        val image = Image(File(path).toURI().toString())
-        val imageView = ImageView()
-        imageView.image = image
-        imageView.fitWidth = 120.0
-        imageView.fitHeight = 120.0
+        val profileImage = Image(File("../assets/" + user.profileImageName).toURI().toString())
+        val profileImageView = ImageView()
+        profileImageView.image = profileImage
+        profileImageView.fitWidth = 120.0
+        profileImageView.fitHeight = 120.0
+
+        val profileStackPane = StackPane()
+        profileStackPane.children.addAll(profileImageView, bannerCopy)
 
         val userInfoLabel = Label("User Information")
-        userInfoLabel.font = boldFont
+        userInfoLabel.font = globalFont
         var statisticsHBox = HBox(10.0)
         val titles = listOf("Current coins", "Longest Streak", "Tasks Done Today", "Rank")
         val fields = listOf(user.wallet, user.longestStreak, user.tasksDoneToday, user.bannerRank)
 
         for (i in 0..titles.size - 1) {
             val title = Label(titles[i])
-            title.font = Font.font("Courier New", FontWeight.BOLD, 15.0)
+            title.font = globalFont
             val field = Label(fields[i].toString())
             val statVBox = VBox(5.0)
             statVBox.children.addAll(title, field)
@@ -834,32 +840,51 @@ class MainBoardDisplay {
         }
         statisticsHBox.alignment = Pos.CENTER
 
-        val unlockablesLabel = Label("Unlockables (" + user.purchasedItems.size + ")")
-        unlockablesLabel.font = boldFont
+        val unlockablesLabel = Label("Unlockables (" + user.purchasedItems.size + ") - Click to select")
+        unlockablesLabel.font = globalFont
 
         var unlockablesHBox = FlowPane(Orientation.HORIZONTAL)
         unlockablesHBox.hgap = 10.0
         unlockablesHBox.vgap = 10.0
 
         for (item in user.purchasedItems) {
-                unlockablesHBox.children.add(createShopItemVBox(item, 100.0))
+            val childHBox = createShopItemVBox(item, 100.0)
+            childHBox.onMouseEntered = EventHandler<MouseEvent?> {
+                childHBox.opacity = 0.5
+            }
+
+            childHBox.onMouseExited = EventHandler<MouseEvent?> {
+                childHBox.opacity = 1.0
+            }
+
+            childHBox.onMouseClicked = EventHandler<MouseEvent?> {
+                user.profileImageName = item.name+".png"
+                createProfilePic()
+                homeStage?.scene = homeScene
+            }
+
+            unlockablesHBox.children.add(childHBox)
 
         }
         unlockablesHBox.alignment = Pos.CENTER
 
-        profileVBox.children.addAll(bannerCopy, imageView, userInfoLabel, statisticsHBox, unlockablesLabel, unlockablesHBox)
+        val backButton = Button("Back")
+        setDefaultButtonStyle(backButton)
+        backButton.onMouseClicked = EventHandler<MouseEvent?> {
+            homeStage?.scene = homeScene
+        }
+
+        profileVBox.children.addAll(profileStackPane, userInfoLabel, statisticsHBox, unlockablesLabel, unlockablesHBox, backButton)
         profileVBox.alignment = Pos.TOP_CENTER
 
         profileVBox.style = """
             -fx-background-color:""" + base2 + """;
         """
-        val scene = Scene(profileVBox, 600.0, 600.0)
 
         // set flowpane to same width as window
         unlockablesHBox.prefWidthProperty().bind(scene.widthProperty())
 
-        profileStage.scene = scene
-        profileStage.show()
+        return scene
     }
 
     fun createShopItemVBox(item: Item, size: Double): VBox {
