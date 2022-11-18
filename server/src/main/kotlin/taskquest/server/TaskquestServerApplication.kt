@@ -4,6 +4,7 @@ import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.BlobServiceClientBuilder
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.stereotype.Service
@@ -48,21 +49,28 @@ class UserService {
 
     private final val blobClient: BlobClient = blobContainerClient.getBlobClient(filename)
 
-    init {
+    fun get(): User {
         if (blobClient.exists()) {
-            blobClient.downloadToFile(filename, true)
+            blobClient.downloadToFile(filename)
         } else {
             File(filename).createNewFile()
-            SaveUtils.saveUserData(currentUser, filename)
+            val json = SaveUtils.mapper.writeValueAsString(currentUser)
+            File(filename).writeText(json)
         }
-        currentUser = SaveUtils.restoreUserData(filename)
+        val json = File(filename).readText()
+        currentUser = SaveUtils.mapper.readValue<User>(json)
+        File(filename).delete()
+        return currentUser
     }
-
-    fun get() = currentUser
     fun post(user: User) {
         currentUser = user
-        SaveUtils.saveUserData(currentUser, filename)
-        blobClient.uploadFromFile(filename, true)
+        val json = SaveUtils.mapper.writeValueAsString(currentUser)
+        File(filename).createNewFile()
+        File(filename).writeText(json)
+
+        blobClient.deleteIfExists()
+        blobClient.uploadFromFile(filename)
+        File(filename).delete()
     }
 }
 
