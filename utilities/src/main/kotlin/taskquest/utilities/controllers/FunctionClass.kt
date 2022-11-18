@@ -21,11 +21,5 @@ object FunctionClass {
             else -> println("Sorting method not supported.")
         }
 
-    fun filterTasksBy(filterMethod: String, list : TaskList) {
-
-    }
-
-
-
 
 }
