@@ -13,14 +13,11 @@ import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.input.*
 import javafx.scene.layout.*
-import javafx.scene.shape.Line
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Stage
-import taskquest.app.main
 import org.controlsfx.control.CheckComboBox
-import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreDataFromText
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveStoreData
@@ -73,7 +70,7 @@ class MainBoardDisplay {
     var bannerImageView = ImageView()
     fun dataChanged() {
         user.convertToString()
-        saveUserData(user, dataFileName)
+        saveUserData(user)
     }
     fun getTheme(): Triple<String, String, String> {
         return Triple(base1, base2, base3)
@@ -91,12 +88,7 @@ class MainBoardDisplay {
     }
 
     fun start_display(mainStage: Stage?) {
-
-        if (!File(dataFileName).exists()) {
-            File(dataFileName).createNewFile()
-            saveUserData(user, dataFileName)
-        }
-        user = restoreUserData(dataFileName)
+        user = restoreUserData()
 
         val fileContent = javaClass.getResource("/default/store.json").readText()
         store = restoreStoreDataFromText(fileContent)
@@ -804,7 +796,7 @@ class MainBoardDisplay {
     fun showProfileScreen(user: User) {
         val boldFont = Font.font("Courier New", FontWeight.BOLD, 20.0)
 
-        var user = restoreUserData(dataFileName)
+        var user = restoreUserData()
         val profileStage = Stage()
         profileStage.setTitle("Profile Screen")
 
@@ -886,7 +878,7 @@ class MainBoardDisplay {
         return vBox
     }
     fun showTaskCompletionStage(task: Task) {
-        user.taskCompleteCounter() // count new task completed
+        user.completeTask(task) // count new task completed
         updateBanner() // update banner displayed
 
         val taskCompletionStage = Stage()
@@ -901,7 +893,7 @@ class MainBoardDisplay {
         hbox_title.children.addAll(label_title)
 
         val hbox_desc = HBox(20.0)
-        var coinValue = task.rewardCoins
+        var coinValue = (task.rewardCoins * user.multiplier).toInt()
         val label_desc = Label("Here's " + coinValue + " TaskCoins as a reward!")
         label_desc.font = globalFont
         hbox_desc.alignment = Pos.CENTER
@@ -998,7 +990,7 @@ class MainBoardDisplay {
             purchaseBtn.setOnMouseClicked {
                 store.buyItem(child.id, user)
                 saveStoreData(store, storeFileName)
-                saveUserData(user, dataFileName)
+                saveUserData(user)
                 flowPane.children.remove(childBox)
                 homeStage?.scene = createShopScene(homeStage, homeScene)
             }

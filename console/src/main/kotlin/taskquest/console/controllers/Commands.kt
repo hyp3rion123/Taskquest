@@ -19,6 +19,7 @@ object CommandFactory {
             "show" -> ShowCommand(args)
             "edit" -> EditCommand(args)
             "sort" -> SortCommand(args)
+            "complete" -> CompleteCommand(args)
             else -> HelpCommand(args)
         }
 
@@ -363,9 +364,9 @@ class EditCommand(private val args: List<String>) : TaskCommand {
                             if (change == "y") {
                                 task.complete = !task.complete
                                 if (task.complete == true && task.completeOnce == false) {
-                                    task.completeOnce = true
-                                    println("You have earned ${task.rewardCoins} coin${if (task.rewardCoins > 1) "s" else ""}!!")
-                                    currentUser.wallet += task.rewardCoins
+                                    currentUser.completeTask(task)
+                                    val coinValue = (task.rewardCoins * currentUser.multiplier).toInt()
+                                    println("Congratulations on completing ${task.title}! You have earned $coinValue coin${if (coinValue > 1) "s" else ""}!")
                                 } else if (task.complete == true) {
                                     println("This task is now marked as complete, but you have already been rewarded for completing this task.")
                                 }
@@ -738,3 +739,31 @@ class HelpCommand(val args: List<String>) : TaskCommand, TaskListCommand, UserCo
     }
 }
 
+class CompleteCommand(private val args: List<String>) : TaskCommand {
+    override fun execute(list: TaskList) {
+
+        if (args.size < 2) {
+            println("Please specify a task you would like to mark as complete/incomplete")
+            return
+        }
+
+        val taskNum = args[1].toIntOrNull()
+        if (taskNum == null) {
+            println("Invalid task number entered.")
+        } else {
+            if (taskNum > list.tasks.size || taskNum <= 0) {
+                println("Invalid task number entered.")
+            } else {
+                val task = list.tasks[taskNum - 1]
+                task.complete = !task.complete
+                if (task.complete == true && task.completeOnce == false) {
+                    currentUser.completeTask(task)
+                    val coinValue = (task.rewardCoins * currentUser.multiplier).toInt()
+                    println("Congratulations on completing ${task.title}! You have earned $coinValue coin${if (coinValue > 1) "s" else ""}!")
+                } else if (task.complete == true) {
+                    println("${task.title} is now marked as complete, but you have already been rewarded for completing this task.")
+                }
+            }
+        }
+    }
+}

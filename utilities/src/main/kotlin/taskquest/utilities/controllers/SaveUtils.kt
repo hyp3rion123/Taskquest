@@ -10,15 +10,35 @@ import taskquest.utilities.models.Store
 class SaveUtils {
     companion object {
         val mapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+        val userDataFileName = "userdata.json"
+        var appDataPath = System.getProperty("user.home") + File.separator + "TaskQuestAppData"
 
-        fun saveUserData(user: User, filename: String) {
+        fun saveUserData(user: User) {
             val json = mapper.writeValueAsString(user)
-            File(filename).writeText(json)
+            if (!File(appDataPath).exists()) {
+                File(appDataPath).mkdirs()
+            }
+            val filePath = appDataPath + File.separator + userDataFileName
+            if (!File(filePath).exists()) {
+                File(filePath).createNewFile()
+            }
+            File(filePath).writeText(json)
         }
 
-        fun restoreUserData(filename: String): User {
-            val json = File(filename).readText()
-            return mapper.readValue<User>(json)
+        fun restoreUserData(): User {
+            if (!File(appDataPath).exists()) {
+                File(appDataPath).mkdirs()
+            }
+            val filePath = appDataPath + File.separator + userDataFileName
+            if (!File(filePath).exists()) {
+                File(filePath).createNewFile()
+                val json = mapper.writeValueAsString(User())
+                File(filePath).writeText(json)
+                return mapper.readValue<User>(json)
+            } else {
+                val json = File(filePath).readText()
+                return mapper.readValue<User>(json)
+            }
         }
 
         fun saveStoreData(store: Store, filename: String) {
