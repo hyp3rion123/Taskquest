@@ -1,7 +1,5 @@
 package taskquest.console.views
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import taskquest.console.controllers.CommandFactory
 import taskquest.console.controllers.ShowCommand
@@ -9,36 +7,34 @@ import taskquest.utilities.controllers.CloudUtils
 import taskquest.utilities.controllers.SaveUtils
 import taskquest.utilities.models.Store
 import taskquest.utilities.models.User
-import java.io.File
 import java.lang.Exception
 import java.net.ConnectException
 
+var undoUser: User? = null
 var currentUser = User()
+var redoUser: User? = null
 var currentList = -1
 var store = Store()
 
 fun main(args: Array<String>) {
-    val mapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
     currentUser = try {
         val res = CloudUtils.getUsers()
-        mapper.readValue<User>(res)
+        SaveUtils.mapper.readValue<User>(res)
     } catch (_: ConnectException) {
-        val filename = "data.json"
-        if (!File(filename).exists()) {
-            File(filename).createNewFile()
-            SaveUtils.saveUserData(currentUser, filename)
-        }
-        SaveUtils.restoreUserData(filename)
+        SaveUtils.saveUserData(currentUser)
+        SaveUtils.restoreUserData()
     }
+    SaveUtils.saveUserData(currentUser)
     currentList = currentUser.lastUsedList
 
+    // store needs to be updated
     try {
         val res = CloudUtils.getStores()
-        store = mapper.readValue<Store>(res)
+        store = SaveUtils.mapper.readValue<Store>(res)
     } catch (_: ConnectException) {}
 
-    val taskCommands = listOf<String>("add", "del", "show", "edit", "sort")
-    val userCommands = listOf<String>("addtags", "deltag", "showtags", "wallet", "help")
+    val taskCommands = listOf<String>("add", "del", "show", "edit", "sort", "complete")
+    val userCommands = listOf<String>("addtags", "deltag", "showtags", "wallet", "help", "undo", "redo")
 
     println("Welcome to TaskQuest Console.")
     println("Enter 'help' for a detailed description of each supported command.")
@@ -64,6 +60,7 @@ fun main(args: Array<String>) {
                 || curInstr[0].trim().lowercase() == "q" || curInstr[0].trim().lowercase() == "exit") {
                 break
             } else if (taskCommands.contains(curInstr[0])) {
+                undoUser = SaveUtils.cloneUserData(currentUser)
                 val taskCommand = CommandFactory.createTaskComFromArgs(curInstr)
                 if (currentList == -1) {
                     println("You have no currently active list. Please select a list.")
@@ -93,9 +90,9 @@ fun main(args: Array<String>) {
             currentUser.lastUsedList = currentList
             try {
                 CloudUtils.postUsers(currentUser)
+                SaveUtils.saveUserData(currentUser)
             } catch (_: ConnectException) {
-                val filename = "data.json"
-                SaveUtils.saveUserData(currentUser, filename)
+                SaveUtils.saveUserData(currentUser)
             }
         }
     } else {
@@ -139,9 +136,9 @@ fun main(args: Array<String>) {
             currentUser.lastUsedList = currentList
             try {
                 CloudUtils.postUsers(currentUser)
+                SaveUtils.saveUserData(currentUser)
             } catch (_: ConnectException) {
-                val filename = "data.json"
-                SaveUtils.saveUserData(currentUser, filename)
+                SaveUtils.saveUserData(currentUser)
             }
         }
 
@@ -151,8 +148,8 @@ fun main(args: Array<String>) {
     currentUser.lastUsedList = currentList
     try {
         CloudUtils.postUsers(currentUser)
+        SaveUtils.saveUserData(currentUser)
     } catch (_: ConnectException) {
-        val filename = "data.json"
-        SaveUtils.saveUserData(currentUser, filename)
+        SaveUtils.saveUserData(currentUser)
     }
 }
