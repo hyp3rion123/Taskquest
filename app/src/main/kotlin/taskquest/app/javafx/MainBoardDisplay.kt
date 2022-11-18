@@ -286,7 +286,7 @@ class MainBoardDisplay {
             -fx-background-color:""" + getTheme().second + """;
         """
 
-        val addList = Button("New List")
+        val addList = createAddButton()
         setDefaultButtonStyle(addList)
         taskListVBox.children.add(addList)
 
