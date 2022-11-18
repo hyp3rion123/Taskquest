@@ -29,6 +29,7 @@ import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
 import java.io.File
 import javafx.beans.value.ChangeListener
+import java.lang.Integer.max
 import java.util.*
 
 
@@ -70,6 +71,7 @@ class MainBoardDisplay {
     var store = Store()
     var boardViewHBox = HBox()
     var bannerImageView = ImageView()
+    var createTaskListMenu = Stage()
     fun dataChanged() {
         user.convertToString()
         saveUserData(user, dataFileName)
@@ -196,6 +198,21 @@ class MainBoardDisplay {
             start_display(mainStage)
         }
 
+        // hotkeys
+        val createListKeyCombo: KeyCombination = KeyCodeCombination(KeyCode.EQUALS, KeyCombination.CONTROL_DOWN)
+        val createListAction = Runnable {
+            println("Create list shortcut worked")
+            createTaskListMenu.show()
+        }
+        mainScene.getAccelerators().put(createListKeyCombo, createListAction);
+
+        val deleteListKeyCombo: KeyCombination = KeyCodeCombination(KeyCode.MINUS, KeyCombination.CONTROL_DOWN)
+        val deleteListAction = Runnable {
+            println("Delete list shortcut worked")
+            deleteLastList(taskListVBox)
+        }
+        mainScene.getAccelerators().put(deleteListKeyCombo, deleteListAction);
+
         mainStage?.setResizable(true)
         mainStage?.setScene(mainScene)
         mainStage?.show()
@@ -269,6 +286,10 @@ class MainBoardDisplay {
             -fx-background-color:""" + getTheme().second + """;
         """
 
+        val addList = Button("New List")
+        setDefaultButtonStyle(addList)
+        taskListVBox.children.add(addList)
+
         val searchBarLabel = Label("Task List Search bar")
         searchBarLabel.font = globalFont
         searchBarLabel.style = """
@@ -287,11 +308,8 @@ class MainBoardDisplay {
             createListHbox(taskList, taskListVBox, btn_create_task_to_do)
         }
 
-        val createTaskListMenu = createTaskListStage(taskListVBox, btn_create_task_to_do)
+        createTaskListMenu = createTaskListStage(taskListVBox, btn_create_task_to_do)
 
-        val addList = Button("New List")
-        setDefaultButtonStyle(addList)
-        taskListVBox.children.add(addList)
         addList.setOnMouseClicked {
             createTaskListMenu.show()
             println("Show create a list")
@@ -312,8 +330,26 @@ class MainBoardDisplay {
             boardViewHBox.children.clear()
             boardViewHBox.children.add(createEmptyVBox("Select or create a list!"))
         }
+        dataChanged()
+    }
 
-
+    fun deleteLastList(taskListVBox : VBox) {
+        // delete list in the backend
+        var maxId = 0
+        for (list in user.lists) {
+            maxId = max(maxId, list.id)
+        }
+        user.deleteList(maxId)
+        taskListVBox.children.remove(taskListVBox.children.last())
+        if (user.lists.size == 0) {
+            user.nextId = 0
+            boardViewHBox.children.clear()
+            boardViewHBox.children.add(createEmptyVBox("You have no lists to display. Create a list!"))
+        } else if (user.lastUsedList == -1) {
+            boardViewHBox.children.clear()
+            boardViewHBox.children.add(createEmptyVBox("Select or create a list!"))
+        }
+        dataChanged()
     }
     fun createAddButton(): Button {
         var btn = ImageButton("../assets/icons/add.png",iconSize,iconSize)
@@ -717,7 +753,7 @@ class MainBoardDisplay {
         val delBtn = Button("-")
         setDefaultButtonStyle(delBtn)
         val hbox = HBox(2.0, title, delBtn)
-        taskListVBox.children.add(2, hbox)
+        taskListVBox.children.add(hbox)
         title.setOnMouseClicked {
             toDoVBox = createTasksVBox(btn_create_task_to_do, curTaskList, curTaskList.title)
             boardViewHBox.children.clear()
