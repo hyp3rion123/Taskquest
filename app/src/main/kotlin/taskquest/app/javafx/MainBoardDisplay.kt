@@ -127,7 +127,7 @@ class MainBoardDisplay {
         mainStage?.yProperty()?.addListener { _, _, newValue -> user.y = newValue.toDouble() }
 
         //Banner
-        val headerHBox = createBanner() //<--fix the sizing of banner
+        //val headerHBox = createBanner() //<--fix the sizing of banner
 
         //Main tasks board
 
@@ -359,6 +359,7 @@ class MainBoardDisplay {
 
     fun createBanner(): StackPane {
         val bannerPath = "/assets/banners/" + user.bannerRank + ".png"
+        println(bannerPath)
         val banner = Image(bannerPath)
         bannerImageView.image = banner
 //        bannerImageView.fitWidth = 250.0
