@@ -674,7 +674,7 @@ class MainBoardDisplay {
         }
 
         sortBox.setOnAction {
-
+            data.curTask = -1
             groupBox.promptText = "Filter By"
             groupCalled = false
             if (sortBox.value == "Default") {
@@ -700,6 +700,7 @@ class MainBoardDisplay {
         }
 
         groupBox.setOnAction {
+            data.curTask = -1
             sortBox.promptText = "Sorting Method"
             sortCalled = false
             if (groupBox.value == "Reset") {
