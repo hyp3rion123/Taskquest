@@ -54,5 +54,10 @@ class SaveUtils {
         fun restoreStoreDataFromText(text: String): Store {
             return mapper.readValue<Store>(text)
         }
+
+        fun cloneUserData(user: User): User {
+            val json = mapper.writeValueAsString(user)
+            return mapper.readValue<User>(json)
+        }
     }
 }

@@ -10,7 +10,9 @@ import taskquest.utilities.models.User
 import java.lang.Exception
 import java.net.ConnectException
 
+var undoUser: User? = null
 var currentUser = User()
+var redoUser: User? = null
 var currentList = -1
 var store = Store()
 
@@ -32,7 +34,7 @@ fun main(args: Array<String>) {
     } catch (_: ConnectException) {}
 
     val taskCommands = listOf<String>("add", "del", "show", "edit", "sort", "complete")
-    val userCommands = listOf<String>("addtags", "deltag", "showtags", "wallet", "help")
+    val userCommands = listOf<String>("addtags", "deltag", "showtags", "wallet", "help", "undo", "redo")
 
     println("Welcome to TaskQuest Console.")
     println("Enter 'help' for a detailed description of each supported command.")
@@ -58,6 +60,7 @@ fun main(args: Array<String>) {
                 || curInstr[0].trim().lowercase() == "q" || curInstr[0].trim().lowercase() == "exit") {
                 break
             } else if (taskCommands.contains(curInstr[0])) {
+                undoUser = SaveUtils.cloneUserData(currentUser)
                 val taskCommand = CommandFactory.createTaskComFromArgs(curInstr)
                 if (currentList == -1) {
                     println("You have no currently active list. Please select a list.")
