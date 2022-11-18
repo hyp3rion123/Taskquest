@@ -13,6 +13,11 @@ data class Task(
     var tags: MutableSet<String> = mutableSetOf<String>()
     var rewardCoins : Int = 0
 
+    override fun toString(): String { //used for copy-pasting tasks between lists
+        val props = listOf(title, desc, dueDate, priority, difficulty)
+        return props.joinToString(separator = ",")
+    }
+
     fun calcCoinValue() {
         val coinsFromDiff: Int = when(difficulty) {
             Difficulty.Hard -> 3

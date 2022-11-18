@@ -29,7 +29,6 @@ import java.io.File
 import javafx.beans.value.ChangeListener
 import java.util.*
 
-
 // for outlining layout borders
 val debugMode = false
 val debugCss = """
@@ -358,6 +357,12 @@ class MainBoardDisplay {
         return btn
     }
 
+    fun createCopyButton(): Button {
+        var btn = ImageButton("/assets/icons/copy.png",iconSize,iconSize)
+        btn.setMinSize(btn.prefWidth, btn.prefHeight)
+        return btn
+    }
+
     fun createTaskHbox(task: Task, data:TaskList, tasksVBox: VBox, title: String, create_button: Button): HBox {
         val hbox = HBox(5.0)
         val taskTitle = Label(task.title)
@@ -378,10 +383,24 @@ class MainBoardDisplay {
         HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS)
         spacer.setMinSize(10.0, 10.0)
         var btn_info = createDetailsButton()
+        var btn_copy = createCopyButton()
         setDefaultButtonStyle(btn_del)
         setDefaultButtonStyle(btn_info)
-        hbox.children.addAll(c, taskTitle, spacer, btn_del, btn_info)
+        setDefaultButtonStyle(btn_copy)
+        hbox.children.addAll(c, taskTitle, spacer, btn_del, btn_info, btn_copy)
         hbox.setPrefSize(400.0, 50.0)
+        btn_copy.onDragDetected = EventHandler<MouseEvent?> {event ->
+            /* drag was detected, start a drag-and-drop gesture*/
+            /* allow any transfer mode */
+            val db: Dragboard = hbox.startDragAndDrop(*TransferMode.ANY)
+
+            /* Put a string on a dragboard */
+            val content = ClipboardContent()
+            content.putString(task.toString())
+            db.setContent(content)
+            event.consume()
+        }
+
         hbox.onDragDetected = EventHandler<MouseEvent?> {event ->
             /* drag was detected, start a drag-and-drop gesture*/
             /* allow any transfer mode */
@@ -717,7 +736,6 @@ class MainBoardDisplay {
     }
 
     fun createListHbox(curTaskList: TaskList, taskListVBox: VBox, btn_create_task_to_do: Button) {
-
         val title = Button(curTaskList.title)
         setDefaultButtonStyle(title)
         val delBtn = Button("-")
@@ -731,6 +749,37 @@ class MainBoardDisplay {
             user.updateActiveList(curTaskList.id)
             println("Selected list: ${user.lastUsedList}")
         }
+
+        hbox.onDragEntered = EventHandler<DragEvent?> { event ->
+            if (event.gestureSource !== hbox) hbox.opacity = 0.5
+        }
+
+        hbox.onDragExited = EventHandler<DragEvent?> { _ ->
+            hbox.opacity = 1.0
+        }
+
+        hbox.onDragOver = EventHandler<DragEvent?> {event ->
+            /* data is dragged over the target */
+            /* accept it only if it is not dragged from the same node and if it has a string data */
+            if (event.dragboard.hasString()) {
+                /* allow for both copying and moving, whatever user chooses */
+                event.acceptTransferModes(*TransferMode.COPY_OR_MOVE)
+            }
+            event.consume()
+        }
+        hbox.onDragDropped = EventHandler<DragEvent?> {event ->
+            /* data dropped */
+            /* if there is a string data on dragboard, read it and use it */
+            val db = event.dragboard
+            val props = db.string.split(",").toTypedArray()
+            curTaskList.addItem(
+            title=props[0], desc = props[1], dueDate = props[2],
+            priority = strToPrio(props[3]), difficulty = strToDiff(props[4])
+            )
+            /* let the source know whether the string was successfully transferred and used */
+            event.consume()
+        }
+
         delBtn.setOnMouseClicked {
             deleteList(curTaskList.id, taskListVBox, hbox)
             dataChanged()
