@@ -358,7 +358,7 @@ class MainBoardDisplay {
     }
 
     fun createCopyButton(): Button {
-        var btn = ImageButton("../assets/icons/copy.png",iconSize,iconSize)
+        var btn = ImageButton("/assets/icons/copy.png",iconSize,iconSize)
         btn.setMinSize(btn.prefWidth, btn.prefHeight)
         return btn
     }
