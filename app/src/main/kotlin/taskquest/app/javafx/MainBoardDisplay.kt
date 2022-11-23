@@ -852,13 +852,16 @@ class MainBoardDisplay {
     fun errorStage(errMsg : String) {
         val invalidDiffStage = Stage()
         invalidDiffStage.title = "Error"
+
         //label
         val errorMessage = Label(errMsg)
         errorMessage.font = globalFont
         errorMessage.isWrapText = true
+
         //button
         val exitDiffStageButton = Button("Exit")
         setDefaultButtonStyle(exitDiffStageButton)
+        exitDiffStageButton.alignment = Pos.CENTER
         exitDiffStageButton.setOnMouseClicked {
             invalidDiffStage.hide()
         }
@@ -869,6 +872,7 @@ class MainBoardDisplay {
         prioSceneContainer.style = """
                     -fx-background-color:""" + getTheme().third + """;
                 """
+
         //scene
         val invalidPriorityScene = Scene(prioSceneContainer,500.0, 300.0)
 
@@ -1011,7 +1015,7 @@ class MainBoardDisplay {
             rightvbox.children.add(6, noTagsMsg2)
         }
 
-        btn.setOnMouseClicked {
+        fun btnClick() {
             if (text_title.text.trim() == "") {
                 errorStage("Title of task can not be empty.")
             } else {
@@ -1044,6 +1048,10 @@ class MainBoardDisplay {
             }
         }
 
+        btn.setOnMouseClicked {
+            btnClick()
+        }
+
         mainVBox.style = """
             -fx-background-color:""" + getTheme().third + """;
         """
@@ -1052,6 +1060,12 @@ class MainBoardDisplay {
         create_task_stage.x = user.x
         create_task_stage.y = user.y
         create_task_stage.show()
+
+        val confirmHotkey: KeyCombination = KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN)
+        val createListAction = Runnable {
+            btnClick() // click button on ctrl + enter
+        }
+        scene.accelerators[confirmHotkey] = createListAction
 
         val spacer = Region()
         spacer.prefWidth = mainHBox.width - leftvbox.width - rightvbox.width - 200.0
@@ -1099,7 +1113,7 @@ class MainBoardDisplay {
         mainHBox.alignment = Pos.TOP_CENTER
         mainVBox.alignment = Pos.CENTER
 
-        btn.setOnMouseClicked {
+        fun btnClick() {
             if (text_title.text.trim() == "") {
                 errorStage("Title of new list can not be empty.")
             } else {
@@ -1126,6 +1140,10 @@ class MainBoardDisplay {
             }
         }
 
+        btn.setOnMouseClicked {
+            btnClick()
+        }
+
         mainVBox.style = """
             -fx-background-color:""" + getTheme().third + """;
         """
@@ -1134,6 +1152,12 @@ class MainBoardDisplay {
         tasklist_stage.x = user.x
         tasklist_stage.y = user.y
         tasklist_stage.show()
+
+        val confirmHotkey: KeyCombination = KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN)
+        val createListAction = Runnable {
+            btnClick() // click button on ctrl + enter
+        }
+        scene.accelerators[confirmHotkey] = createListAction
 
         val spacer = Region()
         spacer.prefWidth = mainHBox.width - leftvbox.width - rightvbox.width - 150.0
@@ -1673,6 +1697,7 @@ class MainBoardDisplay {
         taskCompletionStage.setTitle("Task Completed!")
         val btn = Button("Exit")
         setDefaultButtonStyle(btn)
+        btn.alignment = Pos.CENTER
 
         val hbox_title = HBox(20.0)
         val label_title = Label("Congrats on getting " + task.title + " done!")
