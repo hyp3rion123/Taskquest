@@ -17,7 +17,7 @@ data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
     var height = 600.0
     var x = 0.0
     var y = 0.0
-    val bannerMax = 9
+    val bannerMax = 4
     val bannerMin = 0
     var multiplier = 1.0
 
