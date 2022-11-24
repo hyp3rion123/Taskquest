@@ -212,10 +212,10 @@ class MainBoardDisplay {
         }
 
         val createListHotkey: KeyCombination = KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN)
-        val createListAction = Runnable {
+        val hotkeyAction = Runnable {
             createTaskListStage(taskListVBox, createTaskButton)
         }
-        mainScene.accelerators[createListHotkey] = createListAction
+        mainScene.accelerators[createListHotkey] = hotkeyAction
 
         val deleteListHotkey: KeyCombination = KeyCodeCombination(KeyCode.MINUS, KeyCombination.CONTROL_DOWN)
         val deleteListAction = Runnable {
@@ -862,8 +862,13 @@ class MainBoardDisplay {
         val exitDiffStageButton = Button("Exit")
         setDefaultButtonStyle(exitDiffStageButton)
         exitDiffStageButton.alignment = Pos.CENTER
-        exitDiffStageButton.setOnMouseClicked {
+
+        fun btnClick() {
             invalidDiffStage.hide()
+        }
+
+        exitDiffStageButton.setOnMouseClicked {
+            btnClick()
         }
         //container
         val prioSceneContainer = BorderPane()
@@ -880,6 +885,12 @@ class MainBoardDisplay {
         invalidDiffStage.x = user.x
         invalidDiffStage.y = user.y
         invalidDiffStage.show()
+
+        val confirmHotkey: KeyCombination = KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN)
+        val hotkeyAction = Runnable {
+            btnClick() // click button on ctrl + enter
+        }
+        invalidPriorityScene.accelerators[confirmHotkey] = hotkeyAction
     }
 
     fun createTaskStage(data: TaskList, tasksVBox: VBox, create_button: Button) {
@@ -1062,10 +1073,10 @@ class MainBoardDisplay {
         create_task_stage.show()
 
         val confirmHotkey: KeyCombination = KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN)
-        val createListAction = Runnable {
+        val hotkeyAction = Runnable {
             btnClick() // click button on ctrl + enter
         }
-        scene.accelerators[confirmHotkey] = createListAction
+        scene.accelerators[confirmHotkey] = hotkeyAction
 
         val spacer = Region()
         spacer.prefWidth = mainHBox.width - leftvbox.width - rightvbox.width - 200.0
@@ -1154,10 +1165,10 @@ class MainBoardDisplay {
         tasklist_stage.show()
 
         val confirmHotkey: KeyCombination = KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN)
-        val createListAction = Runnable {
+        val hotkeyAction = Runnable {
             btnClick() // click button on ctrl + enter
         }
-        scene.accelerators[confirmHotkey] = createListAction
+        scene.accelerators[confirmHotkey] = hotkeyAction
 
         val spacer = Region()
         spacer.prefWidth = mainHBox.width - leftvbox.width - rightvbox.width - 150.0
@@ -1723,8 +1734,12 @@ class MainBoardDisplay {
 
         vbox.alignment = Pos.CENTER
 
-        btn.setOnMouseClicked {
+        fun btnClick() {
             taskCompletionStage.close()
+        }
+
+        btn.setOnMouseClicked {
+            btnClick()
         }
         vbox.style = """
             -fx-background-color:""" + getTheme().second + """;
@@ -1732,6 +1747,12 @@ class MainBoardDisplay {
         val scene = Scene(vbox, 400.0, 150.0)
         taskCompletionStage.scene = scene
         taskCompletionStage.show()
+
+        val confirmHotkey: KeyCombination = KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN)
+        val hotkeyAction = Runnable {
+            btnClick() // click button on ctrl + enter
+        }
+        scene.accelerators[confirmHotkey] = hotkeyAction
 
         // close completion automatically after 3 seconds
         val timer = Timer();
