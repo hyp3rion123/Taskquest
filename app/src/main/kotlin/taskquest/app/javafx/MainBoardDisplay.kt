@@ -236,7 +236,6 @@ class MainBoardDisplay {
                     toDoVBox.children[data.curTask + 1].style = unselectedTaskCss
                     toDoVBox.children[data.curTask].style = selectedTaskCss
                     data.updateCurTask(data.curTask - 1)
-                    println(data.curTask)
                 }
             }
         }
@@ -250,7 +249,6 @@ class MainBoardDisplay {
                     toDoVBox.children[data.curTask + 1].style = unselectedTaskCss
                     toDoVBox.children[data.curTask + 2].style = selectedTaskCss
                     data.updateCurTask(data.curTask + 1)
-                    println(data.curTask)
                 }
             }
         }
@@ -404,7 +402,6 @@ class MainBoardDisplay {
 
     fun createBanner(): StackPane {
         val bannerPath = "/assets/banners/" + user.bannerRank + ".png"
-        println(bannerPath)
         val banner = Image(bannerPath)
         bannerImageView.image = banner
 //        bannerImageView.fitWidth = 250.0
