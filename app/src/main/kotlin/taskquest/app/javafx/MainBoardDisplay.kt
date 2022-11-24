@@ -212,10 +212,10 @@ class MainBoardDisplay {
         }
 
         val createListHotkey: KeyCombination = KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN)
-        val hotkeyAction = Runnable {
+        val createListAction = Runnable {
             createTaskListStage(taskListVBox, createTaskButton)
         }
-        mainScene.accelerators[createListHotkey] = hotkeyAction
+        mainScene.accelerators[createListHotkey] = createListAction
 
         val deleteListHotkey: KeyCombination = KeyCodeCombination(KeyCode.MINUS, KeyCombination.CONTROL_DOWN)
         val deleteListAction = Runnable {
