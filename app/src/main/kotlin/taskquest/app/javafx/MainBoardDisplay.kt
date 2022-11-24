@@ -1800,10 +1800,11 @@ class MainBoardDisplay {
 
         val footerHbox = HBox()
         footerHbox.children.add(backButton)
-        footerHbox.padding = Insets(0.0, 0.0, 20.0, 20.0)
+        footerHbox.padding = Insets(5.0, 0.0, 10.0, 20.0)
         footerHbox.style = """
             -fx-background-color:""" + getTheme().second + """;
         """
+        footerHbox.alignment = Pos.CENTER
         borderPane.bottom = footerHbox
         //END FOOTER
 
@@ -1823,11 +1824,16 @@ class MainBoardDisplay {
         for (child in store.items){
             val (childBox, purchaseBtn) = createShopItem(child)
             purchaseBtn.setOnMouseClicked {
-                store.buyItem(child.id, user)
-                saveStoreData(store, storeFileName)
-                saveUserData(user)
-                flowPane.children.remove(childBox)
-                homeStage?.scene = createShopScene(homeStage, homeScene)
+                var purchaseSuccessful = store.buyItem(child.id, user)
+                if (!purchaseSuccessful) {
+                    // purchase not successful, display error
+                    errorStage("Insufficient balance.")
+                } else {
+                    saveStoreData(store, storeFileName)
+                    saveUserData(user)
+                    flowPane.children.remove(childBox)
+                    homeStage?.scene = createShopScene(homeStage, homeScene)
+                }
             }
             setDefaultButtonStyle(purchaseBtn)
             if(user.purchasedItems.filter{it.id == child.id}.isNullOrEmpty()) {
