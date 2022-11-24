@@ -18,18 +18,17 @@ import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Stage
 import org.controlsfx.control.CheckComboBox
+import taskquest.utilities.controllers.FunctionClass
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreDataFromText
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveStoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
-import taskquest.utilities.controllers.FunctionClass
 import taskquest.utilities.models.*
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
-import java.io.File
-import javafx.beans.value.ChangeListener
 import java.time.LocalDate
 import java.util.*
+
 
 // for outlining layout borders
 val debugMode = false
@@ -74,6 +73,8 @@ class MainBoardDisplay {
     var sortingMethodForBox = ""
     var groupCalled = false
     var groupingMethodForBox = ""
+    var coinsLabel = Label("Current coins\n" + user.wallet)
+    var coinsShopLabel = Label("Current coins\n" + user.wallet)
 
     fun dataChanged() {
         user.convertToString()
@@ -324,6 +325,11 @@ class MainBoardDisplay {
         }
     }
 
+    fun coinsBalanceUpdated() {
+        coinsLabel.text = "Current coins\n" + user.wallet
+        coinsShopLabel.text = "Current coins\n" + user.wallet
+    }
+
     fun createHeaderContainer(): BorderPane{
         //Banner
         val bannerContainer = createBanner()
@@ -332,8 +338,9 @@ class MainBoardDisplay {
         createProfilePic()
 
         //Coins
-        val coinsLabel = Label("Current coins\n" + user.wallet)
         coinsLabel.font = globalFont
+        coinsShopLabel.font = globalFont
+        coinsBalanceUpdated()
 
         //Header container
         val headerContainer = BorderPane()
@@ -1778,35 +1785,36 @@ class MainBoardDisplay {
         val borderPane = BorderPane()
         val shopScene = Scene(borderPane, 900.0, 600.0)
 
-        //HEADER
-        val labelHeader = Label("My Shop")
-        labelHeader.font = Font.font("Courier New", FontWeight.BOLD, 36.0)
-        val hboxHeader = HBox()
-        hboxHeader.alignment = Pos.CENTER
-        hboxHeader.padding = Insets(20.0, 0.0, 0.0, 0.0)
-        hboxHeader.children.addAll(labelHeader)
-        hboxHeader.style = """
-            -fx-background-color:""" + getTheme().second + """;
-        """
-        borderPane.top = hboxHeader
-        //End Header
+        val region1 = Region()
+        HBox.setHgrow(region1, javafx.scene.layout.Priority.ALWAYS)
 
-        //FOOTER
+        val region2 = Region()
+        HBox.setHgrow(region2, javafx.scene.layout.Priority.ALWAYS)
+
+        val buttonHBox = HBox()
         val backButton = Button("Back")
         backButton.setOnMouseClicked {
             homeStage?.scene = homeScene
         }
         setDefaultButtonStyle(backButton)
+        buttonHBox.children.add(backButton)
+        buttonHBox.padding = Insets(5.0, 10.0, 5.0, 10.0)
 
-        val footerHbox = HBox()
-        footerHbox.children.add(backButton)
-        footerHbox.padding = Insets(5.0, 0.0, 10.0, 20.0)
-        footerHbox.style = """
+        //HEADER
+        val labelHeader = Label("My Shop")
+        labelHeader.font = Font.font("Courier New", FontWeight.BOLD, 36.0)
+
+        val hboxHeader = HBox(buttonHBox, region1, labelHeader, region2, coinsShopLabel)
+
+        hboxHeader.alignment = Pos.CENTER
+        hboxHeader.padding = Insets(20.0, 0.0, 0.0, 0.0)
+        coinsShopLabel.padding = Insets(5.0, 10.0, 5.0, 10.0)
+        coinsShopLabel.alignment = Pos.TOP_RIGHT
+        hboxHeader.style = """
             -fx-background-color:""" + getTheme().second + """;
         """
-        footerHbox.alignment = Pos.CENTER
-        borderPane.bottom = footerHbox
-        //END FOOTER
+        borderPane.top = hboxHeader
+        //End Header
 
         //Main
         val flowPane = FlowPane()
@@ -1829,6 +1837,7 @@ class MainBoardDisplay {
                     // purchase not successful, display error
                     errorStage("Insufficient balance.")
                 } else {
+                    coinsBalanceUpdated()
                     saveStoreData(store, storeFileName)
                     saveUserData(user)
                     flowPane.children.remove(childBox)
