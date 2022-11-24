@@ -877,7 +877,6 @@ class MainBoardDisplay {
         prioSceneContainer.style = """
                     -fx-background-color:""" + getTheme().third + """;
                 """
-        BorderPane.setAlignment(exitDiffStageButton, Pos.CENTER) // center exit button
 
         //scene
         val invalidPriorityScene = Scene(prioSceneContainer,500.0, 300.0)
