@@ -11,9 +11,6 @@ class TaskList(
     var nextId = 0
     var curTask = -1
 
-    fun getLength(): Int {
-        return tasks.size
-    }
     fun addItem(title: String, desc: String = "", dueDate: String = "",
                 priority: Priority? = null, difficulty: Difficulty? = null, tags: MutableSet<String>? = null) {
         var newTask = Task(id=nextId, title=title, desc=desc, dueDate=dueDate, priority=priority,

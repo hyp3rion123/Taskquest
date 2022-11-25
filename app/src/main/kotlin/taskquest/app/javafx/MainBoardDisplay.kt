@@ -245,7 +245,7 @@ class MainBoardDisplay {
         val selectBelowTaskAction = Runnable {
             if (user.lastUsedList != -1) {
                 var data = user.lists[user.lastUsedList]
-                if (data.curTask != -1 && data.curTask + 2 <= data.getLength()) {
+                if (data.curTask != -1 && data.curTask + 2 <= data.tasks.size) {
                     toDoVBox.children[data.curTask + 1].style = unselectedTaskCss
                     toDoVBox.children[data.curTask + 2].style = selectedTaskCss
                     data.updateCurTask(data.curTask + 1)
