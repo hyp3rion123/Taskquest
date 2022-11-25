@@ -1838,7 +1838,6 @@ class MainBoardDisplay {
                     errorStage("Insufficient balance.")
                 } else {
                     coinsBalanceUpdated()
-                    saveStoreData(store, storeFileName)
                     saveUserData(user)
                     flowPane.children.remove(childBox)
                     homeStage?.scene = createShopScene(homeStage, homeScene)

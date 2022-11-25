@@ -17,9 +17,10 @@ data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
     var height = 600.0
     var x = 0.0
     var y = 0.0
-    val bannerMax = 9
+    val bannerMax = 4
     val bannerMin = 0
     var multiplier = 1.0
+    var bannerRequirements = listOf(1,3,6,10,15);
 
     fun convertToString() {
         for (list in lists) {
@@ -87,9 +88,15 @@ data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
 
             this.wallet += (task.rewardCoins * this.multiplier).toInt()
         }
-
-        if (tasksDoneToday % 3 == 0) { // for every 3 tasks done
-            bannerRank += 1 // increment counter
+        updateBannerRank() // update banner rank
+    }
+    fun updateBannerRank(){
+        bannerRank = 0
+        // gets maximum banner based on bannerRequirements
+        for (threshold in bannerRequirements) {
+            if (tasksDoneToday >= threshold) {
+                bannerRank += 1
+            }
         }
         if (bannerRank > bannerMax) {
             bannerRank = bannerMax
