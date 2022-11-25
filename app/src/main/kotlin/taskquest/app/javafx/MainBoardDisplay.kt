@@ -1777,7 +1777,6 @@ class MainBoardDisplay {
             val (childBox, purchaseBtn) = createShopItem(child)
             purchaseBtn.setOnMouseClicked {
                 store.buyItem(child.id, user)
-                saveStoreData(store, storeFileName)
                 saveUserData(user)
                 flowPane.children.remove(childBox)
                 homeStage?.scene = createShopScene(homeStage, homeScene)
