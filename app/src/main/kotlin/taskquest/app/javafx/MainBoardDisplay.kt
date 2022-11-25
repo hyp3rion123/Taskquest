@@ -48,6 +48,7 @@ val bannerTextCss = """
             -fx-border-style: dashed;
             """.trimIndent()
 
+
 val dataFileName = "data.json"
 val storeFileName = "default/store.json"
 val globalFont = Font.font("Courier New", FontWeight.BOLD, 16.0)
@@ -74,6 +75,21 @@ class MainBoardDisplay {
     var sortingMethodForBox = ""
     var groupCalled = false
     var groupingMethodForBox = ""
+
+    val selectedTaskCss = """
+                    -fx-border-color: """ + getTheme().second + """;
+                    -fx-border-width: 2;
+                    -fx-border-style: solid;
+                    -fx-border-radius: 10px;
+                    -fx-background-color: """ + getTheme().second + """;
+                    -fx-background-radius: 10px;
+                    """.trimIndent()
+    val unselectedTaskCss = """
+                    -fx-border-color: """ + getTheme().second + """;
+                    -fx-border-width: 2;
+                    -fx-border-style: solid;
+                    -fx-border-radius: 10px;
+                    """.trimIndent()
 
     fun dataChanged() {
         user.convertToString()
@@ -138,6 +154,7 @@ class MainBoardDisplay {
         if (user.lastUsedList != -1) {
             taskList1 = user.lists[user.lastUsedList]
             toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
+
         } else {
             if (user.lists.size == 0) {
                 toDoVBox = createEmptyVBox("You have no lists to display. Create a list!")
@@ -210,6 +227,32 @@ class MainBoardDisplay {
             }
             start_display(mainStage)
         }
+
+        val selectAboveTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.UP, KeyCombination.CONTROL_DOWN)
+        val selectAboveTaskAction = Runnable {
+            if (user.lastUsedList != -1) {
+                var data = user.lists[user.lastUsedList]
+                if (data.curTask != -1 && data.curTask > 0) {
+                    toDoVBox.children[data.curTask + 1].style = unselectedTaskCss
+                    toDoVBox.children[data.curTask].style = selectedTaskCss
+                    data.updateCurTask(data.curTask - 1)
+                }
+            }
+        }
+        mainScene.accelerators[selectAboveTaskHotkey] = selectAboveTaskAction
+
+        val selectBelowTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.DOWN, KeyCombination.CONTROL_DOWN)
+        val selectBelowTaskAction = Runnable {
+            if (user.lastUsedList != -1) {
+                var data = user.lists[user.lastUsedList]
+                if (data.curTask != -1 && data.curTask + 2 <= data.tasks.size) {
+                    toDoVBox.children[data.curTask + 1].style = unselectedTaskCss
+                    toDoVBox.children[data.curTask + 2].style = selectedTaskCss
+                    data.updateCurTask(data.curTask + 1)
+                }
+            }
+        }
+        mainScene.accelerators[selectBelowTaskHotkey] = selectBelowTaskAction
 
         val createListHotkey: KeyCombination = KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN)
         val createListAction = Runnable {
@@ -359,7 +402,6 @@ class MainBoardDisplay {
 
     fun createBanner(): StackPane {
         val bannerPath = "/assets/banners/" + user.bannerRank + ".png"
-        println(bannerPath)
         val banner = Image(bannerPath)
         bannerImageView.image = banner
 //        bannerImageView.fitWidth = 250.0
@@ -590,28 +632,15 @@ class MainBoardDisplay {
 
         hbox.onMouseClicked = EventHandler<MouseEvent?> {
             if (data.curTask != -1) {
-                tasksVBox.children[data.curTask + 1].style = """
-                    -fx-border-color: """ + getTheme().second + """;
-                    -fx-border-width: 2;
-                    -fx-border-style: solid;
-                    -fx-border-radius: 10px;
-                    """.trimIndent()
+                tasksVBox.children[data.curTask + 1].style = unselectedTaskCss
             }
             val prevTask = data.curTask
             data.updateCurTask(task.id)
             if (prevTask == data.curTask) {
-                hbox.style = """
-                    -fx-border-color: """ + getTheme().second + """;
-                    -fx-border-width: 2;
-                    -fx-border-style: solid;
-                    -fx-border-radius: 10px;
-                    """.trimIndent()
+                hbox.style = unselectedTaskCss
                 data.curTask = -1
             } else {
-                hbox.style += "\n" + """
-                    -fx-background-color: """ + getTheme().second + """;
-                    -fx-background-radius: 10px;
-                    """.trimIndent()
+                hbox.style = selectedTaskCss
             }
         }
 
@@ -630,18 +659,10 @@ class MainBoardDisplay {
 
         btn_edit.setOnMouseClicked {
             if (data.curTask != -1) {
-                tasksVBox.children[data.curTask + 1].style = """
-                    -fx-border-color: """ + getTheme().second + """;
-                    -fx-border-width: 2;
-                    -fx-border-style: solid;
-                    -fx-border-radius: 10px;
-                    """.trimIndent()
+                tasksVBox.children[data.curTask + 1].style = unselectedTaskCss
             }
             data.updateCurTask(task.id)
-            hbox.style += "\n" + """
-                -fx-background-color: """ + getTheme().second + """;
-                -fx-background-radius: 10px;
-                """.trimIndent()
+            hbox.style = selectedTaskCss
             editTaskStage(task, tasksVBox, create_button)
         }
         hbox.alignment = Pos.CENTER
@@ -789,10 +810,7 @@ class MainBoardDisplay {
         }
 
         if (data.curTask != -1) {
-            tasksVBox.children[data.curTask + 1].style += "\n" + """
-                -fx-background-color: """ + getTheme().second + """;
-                -fx-background-radius: 10px;
-            """.trimIndent()
+            tasksVBox.children[data.curTask + 1].style = selectedTaskCss
         }
 
         if (data.tasks.size == 0) {
@@ -1563,10 +1581,7 @@ class MainBoardDisplay {
 
                 tasksVBox.children.removeAt(listOfTask.curTask + 1)
                 var hbox = createTaskHbox(task, listOfTask, tasksVBox, listOfTask.title, create_button)
-                hbox.style += "\n" + """
-                    -fx-background-color: """ + getTheme().second + """;
-                    -fx-background-radius: 10px;
-                    """.trimIndent()
+                hbox.style = selectedTaskCss
                 tasksVBox.children.add(listOfTask.curTask + 1, hbox)
                 taskEditStage.close()
                 dataChanged()
