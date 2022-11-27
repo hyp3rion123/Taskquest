@@ -62,6 +62,7 @@ var base2 = lighterBlue
 var base3 = lightestBlue
 var theme = 0
 val iconSize = 20.0
+val logoPath = "/assets/icons/logo.png"
 
 class MainBoardDisplay {
     var user = User()
@@ -136,6 +137,7 @@ class MainBoardDisplay {
 
         // set title for the stage
         mainStage?.title = "TaskQuest";
+        mainStage?.icons?.add(Image(logoPath))
 
         val headerContainer = createHeaderContainer()
 
