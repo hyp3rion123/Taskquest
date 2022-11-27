@@ -378,15 +378,15 @@ class MainBoardDisplay {
         coinsShopLabel.text = "Current coins\n" + user.wallet
     }
 
-    fun addTranslationAnimation(node: Node, xTranslation: Double, yTranslation: Double, durationInMs: Double) {
+    fun addTranslationAnimation(node: Node, xTranslateValue: Double, yTranslateValue: Double, durationInMs: Double) {
         //Duration =
         val duration = Duration.millis(durationInMs)
         //Create new translate transition
         val transition = TranslateTransition(duration, node)
         //Move in X axis by
-        transition.byX = xTranslation
+        transition.byX = xTranslateValue
         //Move in Y axis by
-        transition.byY = yTranslation
+        transition.byY = yTranslateValue
         //Go back to previous position after 2.5 seconds
         transition.isAutoReverse = true
         //Repeat animation
@@ -426,7 +426,6 @@ class MainBoardDisplay {
         profileImgView.image = profileImage
         profileImgView.fitWidth = 120.0
         profileImgView.fitHeight = 120.0
-        addTranslationAnimation(profileImgView, 0.0, 10.0, 2000.0)
     }
 
     fun createBanner(): StackPane {
@@ -449,7 +448,6 @@ class MainBoardDisplay {
         container.children.addAll(bannerImageView, headerHBox)
         container.alignment = Pos.CENTER
 
-        addTranslationAnimation(container, 0.0, 10.0, 2500.0)
 
         return container
     }
@@ -1665,6 +1663,7 @@ class MainBoardDisplay {
 
         val profileStackPane = StackPane()
         profileStackPane.children.addAll(profileImageView, bannerCopy)
+        addTranslationAnimation(profileStackPane, 0.0, 8.0, (1500..2500).random().toDouble())
 
         val userInfoLabel = Label("User Information")
         userInfoLabel.font = globalFont
@@ -1737,13 +1736,14 @@ class MainBoardDisplay {
         imageView.image = image
         imageView.fitWidth = size
         imageView.fitHeight = size
+        addTranslationAnimation(imageView, 0.0, 8.0, (1500..2500).random().toDouble())
+
         //Title
         val label = Label(item.name)
         label.font = globalFont
         val titleBox = HBox(10.0, label)
 
         vBox.children.addAll(imageView, titleBox)
-        addTranslationAnimation(vBox, 0.0, 8.0, (1500..2500).random().toDouble())
         return vBox
     }
     fun showTaskCompletionStage(task: Task) {
@@ -1909,7 +1909,6 @@ class MainBoardDisplay {
         val purchaseBox = HBox(20.0, text, purchaseBtn)
 
         vBox.children.addAll(purchaseBox)
-        addTranslationAnimation(vBox, 0.0, 8.0, (1500..2500).random().toDouble())
         return vBox to purchaseBtn
     }
 
