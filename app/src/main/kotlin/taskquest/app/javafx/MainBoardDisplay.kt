@@ -1,5 +1,6 @@
 package taskquest.app.javafx
 
+import javafx.animation.TranslateTransition
 import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
@@ -7,6 +8,8 @@ import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
+import javafx.scene.Group
+import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.image.Image
@@ -17,11 +20,11 @@ import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Stage
+import javafx.util.Duration
 import org.controlsfx.control.CheckComboBox
 import taskquest.utilities.controllers.FunctionClass
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreDataFromText
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
-import taskquest.utilities.controllers.SaveUtils.Companion.saveStoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
 import taskquest.utilities.models.*
 import taskquest.utilities.models.enums.Difficulty
@@ -358,6 +361,8 @@ class MainBoardDisplay {
         mainStage?.show()
 
 
+
+
         //DEBUG
         if (debugMode) {
             toDoVBox.style = debugCss
@@ -371,6 +376,22 @@ class MainBoardDisplay {
     fun coinsBalanceUpdated() {
         coinsLabel.text = "Current coins\n" + user.wallet
         coinsShopLabel.text = "Current coins\n" + user.wallet
+    }
+
+    fun addTranslationAnimation(node: Node, xTranslation: Double, yTranslation: Double, durationInMs: Double) {
+        //Duration =
+        val duration = Duration.millis(durationInMs)
+        //Create new translate transition
+        val transition = TranslateTransition(duration, node)
+        //Move in X axis by
+        transition.byX = xTranslation
+        //Move in Y axis by
+        transition.byY = yTranslation
+        //Go back to previous position after 2.5 seconds
+        transition.isAutoReverse = true
+        //Repeat animation
+        transition.cycleCount = 999
+        transition.play()
     }
 
     fun createHeaderContainer(): BorderPane{
@@ -405,6 +426,7 @@ class MainBoardDisplay {
         profileImgView.image = profileImage
         profileImgView.fitWidth = 120.0
         profileImgView.fitHeight = 120.0
+        addTranslationAnimation(profileImgView, 0.0, 10.0, 2000.0)
     }
 
     fun createBanner(): StackPane {
@@ -426,6 +448,8 @@ class MainBoardDisplay {
         val container = StackPane()
         container.children.addAll(bannerImageView, headerHBox)
         container.alignment = Pos.CENTER
+
+        addTranslationAnimation(container, 0.0, 10.0, 2500.0)
 
         return container
     }
@@ -1663,7 +1687,7 @@ class MainBoardDisplay {
 
         var unlockablesHBox = FlowPane(Orientation.HORIZONTAL)
         unlockablesHBox.hgap = 10.0
-        unlockablesHBox.vgap = 10.0
+        unlockablesHBox.vgap = 20.0
 
         for (item in user.purchasedItems) {
             val childHBox = createShopItemVBox(item, 100.0)
@@ -1682,7 +1706,6 @@ class MainBoardDisplay {
             }
 
             unlockablesHBox.children.add(childHBox)
-
         }
         unlockablesHBox.alignment = Pos.CENTER
 
@@ -1720,6 +1743,7 @@ class MainBoardDisplay {
         val titleBox = HBox(10.0, label)
 
         vBox.children.addAll(imageView, titleBox)
+        addTranslationAnimation(vBox, 0.0, 8.0, (1500..2500).random().toDouble())
         return vBox
     }
     fun showTaskCompletionStage(task: Task) {
@@ -1834,7 +1858,7 @@ class MainBoardDisplay {
         val flowPane = FlowPane()
         val scrollPane = ScrollPane()
         flowPane.padding = Insets(30.0, 20.0, 30.0, 60.0)
-        flowPane.vgap = 10.0
+        flowPane.vgap = 20.0
         flowPane.hgap = 30.0
         flowPane.orientation = Orientation.VERTICAL
         scrollPane.content = flowPane
@@ -1885,6 +1909,7 @@ class MainBoardDisplay {
         val purchaseBox = HBox(20.0, text, purchaseBtn)
 
         vBox.children.addAll(purchaseBox)
+        addTranslationAnimation(vBox, 0.0, 8.0, (1500..2500).random().toDouble())
         return vBox to purchaseBtn
     }
 
