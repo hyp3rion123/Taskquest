@@ -8,7 +8,6 @@ import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
-import javafx.scene.Group
 import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.control.*
@@ -16,10 +15,12 @@ import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.input.*
 import javafx.scene.layout.*
+import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Stage
+import javafx.stage.StageStyle
 import javafx.util.Duration
 import org.controlsfx.control.CheckComboBox
 import taskquest.utilities.controllers.FunctionClass
@@ -29,6 +30,7 @@ import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
 import taskquest.utilities.models.*
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
+import java.io.File
 import java.time.LocalDate
 import java.util.*
 
@@ -65,6 +67,9 @@ var base2 = lighterBlue
 var base3 = lightestBlue
 var theme = 0
 val iconSize = 20.0
+
+val confettiImageView = ImageView(Image("/assets/gifs/confetti.gif"))
+
 
 class MainBoardDisplay {
     var user = User()
@@ -1746,9 +1751,21 @@ class MainBoardDisplay {
         vBox.children.addAll(imageView, titleBox)
         return vBox
     }
+
     fun showTaskCompletionStage(task: Task) {
         user.completeTask(task) // count new task completed
         updateBanner() // update banner displayed
+
+        // setup confetti stage
+        var confettiStage = Stage()
+        confettiImageView.prefWidth(500.0)
+        confettiStage.initStyle(StageStyle.TRANSPARENT)
+        val box = VBox(confettiImageView)
+        val gifScene = Scene(box)
+        box.style = "-fx-background-color: transparent";
+        gifScene.fill = Color.TRANSPARENT
+        confettiStage.scene = gifScene
+        confettiStage.show()
 
         val taskCompletionStage = Stage()
         taskCompletionStage.setTitle("Task Completed!")
@@ -1809,6 +1826,7 @@ class MainBoardDisplay {
                     // close task after
                     if (counter == 0) {
                         taskCompletionStage.close()
+                        confettiStage.close()
                     } else {
                         btn.text = "Exit ($counter)"
                         counter--
