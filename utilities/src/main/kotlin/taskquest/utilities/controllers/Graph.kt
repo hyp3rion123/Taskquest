@@ -1,66 +1,62 @@
 package taskquest.utilities.controllers
 
 import com.azure.core.credential.AccessToken
-import com.azure.core.credential.TokenRequestContext
-import com.azure.identity.DeviceCodeCredential
-import com.azure.identity.DeviceCodeCredentialBuilder
-import com.azure.identity.DeviceCodeInfo
+import com.azure.identity.InteractiveBrowserCredential
+import com.azure.identity.InteractiveBrowserCredentialBuilder
 import com.microsoft.graph.authentication.TokenCredentialAuthProvider
-import com.microsoft.graph.models.BodyType
-import com.microsoft.graph.models.DateTimeTimeZone
-import com.microsoft.graph.models.Event
-import com.microsoft.graph.models.ItemBody
+import com.microsoft.graph.models.*
+import com.microsoft.graph.requests.EventCollectionPage
 import com.microsoft.graph.requests.GraphServiceClient
 import okhttp3.Request
-import java.util.*
-import java.util.function.Consumer
-import com.microsoft.graph.models.User;
-import com.microsoft.graph.requests.EventCollectionPage
-import okhttp3.Challenge
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import java.io.File
-import java.io.FileInputStream
-import java.io.IOException
-import taskquest.utilities.controllers.SaveUtils
 import taskquest.utilities.models.TaskList
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-
+import java.io.IOException
+import java.util.*
 
 private var _properties: Properties? = null
-private lateinit var _deviceCodeCredential: DeviceCodeCredential
+private lateinit var _interactiveCredential: InteractiveBrowserCredential
 private var _userClient: GraphServiceClient<Request>? = null
 var authToken: AccessToken? = null
 
 class Graph() {
-    var thisChallenge: DeviceCodeInfo? = null
-    init{
-//        val expiryFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'", )
-//        val tokenExpiryTime = LocalDateTime.parse(SaveUtils.restoreToken(), expiryFormatter).toInstant(ZoneOffset.UTC)
-//        if(Instant.now().isAfter(tokenExpiryTime)) {
+    var synced = false;
+    fun init(){
             val oAuthProperties = Properties()
             try {
-                val file = File("C:\\Users\\Andrei\\Desktop\\Schoolwork\\CS346\\cs-346-project\\app\\src\\main\\resources\\oAuth.properties")
-                FileInputStream(file).use{oAuthProperties.load(it)}
+                javaClass.getResourceAsStream("/oAuth.properties").use { inputStream ->
+                    oAuthProperties.load(inputStream)
+                }
 
                 oAuthProperties.stringPropertyNames()
                     .associateWith { oAuthProperties.getProperty(it) }
-                    .forEach {println(it)}
-                initializeGraphForUserAuth(
-                    oAuthProperties
-                ) { challenge ->
-                    if (challenge != null) {
-                        println("user code :" + challenge.userCode + " url: " + challenge.verificationUrl)
-                        thisChallenge = challenge
-                    }
-                }
+
+                _properties = oAuthProperties
+                val clientId = oAuthProperties.getProperty("app.clientId")
+                val redirectUrl = oAuthProperties.getProperty("app.redirectURL")
+                val authTenantId = oAuthProperties.getProperty("app.authTenant")
+                val graphUserScopes = Arrays
+                    .asList(
+                        *oAuthProperties.getProperty("app.graphUserScopes").split(",".toRegex()).dropLastWhile { it.isEmpty() }
+                            .toTypedArray())
+                _interactiveCredential = InteractiveBrowserCredentialBuilder()
+                    .clientId(clientId)
+                    .tenantId(authTenantId)
+                    .redirectUrl(redirectUrl)
+                    .build()
+                val authProvider = TokenCredentialAuthProvider(graphUserScopes, _interactiveCredential)
+                _userClient = GraphServiceClient.builder()
+                    .authenticationProvider(authProvider)
+                    .buildClient()
+                synced = true;
+//                val context = TokenRequestContext()
+//                graphUserScopes?.forEach { context.addScopes(it) }
+//                authToken = _interactiveCredential!!.getToken(context).block()
+//                println(authToken?.token)
             } catch (e: IOException) {
                 println("Unable to read OAuth configuration: "+ e)
             }
-//        }
+
     }
 
     fun updateTasks(lists: List<TaskList>) {
@@ -107,63 +103,6 @@ class Graph() {
             }
         }
     }
-
-
-        @Throws(Exception::class)
-        fun initializeGraphForUserAuth(properties: Properties?, challenge: Consumer<DeviceCodeInfo?>?) {
-            // Ensure properties isn't null
-            if (properties == null) {
-                throw Exception("Properties cannot be null")
-            }
-            _properties = properties
-            val clientId = properties.getProperty("app.clientId")
-            val authTenantId = properties.getProperty("app.authTenant")
-            val graphUserScopes = Arrays
-                .asList(
-                    *properties.getProperty("app.graphUserScopes").split(",".toRegex()).dropLastWhile { it.isEmpty() }
-                        .toTypedArray())
-            _deviceCodeCredential = DeviceCodeCredentialBuilder()
-                .clientId(clientId)
-                .tenantId(authTenantId)
-                .challengeConsumer(challenge)
-                .build()
-            val authProvider = TokenCredentialAuthProvider(graphUserScopes, _deviceCodeCredential)
-            _userClient = GraphServiceClient.builder()
-                .authenticationProvider(authProvider)
-                .buildClient()
-            // Ensure credential isn't null
-            if (_deviceCodeCredential == null) {
-                throw java.lang.Exception("Graph has not been initialized for user auth")
-            }
-            val graphUserScopes2: List<String>? = _properties?.getProperty("app.graphUserScopes")?.split(",")
-            val context = TokenRequestContext()
-            graphUserScopes2?.forEach { context.addScopes(it) }
-            authToken = _deviceCodeCredential!!.getToken(context).block()
-//            authToken?.let { saveToken(authToken!!) }
-        }
-
-        fun displayAccessToken() {
-            try {
-                println("Access token: ${authToken?.token}")
-                println("Expires: " + authToken?.expiresAt)
-                println("is expired? " + authToken?.isExpired)
-            } catch (e: java.lang.Exception) {
-                println("Error getting access token")
-                println(e.message)
-            }
-        }
-
-        @Throws(java.lang.Exception::class)
-        fun getUser(): User? {
-            // Ensure client isn't null
-            if (_userClient == null) {
-                throw java.lang.Exception("Graph has not been initialized for user auth")
-            }
-            return _userClient!!.me()
-                .buildRequest()
-                .select("displayName,mail,userPrincipalName")
-                .get()
-        }
         fun printEvent(e: Event) {
             val doc : Document = Jsoup.parse(e.body?.content)
             val contentBody = doc.body().text()
@@ -185,16 +124,10 @@ class Graph() {
                     .buildRequest()
                     .get()
                 while (events != null) {
-                    events?.currentPage?.forEach{
-//                        val doc : Document = Jsoup.parse(it.body?.content)
-//                        val contentBody = doc.body().text()
-//                        println("Subject: " + it.subject)
-//                        println("Body: " + contentBody)
-//                        println("Start: " + it.start?.dateTime)
-//                        println("End: " + it.end?.dateTime)
+                    events.currentPage.forEach{
                         eventList.add(it)
                     }
-                    if(events?.nextPage == null) {
+                    if(events.nextPage == null) {
                         break
                     } else {
                         events = events.nextPage!!.buildRequest().get()

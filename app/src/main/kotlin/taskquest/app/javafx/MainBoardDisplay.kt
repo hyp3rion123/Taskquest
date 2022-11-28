@@ -1,6 +1,5 @@
 package taskquest.app.javafx
 
-import com.microsoft.graph.models.User
 import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
@@ -24,19 +23,10 @@ import taskquest.utilities.controllers.Graph
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreDataFromText
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
-import taskquest.utilities.models.Item
-import taskquest.utilities.models.Store
-import taskquest.utilities.models.Task
-import taskquest.utilities.models.TaskList
+import taskquest.utilities.models.*
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
-import java.text.SimpleDateFormat
-import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneOffset.UTC
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 
@@ -73,7 +63,7 @@ var theme = 0
 val iconSize = 20.0
 
 class MainBoardDisplay {
-    var user = taskquest.utilities.models.User()
+    var user = User()
     var graph = Graph()
     var toDoVBox = VBox()
     var store = Store()
@@ -190,11 +180,10 @@ class MainBoardDisplay {
         var mainScene = Scene(mainScreenPane, 900.0, 600.0)
 
         calendarButton.setOnMouseClicked {
-//            if(graph == null || OffsetDateTime.now().isAfter(graph!!.thisChallenge?.expiresOn)) {
-//                graph = Graph()
-//                graph!!.thisChallenge?.let { it1 -> graph!!.thisChallenge?.let { it2 -> showRedirectStage(it1.verificationUrl, it2.userCode) } }
-//            }
-            graph!!.updateTasks(user.lists)
+            if(!graph.synced){
+                graph.init()
+            }
+            graph.updateTasks(user.lists)
         }
         shopButton.setOnMouseClicked {
             mainStage?.scene = createShopScene(mainStage, mainScene) //created every time for refresh purposes
@@ -342,14 +331,6 @@ class MainBoardDisplay {
         }
     }
 
-    fun showRedirectStage(url: String, code: String) {
-        var redirectStage = Stage()
-        var redirectLabel = Label("Please visit " + url + " and enter the code " + code + " to authenticate yourself")
-        var redirectScene = Scene(redirectLabel)
-        redirectStage.scene = redirectScene
-        redirectStage.show()
-    }
-
     fun createHeaderContainer(): BorderPane{
         //Banner
         val bannerContainer = createBanner()
@@ -385,7 +366,6 @@ class MainBoardDisplay {
 
     fun createBanner(): StackPane {
         val bannerPath = "/assets/banners/" + user.bannerRank + ".png"
-        println(bannerPath)
         val banner = Image(bannerPath)
         bannerImageView.image = banner
 //        bannerImageView.fitWidth = 250.0
