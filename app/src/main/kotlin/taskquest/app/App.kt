@@ -3,7 +3,7 @@
  */
 package taskquest.app
 
-//import com.dustinredmond.fxtrayicon.FXTrayIcon
+import com.dustinredmond.fxtrayicon.FXTrayIcon
 import javafx.application.Application
 import javafx.stage.Stage
 import taskquest.app.javafx.*
@@ -12,8 +12,8 @@ class App: Application() {
         val display = MainBoardDisplay()
         display.start_display(stage)
 
-        //val icon = FXTrayIcon(stage, javaClass.getResource("someImageFile.png"))
-        //icon.show()
+        val icon = FXTrayIcon(stage, javaClass.getResource("/assets/icons/logo.png"))
+        icon.show()
     }
 }
 
