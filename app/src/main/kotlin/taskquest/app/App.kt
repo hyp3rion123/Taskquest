@@ -11,9 +11,6 @@ class App: Application() {
     override fun start(stage: Stage?) {
         val display = MainBoardDisplay()
         display.start_display(stage)
-
-        val icon = FXTrayIcon(stage, javaClass.getResource("/assets/icons/logo.png"))
-        icon.show()
     }
 }
 
