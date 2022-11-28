@@ -18,6 +18,10 @@ data class Task(
         return props.joinToString(separator = ",")
     }
 
+    fun toOutlookItem(): List<String> {
+        return listOf(title, desc, dueDate)
+    }
+
     fun calcCoinValue() {
         val coinsFromDiff: Int = when(difficulty) {
             Difficulty.Hard -> 3

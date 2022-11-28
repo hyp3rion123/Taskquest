@@ -1,16 +1,18 @@
 package taskquest.utilities.controllers
 
+import com.azure.core.credential.AccessToken
 import com.fasterxml.jackson.databind.SerializationFeature
-import taskquest.utilities.models.User
-import java.io.File
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import taskquest.utilities.models.Store
+import taskquest.utilities.models.User
+import java.io.File
 
 class SaveUtils {
     companion object {
         val mapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
         val userDataFileName = "userdata.json"
+        val tokenFileName = "token.json"
         var appDataPath = System.getProperty("user.home") + File.separator + "TaskQuestAppData"
 
         fun saveUserData(user: User) {
@@ -40,6 +42,30 @@ class SaveUtils {
                 return mapper.readValue<User>(json)
             }
         }
+
+//        fun saveToken(token: AccessToken) {
+//            val json = "{ \"token\" : \"${token.token}\", \"expires\" : \"${token.expiresAt}\" }"
+//            if (!File(appDataPath).exists()) {
+//                File(appDataPath).mkdirs()
+//            }
+//            val filePath = appDataPath + File.separator + tokenFileName
+//            if (!File(filePath).exists()) {
+//                File(filePath).createNewFile()
+//            }
+//            File(filePath).writeText(json)
+//        }
+//
+//
+//        fun restoreToken(): String? {
+//            if (!File(appDataPath).exists()) {
+//                File(appDataPath).mkdirs()
+//            }
+//            val filePath = appDataPath + File.separator + tokenFileName
+//            if (!File(filePath).exists()) {
+//                File(filePath).createNewFile()
+//            }
+//            return mapper.readTree(File(filePath).readText()).get("expires").asText() //only returns expiry timestamp
+//        }
 
         fun saveStoreData(store: Store, filename: String) {
             val json = mapper.writeValueAsString(store)

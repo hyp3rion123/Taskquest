@@ -1,5 +1,6 @@
 package taskquest.app.javafx
 
+import com.microsoft.graph.models.User
 import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
@@ -18,23 +19,31 @@ import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Stage
 import org.controlsfx.control.CheckComboBox
+import taskquest.utilities.controllers.FunctionClass
+import taskquest.utilities.controllers.Graph
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreDataFromText
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
-import taskquest.utilities.controllers.SaveUtils.Companion.saveStoreData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
-import taskquest.utilities.controllers.FunctionClass
-import taskquest.utilities.models.*
+import taskquest.utilities.models.Item
+import taskquest.utilities.models.Store
+import taskquest.utilities.models.Task
+import taskquest.utilities.models.TaskList
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
-import java.io.File
-import javafx.beans.value.ChangeListener
+import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneOffset.UTC
+import java.time.format.DateTimeFormatter
 import java.util.*
+
 
 // for outlining layout borders
 val debugMode = false
 val debugCss = """
-            -fx-border-color: black;
+            -fx-border-color: black;dz
             -fx-border-insets: 5;
             -fx-border-width: 1;
             -fx-border-style: dashed;
@@ -64,7 +73,8 @@ var theme = 0
 val iconSize = 20.0
 
 class MainBoardDisplay {
-    var user = User()
+    var user = taskquest.utilities.models.User()
+    var graph = Graph()
     var toDoVBox = VBox()
     var store = Store()
     var boardViewHBox = HBox()
@@ -160,6 +170,7 @@ class MainBoardDisplay {
         var themeButton = buttonList[0]
         var profileButton = buttonList[1]
         var shopButton = buttonList[2]
+        var calendarButton = buttonList[3]
 
         val mainTasksSection = VBox(20.0, headerContainer, boardViewScroll)
         mainTasksSection.padding = Insets(0.0, 0.0, 0.0, 0.0)
@@ -178,6 +189,13 @@ class MainBoardDisplay {
 
         var mainScene = Scene(mainScreenPane, 900.0, 600.0)
 
+        calendarButton.setOnMouseClicked {
+//            if(graph == null || OffsetDateTime.now().isAfter(graph!!.thisChallenge?.expiresOn)) {
+//                graph = Graph()
+//                graph!!.thisChallenge?.let { it1 -> graph!!.thisChallenge?.let { it2 -> showRedirectStage(it1.verificationUrl, it2.userCode) } }
+//            }
+            graph!!.updateTasks(user.lists)
+        }
         shopButton.setOnMouseClicked {
             mainStage?.scene = createShopScene(mainStage, mainScene) //created every time for refresh purposes
         }
@@ -322,6 +340,14 @@ class MainBoardDisplay {
             sideBarVBox.style = debugCss
             mainTasksSection.style = debugCss
         }
+    }
+
+    fun showRedirectStage(url: String, code: String) {
+        var redirectStage = Stage()
+        var redirectLabel = Label("Please visit " + url + " and enter the code " + code + " to authenticate yourself")
+        var redirectScene = Scene(redirectLabel)
+        redirectStage.scene = redirectScene
+        redirectStage.show()
     }
 
     fun createHeaderContainer(): BorderPane{
@@ -842,11 +868,13 @@ class MainBoardDisplay {
         val themeButton = ImageButton("/assets/icons/theme.png",30.0,30.0)
         val profileButton = ImageButton("/assets/icons/profile.png",30.0,30.0)
         val shopButton = ImageButton("/assets/icons/shop.png",30.0,30.0)
+        val calendarButton = ImageButton("/assets/icons/shop.png",30.0,30.0)
         setDefaultButtonStyle(themeButton)
         setDefaultButtonStyle(profileButton)
         setDefaultButtonStyle(shopButton)
-        sideBar.children.addAll(themeButton, profileButton, shopButton)
-        return sideBar to listOf(themeButton, profileButton, shopButton)
+        setDefaultButtonStyle(calendarButton)
+        sideBar.children.addAll(themeButton, profileButton, shopButton, calendarButton)
+        return sideBar to listOf(themeButton, profileButton, shopButton, calendarButton)
     }
 
     fun errorStage(errMsg : String) {
