@@ -47,6 +47,7 @@ val bannerTextCss = """
             -fx-border-style: dashed;
             """.trimIndent()
 
+
 val dataFileName = "data.json"
 val storeFileName = "default/store.json"
 val globalFont = Font.font("Courier New", FontWeight.BOLD, 16.0)
@@ -74,6 +75,23 @@ class MainBoardDisplay {
     var sortingMethodForBox = ""
     var groupCalled = false
     var groupingMethodForBox = ""
+    var coinsLabel = Label("Current coins\n" + user.wallet)
+    var coinsShopLabel = Label("Current coins\n" + user.wallet)
+
+    val selectedTaskCss = """
+                    -fx-border-color: """ + getTheme().second + """;
+                    -fx-border-width: 2;
+                    -fx-border-style: solid;
+                    -fx-border-radius: 10px;
+                    -fx-background-color: """ + getTheme().second + """;
+                    -fx-background-radius: 10px;
+                    """.trimIndent()
+    val unselectedTaskCss = """
+                    -fx-border-color: """ + getTheme().second + """;
+                    -fx-border-width: 2;
+                    -fx-border-style: solid;
+                    -fx-border-radius: 10px;
+                    """.trimIndent()
 
     fun dataChanged() {
         user.convertToString()
@@ -138,6 +156,7 @@ class MainBoardDisplay {
         if (user.lastUsedList != -1) {
             taskList1 = user.lists[user.lastUsedList]
             toDoVBox = createTasksVBox(createTaskButton, taskList1, taskList1.title)
+
         } else {
             if (user.lists.size == 0) {
                 toDoVBox = createEmptyVBox("You have no lists to display. Create a list!")
@@ -217,6 +236,32 @@ class MainBoardDisplay {
             }
             start_display(mainStage)
         }
+
+        val selectAboveTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.UP, KeyCombination.CONTROL_DOWN)
+        val selectAboveTaskAction = Runnable {
+            if (user.lastUsedList != -1) {
+                var data = user.lists[user.lastUsedList]
+                if (data.curTask != -1 && data.curTask > 0) {
+                    toDoVBox.children[data.curTask + 1].style = unselectedTaskCss
+                    toDoVBox.children[data.curTask].style = selectedTaskCss
+                    data.updateCurTask(data.curTask - 1)
+                }
+            }
+        }
+        mainScene.accelerators[selectAboveTaskHotkey] = selectAboveTaskAction
+
+        val selectBelowTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.DOWN, KeyCombination.CONTROL_DOWN)
+        val selectBelowTaskAction = Runnable {
+            if (user.lastUsedList != -1) {
+                var data = user.lists[user.lastUsedList]
+                if (data.curTask != -1 && data.curTask + 2 <= data.tasks.size) {
+                    toDoVBox.children[data.curTask + 1].style = unselectedTaskCss
+                    toDoVBox.children[data.curTask + 2].style = selectedTaskCss
+                    data.updateCurTask(data.curTask + 1)
+                }
+            }
+        }
+        mainScene.accelerators[selectBelowTaskHotkey] = selectBelowTaskAction
 
         val createListHotkey: KeyCombination = KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN)
         val createListAction = Runnable {
@@ -331,6 +376,11 @@ class MainBoardDisplay {
         }
     }
 
+    fun coinsBalanceUpdated() {
+        coinsLabel.text = "Current coins\n" + user.wallet
+        coinsShopLabel.text = "Current coins\n" + user.wallet
+    }
+
     fun createHeaderContainer(): BorderPane{
         //Banner
         val bannerContainer = createBanner()
@@ -339,8 +389,9 @@ class MainBoardDisplay {
         createProfilePic()
 
         //Coins
-        val coinsLabel = Label("Current coins\n" + user.wallet)
         coinsLabel.font = globalFont
+        coinsShopLabel.font = globalFont
+        coinsBalanceUpdated()
 
         //Header container
         val headerContainer = BorderPane()
@@ -596,28 +647,15 @@ class MainBoardDisplay {
 
         hbox.onMouseClicked = EventHandler<MouseEvent?> {
             if (data.curTask != -1) {
-                tasksVBox.children[data.curTask + 1].style = """
-                    -fx-border-color: """ + getTheme().second + """;
-                    -fx-border-width: 2;
-                    -fx-border-style: solid;
-                    -fx-border-radius: 10px;
-                    """.trimIndent()
+                tasksVBox.children[data.curTask + 1].style = unselectedTaskCss
             }
             val prevTask = data.curTask
             data.updateCurTask(task.id)
             if (prevTask == data.curTask) {
-                hbox.style = """
-                    -fx-border-color: """ + getTheme().second + """;
-                    -fx-border-width: 2;
-                    -fx-border-style: solid;
-                    -fx-border-radius: 10px;
-                    """.trimIndent()
+                hbox.style = unselectedTaskCss
                 data.curTask = -1
             } else {
-                hbox.style += "\n" + """
-                    -fx-background-color: """ + getTheme().second + """;
-                    -fx-background-radius: 10px;
-                    """.trimIndent()
+                hbox.style = selectedTaskCss
             }
         }
 
@@ -636,18 +674,10 @@ class MainBoardDisplay {
 
         btn_edit.setOnMouseClicked {
             if (data.curTask != -1) {
-                tasksVBox.children[data.curTask + 1].style = """
-                    -fx-border-color: """ + getTheme().second + """;
-                    -fx-border-width: 2;
-                    -fx-border-style: solid;
-                    -fx-border-radius: 10px;
-                    """.trimIndent()
+                tasksVBox.children[data.curTask + 1].style = unselectedTaskCss
             }
             data.updateCurTask(task.id)
-            hbox.style += "\n" + """
-                -fx-background-color: """ + getTheme().second + """;
-                -fx-background-radius: 10px;
-                """.trimIndent()
+            hbox.style = selectedTaskCss
             editTaskStage(task, tasksVBox, create_button)
         }
         hbox.alignment = Pos.CENTER
@@ -795,10 +825,7 @@ class MainBoardDisplay {
         }
 
         if (data.curTask != -1) {
-            tasksVBox.children[data.curTask + 1].style += "\n" + """
-                -fx-background-color: """ + getTheme().second + """;
-                -fx-background-radius: 10px;
-            """.trimIndent()
+            tasksVBox.children[data.curTask + 1].style = selectedTaskCss
         }
 
         if (data.tasks.size == 0) {
@@ -860,15 +887,23 @@ class MainBoardDisplay {
     fun errorStage(errMsg : String) {
         val invalidDiffStage = Stage()
         invalidDiffStage.title = "Error"
+
         //label
         val errorMessage = Label(errMsg)
         errorMessage.font = globalFont
         errorMessage.isWrapText = true
+
         //button
         val exitDiffStageButton = Button("Exit")
         setDefaultButtonStyle(exitDiffStageButton)
-        exitDiffStageButton.setOnMouseClicked {
+        exitDiffStageButton.alignment = Pos.CENTER
+
+        fun btnClick() {
             invalidDiffStage.hide()
+        }
+
+        exitDiffStageButton.setOnMouseClicked {
+            btnClick()
         }
         //container
         val prioSceneContainer = BorderPane()
@@ -877,6 +912,7 @@ class MainBoardDisplay {
         prioSceneContainer.style = """
                     -fx-background-color:""" + getTheme().third + """;
                 """
+
         //scene
         val invalidPriorityScene = Scene(prioSceneContainer,500.0, 300.0)
 
@@ -884,6 +920,12 @@ class MainBoardDisplay {
         invalidDiffStage.x = user.x
         invalidDiffStage.y = user.y
         invalidDiffStage.show()
+
+        val confirmHotkey: KeyCombination = KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN)
+        val hotkeyAction = Runnable {
+            btnClick() // click button on ctrl + enter
+        }
+        invalidPriorityScene.accelerators[confirmHotkey] = hotkeyAction
     }
 
     fun createTaskStage(data: TaskList, tasksVBox: VBox, create_button: Button) {
@@ -1019,7 +1061,7 @@ class MainBoardDisplay {
             rightvbox.children.add(6, noTagsMsg2)
         }
 
-        btn.setOnMouseClicked {
+        fun btnClick() {
             if (text_title.text.trim() == "") {
                 errorStage("Title of task can not be empty.")
             } else {
@@ -1052,6 +1094,10 @@ class MainBoardDisplay {
             }
         }
 
+        btn.setOnMouseClicked {
+            btnClick()
+        }
+
         mainVBox.style = """
             -fx-background-color:""" + getTheme().third + """;
         """
@@ -1060,6 +1106,12 @@ class MainBoardDisplay {
         create_task_stage.x = user.x
         create_task_stage.y = user.y
         create_task_stage.show()
+
+        val confirmHotkey: KeyCombination = KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN)
+        val hotkeyAction = Runnable {
+            btnClick() // click button on ctrl + enter
+        }
+        scene.accelerators[confirmHotkey] = hotkeyAction
 
         val spacer = Region()
         spacer.prefWidth = mainHBox.width - leftvbox.width - rightvbox.width - 200.0
@@ -1107,7 +1159,7 @@ class MainBoardDisplay {
         mainHBox.alignment = Pos.TOP_CENTER
         mainVBox.alignment = Pos.CENTER
 
-        btn.setOnMouseClicked {
+        fun btnClick() {
             if (text_title.text.trim() == "") {
                 errorStage("Title of new list can not be empty.")
             } else {
@@ -1134,6 +1186,10 @@ class MainBoardDisplay {
             }
         }
 
+        btn.setOnMouseClicked {
+            btnClick()
+        }
+
         mainVBox.style = """
             -fx-background-color:""" + getTheme().third + """;
         """
@@ -1142,6 +1198,12 @@ class MainBoardDisplay {
         tasklist_stage.x = user.x
         tasklist_stage.y = user.y
         tasklist_stage.show()
+
+        val confirmHotkey: KeyCombination = KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN)
+        val hotkeyAction = Runnable {
+            btnClick() // click button on ctrl + enter
+        }
+        scene.accelerators[confirmHotkey] = hotkeyAction
 
         val spacer = Region()
         spacer.prefWidth = mainHBox.width - leftvbox.width - rightvbox.width - 150.0
@@ -1536,10 +1598,7 @@ class MainBoardDisplay {
 
                 tasksVBox.children.removeAt(listOfTask.curTask + 1)
                 var hbox = createTaskHbox(task, listOfTask, tasksVBox, listOfTask.title, create_button)
-                hbox.style += "\n" + """
-                    -fx-background-color: """ + getTheme().second + """;
-                    -fx-background-radius: 10px;
-                    """.trimIndent()
+                hbox.style = selectedTaskCss
                 tasksVBox.children.add(listOfTask.curTask + 1, hbox)
                 taskEditStage.close()
                 dataChanged()
@@ -1681,6 +1740,7 @@ class MainBoardDisplay {
         taskCompletionStage.setTitle("Task Completed!")
         val btn = Button("Exit")
         setDefaultButtonStyle(btn)
+        btn.alignment = Pos.CENTER
 
         val hbox_title = HBox(20.0)
         val label_title = Label("Congrats on getting " + task.title + " done!")
@@ -1706,8 +1766,12 @@ class MainBoardDisplay {
 
         vbox.alignment = Pos.CENTER
 
-        btn.setOnMouseClicked {
+        fun btnClick() {
             taskCompletionStage.close()
+        }
+
+        btn.setOnMouseClicked {
+            btnClick()
         }
         vbox.style = """
             -fx-background-color:""" + getTheme().second + """;
@@ -1715,6 +1779,12 @@ class MainBoardDisplay {
         val scene = Scene(vbox, 400.0, 150.0)
         taskCompletionStage.scene = scene
         taskCompletionStage.show()
+
+        val confirmHotkey: KeyCombination = KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN)
+        val hotkeyAction = Runnable {
+            btnClick() // click button on ctrl + enter
+        }
+        scene.accelerators[confirmHotkey] = hotkeyAction
 
         // close completion automatically after 3 seconds
         val timer = Timer();
@@ -1739,34 +1809,36 @@ class MainBoardDisplay {
         val borderPane = BorderPane()
         val shopScene = Scene(borderPane, 900.0, 600.0)
 
-        //HEADER
-        val labelHeader = Label("My Shop")
-        labelHeader.font = Font.font("Courier New", FontWeight.BOLD, 36.0)
-        val hboxHeader = HBox()
-        hboxHeader.alignment = Pos.CENTER
-        hboxHeader.padding = Insets(20.0, 0.0, 0.0, 0.0)
-        hboxHeader.children.addAll(labelHeader)
-        hboxHeader.style = """
-            -fx-background-color:""" + getTheme().second + """;
-        """
-        borderPane.top = hboxHeader
-        //End Header
+        val region1 = Region()
+        HBox.setHgrow(region1, javafx.scene.layout.Priority.ALWAYS)
 
-        //FOOTER
+        val region2 = Region()
+        HBox.setHgrow(region2, javafx.scene.layout.Priority.ALWAYS)
+
+        val buttonHBox = HBox()
         val backButton = Button("Back")
         backButton.setOnMouseClicked {
             homeStage?.scene = homeScene
         }
         setDefaultButtonStyle(backButton)
+        buttonHBox.children.add(backButton)
+        buttonHBox.padding = Insets(5.0, 10.0, 5.0, 10.0)
 
-        val footerHbox = HBox()
-        footerHbox.children.add(backButton)
-        footerHbox.padding = Insets(0.0, 0.0, 20.0, 20.0)
-        footerHbox.style = """
+        //HEADER
+        val labelHeader = Label("My Shop")
+        labelHeader.font = Font.font("Courier New", FontWeight.BOLD, 36.0)
+
+        val hboxHeader = HBox(buttonHBox, region1, labelHeader, region2, coinsShopLabel)
+
+        hboxHeader.alignment = Pos.CENTER
+        hboxHeader.padding = Insets(20.0, 0.0, 0.0, 0.0)
+        coinsShopLabel.padding = Insets(5.0, 10.0, 5.0, 10.0)
+        coinsShopLabel.alignment = Pos.TOP_RIGHT
+        hboxHeader.style = """
             -fx-background-color:""" + getTheme().second + """;
         """
-        borderPane.bottom = footerHbox
-        //END FOOTER
+        borderPane.top = hboxHeader
+        //End Header
 
         //Main
         val flowPane = FlowPane()
@@ -1784,10 +1856,16 @@ class MainBoardDisplay {
         for (child in store.items){
             val (childBox, purchaseBtn) = createShopItem(child)
             purchaseBtn.setOnMouseClicked {
-                store.buyItem(child.id, user)
-                saveUserData(user)
-                flowPane.children.remove(childBox)
-                homeStage?.scene = createShopScene(homeStage, homeScene)
+                var purchaseSuccessful = store.buyItem(child.id, user)
+                if (!purchaseSuccessful) {
+                    // purchase not successful, display error
+                    errorStage("Insufficient balance.")
+                } else {
+                    coinsBalanceUpdated()
+                    saveUserData(user)
+                    flowPane.children.remove(childBox)
+                    homeStage?.scene = createShopScene(homeStage, homeScene)
+                }
             }
             setDefaultButtonStyle(purchaseBtn)
             if(user.purchasedItems.filter{it.id == child.id}.isNullOrEmpty()) {
