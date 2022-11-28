@@ -33,7 +33,7 @@ import java.util.*
 // for outlining layout borders
 val debugMode = false
 val debugCss = """
-            -fx-border-color: black;dz
+            -fx-border-color: black;
             -fx-border-insets: 5;
             -fx-border-width: 1;
             -fx-border-style: dashed;
@@ -875,7 +875,7 @@ class MainBoardDisplay {
         val themeButton = ImageButton("/assets/icons/theme.png",30.0,30.0)
         val profileButton = ImageButton("/assets/icons/profile.png",30.0,30.0)
         val shopButton = ImageButton("/assets/icons/shop.png",30.0,30.0)
-        val calendarButton = ImageButton("/assets/icons/shop.png",30.0,30.0)
+        val calendarButton = ImageButton("/assets/icons/calendar.png",30.0,30.0)
         setDefaultButtonStyle(themeButton)
         setDefaultButtonStyle(profileButton)
         setDefaultButtonStyle(shopButton)
