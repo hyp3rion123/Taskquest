@@ -10,4 +10,7 @@ plugins {
 dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+'
+    implementation 'com.azure:azure-identity:1.+'
+    implementation 'com.microsoft.graph:microsoft-graph:5.+'
+    implementation 'org.jsoup:jsoup:1.13.1'
 }

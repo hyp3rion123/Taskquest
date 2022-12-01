@@ -24,6 +24,7 @@ import javafx.stage.StageStyle
 import javafx.util.Duration
 import org.controlsfx.control.CheckComboBox
 import taskquest.utilities.controllers.FunctionClass
+import taskquest.utilities.controllers.Graph
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreDataFromText
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
@@ -73,6 +74,7 @@ val confettiImageView = ImageView(Image("/assets/gifs/confetti.gif"))
 
 class MainBoardDisplay {
     var user = User()
+    var graph = Graph()
     var toDoVBox = VBox()
     var store = Store()
     var boardViewHBox = HBox()
@@ -186,6 +188,7 @@ class MainBoardDisplay {
         var themeButton = buttonList[0]
         var profileButton = buttonList[1]
         var shopButton = buttonList[2]
+        var calendarButton = buttonList[3]
 
         val mainTasksSection = VBox(20.0, headerContainer, boardViewScroll)
         mainTasksSection.padding = Insets(0.0, 0.0, 0.0, 0.0)
@@ -204,6 +207,12 @@ class MainBoardDisplay {
 
         var mainScene = Scene(mainScreenPane, 900.0, 600.0)
 
+        calendarButton.setOnMouseClicked {
+            if(!graph.synced){
+                graph.init()
+            }
+            graph.updateTasks(user.lists)
+        }
         shopButton.setOnMouseClicked {
             mainStage?.scene = createShopScene(mainStage, mainScene) //created every time for refresh purposes
         }
@@ -894,11 +903,13 @@ class MainBoardDisplay {
         val themeButton = ImageButton("/assets/icons/theme.png",30.0,30.0)
         val profileButton = ImageButton("/assets/icons/profile.png",30.0,30.0)
         val shopButton = ImageButton("/assets/icons/shop.png",30.0,30.0)
+        val calendarButton = ImageButton("/assets/icons/calendar.png",30.0,30.0)
         setDefaultButtonStyle(themeButton)
         setDefaultButtonStyle(profileButton)
         setDefaultButtonStyle(shopButton)
-        sideBar.children.addAll(themeButton, profileButton, shopButton)
-        return sideBar to listOf(themeButton, profileButton, shopButton)
+        setDefaultButtonStyle(calendarButton)
+        sideBar.children.addAll(themeButton, profileButton, shopButton, calendarButton)
+        return sideBar to listOf(themeButton, profileButton, shopButton, calendarButton)
     }
 
     fun errorStage(errMsg : String) {
