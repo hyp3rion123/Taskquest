@@ -496,7 +496,11 @@ class MainBoardDisplay {
                 if (trayMade) {
                     trayIcon?.hide()
                 }
-                dataChanged()
+
+                // dont save if startScene was closed
+                if (mainSceneReady) {
+                    dataChanged()
+                }
                 Platform.exit()
 
             }
