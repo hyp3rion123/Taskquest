@@ -1,5 +1,6 @@
 package taskquest.app.javafx
 
+import com.dustinredmond.fxtrayicon.FXTrayIcon
 import javafx.animation.TranslateTransition
 import javafx.application.Platform
 import javafx.collections.FXCollections
@@ -68,6 +69,7 @@ var base2 = lighterBlue
 var base3 = lightestBlue
 var theme = 0
 val iconSize = 20.0
+val logoPath = "/assets/icons/logo.png"
 
 val confettiImageView = ImageView(Image("/assets/gifs/confetti.gif"))
 
@@ -86,6 +88,7 @@ class MainBoardDisplay {
     var groupingMethodForBox = ""
     var coinsLabel = Label("Current coins\n" + user.wallet)
     var coinsShopLabel = Label("Current coins\n" + user.wallet)
+    lateinit var trayIcon : FXTrayIcon
 
     val selectedTaskCss = """
                     -fx-border-color: """ + getTheme().second + """;
@@ -146,6 +149,7 @@ class MainBoardDisplay {
 
         // set title for the stage
         mainStage?.title = "TaskQuest";
+        mainStage?.icons?.add(Image(logoPath))
 
         val headerContainer = createHeaderContainer()
 
@@ -213,16 +217,25 @@ class MainBoardDisplay {
             }
             graph.updateTasks(user.lists)
         }
-        shopButton.setOnMouseClicked {
+
+        fun shopButtonAction() {
             mainStage?.scene = createShopScene(mainStage, mainScene) //created every time for refresh purposes
         }
 
-        profileButton.setOnMouseClicked {
+        shopButton.setOnMouseClicked {
+            shopButtonAction()
+        }
+
+        fun profileButtonAction() {
             val profileScene = showProfileScreen(mainStage, mainScene);
             mainStage?.scene = profileScene
         }
 
-        themeButton.setOnMouseClicked {
+        profileButton.setOnMouseClicked {
+            profileButtonAction()
+        }
+
+        fun themeButtonAction() {
             if (theme == 0) {
                 theme = 1
                 base1 = darkY
@@ -243,8 +256,39 @@ class MainBoardDisplay {
                 dataChanged()
                 mainStage.close()
             }
+            trayIcon.hide()
             start_display(mainStage)
         }
+
+        themeButton.setOnMouseClicked {
+            themeButtonAction()
+        }
+
+        // taskbar icon start
+        trayIcon = FXTrayIcon(mainStage, javaClass.getResource("/assets/icons/logo.png"))
+
+        //Create a pop-up menu items
+        val themeItem = MenuItem("Theme")
+        val profileItem = MenuItem("Profile")
+        val shopItem = MenuItem("Shop")
+
+        trayIcon.addMenuItem(themeItem)
+        themeItem.setOnAction {
+            themeButtonAction()
+        }
+        trayIcon.addMenuItem(profileItem)
+        profileItem.setOnAction {
+            profileButtonAction()
+        }
+        trayIcon.addMenuItem(shopItem)
+        shopItem.setOnAction {
+            shopButtonAction()
+        }
+        trayIcon.addSeparator()
+        trayIcon.addExitItem(true)
+
+        trayIcon.show()
+        // taskbar icon end
 
         val selectAboveTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.UP, KeyCombination.CONTROL_DOWN)
         val selectAboveTaskAction = Runnable {
