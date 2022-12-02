@@ -513,10 +513,12 @@ class MainBoardDisplay {
         mainStage?.isResizable = true
         if (mainSceneReady) {
             mainStage?.scene = createMainScene(mainStage)
+            mainStage?.show()
         } else {
             mainStage?.scene = createStartScene(mainStage)
+            mainStage?.show()
+            mainStage?.centerOnScreen()
         }
-        mainStage?.show()
     }
 
     fun createMainScene(mainStage: Stage?): Scene {
