@@ -634,11 +634,13 @@ class MainBoardDisplay {
 
 
         //Create a pop-up menu items
+        val addTaskItem = MenuItem("Add Task")
         val themeItem = MenuItem("Theme")
         val profileItem = MenuItem("Profile")
         val shopItem = MenuItem("Shop")
 
         if (!trayMade) {
+            trayIcon?.addMenuItem(addTaskItem)
             trayIcon?.addMenuItem(themeItem)
             trayIcon?.addMenuItem(profileItem)
             trayIcon?.addMenuItem(shopItem)
@@ -648,6 +650,18 @@ class MainBoardDisplay {
             trayIcon?.show()
             trayMade = true
             // taskbar icon end
+        }
+
+        addTaskItem.setOnAction {
+            if (user.lastUsedList != -1) {
+                createTaskStage(user.lists[user.lastUsedList], toDoVBox, createTaskButton)
+            } else {
+                if (user.lists.size == 0) {
+                    errorStage("Create a list!")
+                } else {
+                    errorStage("Select a list!")
+                }
+            }
         }
 
         themeItem.setOnAction {
