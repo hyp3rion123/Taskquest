@@ -120,17 +120,14 @@ data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
     }
 
     fun save(): UserMemento {
-        println("in user, have: " + lists.size)
         //Convert to gson so we have a deep copy
         var gson = Gson()
         var jsonString = gson.toJson(this)
-        println(jsonString)
         var testModel = gson.fromJson(jsonString, User::class.java)
         return UserMemento(testModel)
     }
 
     fun previous(prevUser: UserMemento) {
-        println("previous in USER: " + prevUser.currentUser.lists.size)
         val prevUserCopy = prevUser.getUser()
         lists = prevUserCopy.lists
         purchasedItems = prevUserCopy.purchasedItems
