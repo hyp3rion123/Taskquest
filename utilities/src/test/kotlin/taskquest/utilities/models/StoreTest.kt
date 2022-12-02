@@ -16,7 +16,7 @@ internal class StoreTest {
         val store = Store()
         store.addItem("Test Item", 50, ItemType.ProfilePicture)
 
-        val user = User()
+        val user = User(0)
         assert(!store.buyItem(0, user))
     }
 
@@ -25,7 +25,7 @@ internal class StoreTest {
         val store = Store()
         store.addItem("Test Item", 50, ItemType.ProfilePicture)
 
-        val user = User()
+        val user = User(0)
         user.wallet = 51
         assert(store.buyItem(0, user))
         assert(user.wallet == 1)

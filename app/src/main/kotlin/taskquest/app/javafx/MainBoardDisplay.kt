@@ -63,7 +63,7 @@ var theme = 0
 val iconSize = 20.0
 
 class MainBoardDisplay {
-    var user = User()
+    var user = User(0)
     var toDoVBox = VBox()
     var store = Store()
     var boardViewHBox = HBox()
