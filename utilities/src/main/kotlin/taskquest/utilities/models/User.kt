@@ -1,8 +1,11 @@
 package taskquest.utilities.models
 
+import com.google.gson.Gson
 import java.time.LocalDate
 
 data class User(val id: Int, var lastUsedList: Int = - 1, var wallet: Int = 0) {
+    // IMPORTANT NOTE: any variable you add and want to be able to undo must be added to the user memento function below
+    // to properly restore everything
     var name = ""
     val lists = mutableListOf<TaskList>()
     val purchasedItems = mutableListOf<Item>()
@@ -18,15 +21,16 @@ data class User(val id: Int, var lastUsedList: Int = - 1, var wallet: Int = 0) {
     var height = 600.0
     var x = 0.0
     var y = 0.0
-    val bannerMax = 9
+    val bannerMax = 4
     val bannerMin = 0
     var multiplier = 1.0
+    var bannerRequirements = listOf(1,3,6,10,15);
 
     fun convertToString() {
         for (list in lists) {
-            println(list.title)
+            //println(list.title)
             for (task in list.tasks) {
-                println(task.title)
+                //println(task.title)
             }
         }
     }
@@ -88,9 +92,15 @@ data class User(val id: Int, var lastUsedList: Int = - 1, var wallet: Int = 0) {
 
             this.wallet += (task.rewardCoins * this.multiplier).toInt()
         }
-
-        if (tasksDoneToday % 3 == 0) { // for every 3 tasks done
-            bannerRank += 1 // increment counter
+        updateBannerRank() // update banner rank
+    }
+    fun updateBannerRank(){
+        bannerRank = 0
+        // gets maximum banner based on bannerRequirements
+        for (threshold in bannerRequirements) {
+            if (tasksDoneToday >= threshold) {
+                bannerRank += 1
+            }
         }
         if (bannerRank > bannerMax) {
             bannerRank = bannerMax
@@ -98,5 +108,38 @@ data class User(val id: Int, var lastUsedList: Int = - 1, var wallet: Int = 0) {
         if (bannerRank < bannerMin) {
             bannerRank = bannerMin
         }
+    }
+
+    fun findIdx(id: Int) : Int {
+        for (idx in this.lists.indices) {
+            if (this.lists[idx].id == id) {
+                return idx
+            }
+        }
+
+        return 0
+    }
+
+    fun save(): UserMemento {
+        //Convert to gson so we have a deep copy
+        var gson = Gson()
+        var jsonString = gson.toJson(this)
+        var testModel = gson.fromJson(jsonString, User::class.java)
+        return UserMemento(testModel)
+    }
+
+    fun previous(prevUser: UserMemento) {
+        val prevUserCopy = prevUser.getUser()
+        lists = prevUserCopy.lists
+        purchasedItems = prevUserCopy.purchasedItems
+        tags = prevUserCopy.tags
+        nextId = prevUserCopy.nextId
+        bannerRank = prevUserCopy.bannerRank
+        longestStreak = prevUserCopy.longestStreak
+        tasksDoneToday = prevUserCopy.tasksDoneToday
+        dateLastCompleted = prevUserCopy.dateLastCompleted
+        multiplier = prevUserCopy.multiplier
+        lastUsedList = prevUserCopy.lastUsedList
+        wallet = prevUserCopy.wallet
     }
 }

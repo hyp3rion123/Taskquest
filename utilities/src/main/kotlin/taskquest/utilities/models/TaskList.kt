@@ -9,6 +9,7 @@ class TaskList(
 ) {
     val tasks: MutableList<Task> = mutableListOf<Task>()
     var nextId = 0
+    var curTask = -1
 
     fun addItem(title: String, desc: String = "", dueDate: String = "",
                 priority: Priority? = null, difficulty: Difficulty? = null, tags: MutableSet<String>? = null) {
@@ -22,15 +23,48 @@ class TaskList(
     }
 
     fun deleteItemByID(id: Int) {
-        this.tasks.removeIf { it.id == id }
+
+        for (idx in this.tasks.indices)
+        {
+            if (this.tasks[idx].id == id) {
+
+                this.tasks.removeAt(idx)
+
+                if (this.curTask == idx) {
+                    this.curTask = -1
+                } else if (this.curTask > idx) {
+                    this.curTask--
+                }
+
+                break
+
+            }
+        }
+
         if (this.tasks.size == 0) {
             this.nextId = 0
         }
     }
     fun deleteItem(idx: Int) {
         this.tasks.removeAt(idx)
+
+        if (this.curTask == idx) {
+            this.curTask = -1
+        } else if (this.curTask > idx) {
+            this.curTask--
+        }
+
         if (this.tasks.size == 0) {
             this.nextId = 0
+        }
+    }
+
+    fun updateCurTask(id: Int) {
+        for (idx in this.tasks.indices) {
+            if (this.tasks[idx].id == id) {
+                this.curTask = idx
+                break
+            }
         }
     }
 
