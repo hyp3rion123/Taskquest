@@ -1,11 +1,14 @@
 package taskquest.utilities.models
 
+import com.google.gson.Gson
 import java.time.LocalDate
 
 data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
-    val lists = mutableListOf<TaskList>()
-    val purchasedItems = mutableListOf<Item>()
-    val tags = mutableSetOf<String>()
+    //IMPORTANT NOTE: any variable you add and want to be able to undo must be added to the user memento function below
+    // to properly restore everything
+    var lists = mutableListOf<TaskList>()
+    var purchasedItems = mutableListOf<Item>()
+    var tags = mutableSetOf<String>()
     var nextId = 0
     var profileImageName = "Default.png"
     var bannerRank = 0
@@ -116,4 +119,26 @@ data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
         return 0
     }
 
+    fun save(): UserMemento {
+        //Convert to gson so we have a deep copy
+        var gson = Gson()
+        var jsonString = gson.toJson(this)
+        var testModel = gson.fromJson(jsonString, User::class.java)
+        return UserMemento(testModel)
+    }
+
+    fun previous(prevUser: UserMemento) {
+        val prevUserCopy = prevUser.getUser()
+        lists = prevUserCopy.lists
+        purchasedItems = prevUserCopy.purchasedItems
+        tags = prevUserCopy.tags
+        nextId = prevUserCopy.nextId
+        bannerRank = prevUserCopy.bannerRank
+        longestStreak = prevUserCopy.longestStreak
+        tasksDoneToday = prevUserCopy.tasksDoneToday
+        dateLastCompleted = prevUserCopy.dateLastCompleted
+        multiplier = prevUserCopy.multiplier
+        lastUsedList = prevUserCopy.lastUsedList
+        wallet = prevUserCopy.wallet
+    }
 }

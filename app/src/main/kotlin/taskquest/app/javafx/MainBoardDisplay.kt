@@ -76,6 +76,7 @@ val confettiImageView = ImageView(Image("/assets/gifs/confetti.gif"))
 
 class MainBoardDisplay {
     var user = User()
+    val userHistory = UserHistory()
     var graph = Graph()
     var toDoVBox = VBox()
     var store = Store()
@@ -151,6 +152,12 @@ class MainBoardDisplay {
         mainStage?.title = "TaskQuest";
         mainStage?.icons?.add(Image(logoPath))
 
+        mainStage?.setResizable(true)
+        mainStage?.setScene(createMainScene(mainStage))
+        mainStage?.show()
+    }
+
+    fun createMainScene(mainStage: Stage?): Scene {
         val headerContainer = createHeaderContainer()
 
         // updates x and y of window
@@ -200,7 +207,7 @@ class MainBoardDisplay {
             -fx-background-color:""" + getTheme().third + """;
         """
 
-        val taskListVBox = createTaskListVBox(user.lists, createTaskButton)
+        var taskListVBox = createTaskListVBox(user.lists, createTaskButton)
 
         val mainScreenPane = BorderPane()
         mainScreenPane.right = taskListVBox
@@ -414,12 +421,21 @@ class MainBoardDisplay {
         }
         mainScene.accelerators[editTaskHotkey] = editTaskAction
 
-        mainStage?.setResizable(true)
-        mainStage?.setScene(mainScene)
-        mainStage?.show()
+        val undoHotkey: KeyCombination = KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN)
+        val undoAction = Runnable {
+            userHistory.previous(user)
+            dataChanged()
+            mainStage?.scene = createMainScene(mainStage)
+        }
+        mainScene.accelerators[undoHotkey] = undoAction
 
-
-
+        val redoHotkey: KeyCombination = KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN)
+        val redoAction = Runnable {
+            userHistory.next(user)
+            dataChanged()
+            mainStage?.scene = createMainScene(mainStage)
+        }
+        mainScene.accelerators[redoHotkey] = redoAction
 
         //DEBUG
         if (debugMode) {
@@ -429,6 +445,8 @@ class MainBoardDisplay {
             sideBarVBox.style = debugCss
             mainTasksSection.style = debugCss
         }
+
+        return mainScene
     }
 
     fun coinsBalanceUpdated() {
@@ -732,6 +750,7 @@ class MainBoardDisplay {
         }
 
         btn_del.setOnMouseClicked {
+            userHistory.save(user)
             data.deleteItemByID(task.id)
             tasksVBox.children.remove(hbox)
             if (data.tasks.size == 0) {
@@ -1137,6 +1156,7 @@ class MainBoardDisplay {
             if (text_title.text.trim() == "") {
                 errorStage("Title of task can not be empty.")
             } else {
+                userHistory.save(user)
                 val taskTags = mutableSetOf<String>()
                 val addTags = selected_tags.checkModel.checkedItems
                 for (tag in addTags) {
@@ -1235,6 +1255,7 @@ class MainBoardDisplay {
             if (text_title.text.trim() == "") {
                 errorStage("Title of new list can not be empty.")
             } else {
+                userHistory.save(user)
                 user.addList(text_title.text, text_desc.text)
 
                 var curTaskList = user.lists[user.lists.size - 1]
@@ -1450,6 +1471,7 @@ class MainBoardDisplay {
         }
 
         delBtn.setOnMouseClicked {
+            userHistory.save(user)
             deleteList(curTaskList.id, taskListVBox, hbox)
             dataChanged()
         }
