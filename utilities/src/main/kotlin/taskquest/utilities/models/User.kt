@@ -2,7 +2,8 @@ package taskquest.utilities.models
 
 import java.time.LocalDate
 
-data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
+data class User(val id: Int, var lastUsedList: Int = - 1, var wallet: Int = 0) {
+    var name = ""
     val lists = mutableListOf<TaskList>()
     val purchasedItems = mutableListOf<Item>()
     val tags = mutableSetOf<String>()
