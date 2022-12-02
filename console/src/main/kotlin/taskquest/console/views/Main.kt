@@ -17,51 +17,51 @@ var currentList = -1
 var offline = false
 
 fun main(args: Array<String>) {
-    TaskQuestLogo.FirstConfig.printLogo()
-
-    println("Welcome to TaskQuest Console.")
-    println("Would you like to login, register for a new account, or work offline? (login/register/offline/delete).")
-
-    val loginCommands = listOf<String>("login", "register", "offline", "delete", "help")
-    while (true) {
-        print(">> ")
-
-        val curInstr : List<String>? = readLine()?.trim()?.split("\\s+".toRegex())
-        if (curInstr == null || curInstr[0].trim().lowercase() == "quit"
-            || curInstr[0].trim().lowercase() == "q" || curInstr[0].trim().lowercase() == "exit") {
-            exitProcess(0)
-        } else if (loginCommands.contains(curInstr[0])) {
-            val loginCommand = SignInCommandFactory.createFromArgs(curInstr)
-            try {
-                if (loginCommand.execute()) {
-                    break
-                }
-            } catch (e: Exception) {
-                println("An error occurred.")
-                println("Please try again.")
-            }
-        } else {
-            println("Invalid command. Type help for information on valid commands.")
-        }
-    }
-
-    currentList = currentUser.lastUsedList
-
     val taskCommands = listOf<String>("add", "del", "show", "edit", "sort", "complete")
     val userCommands = listOf<String>("addtags", "deltag", "showtags", "wallet", "help", "undo", "redo")
 
-    println("Enter 'help' for a detailed description of each supported command.")
-    println("")
-
-    if (currentList == -1) {
-        println("You have no currently active list.")
-    } else {
-        println("Your currently active list is the ${currentUser.lists[currentList].title} list.")
-        val command = ShowCommand(listOf("show"))
-        command.execute(currentUser.lists[currentList])
-    }
-
+    // interactive mode
     if (args.isEmpty()) {
+        TaskQuestLogo.FirstConfig.printLogo()
+
+        println("Welcome to TaskQuest Console.")
+        println("Would you like to login, register for a new account, or work offline? (login/register/offline/delete).")
+
+        val loginCommands = listOf<String>("login", "register", "offline", "delete", "help")
+        while (true) {
+            print(">> ")
+
+            val curInstr : List<String>? = readLine()?.trim()?.split("\\s+".toRegex())
+            if (curInstr == null || curInstr[0].trim().lowercase() == "quit"
+                || curInstr[0].trim().lowercase() == "q" || curInstr[0].trim().lowercase() == "exit") {
+                exitProcess(0)
+            } else if (loginCommands.contains(curInstr[0])) {
+                val loginCommand = SignInCommandFactory.createFromArgs(curInstr)
+                try {
+                    if (loginCommand.execute()) {
+                        break
+                    }
+                } catch (e: Exception) {
+                    println("An error occurred.")
+                    println("Please try again.")
+                }
+            } else {
+                println("Invalid command. Type help for information on valid commands.")
+            }
+        }
+
+        currentList = currentUser.lastUsedList
+
+        println("Enter 'help' for a detailed description of each supported command.")
+        println("")
+
+        if (currentList == -1) {
+            println("You have no currently active list.")
+        } else {
+            println("Your currently active list is the ${currentUser.lists[currentList].title} list.")
+            val command = ShowCommand(listOf("show"))
+            command.execute(currentUser.lists[currentList])
+        }
 
         var curInstr : List<String>?
 
@@ -112,6 +112,9 @@ fun main(args: Array<String>) {
             }
         }
     } else {
+        // direct from CLI mode
+        currentUser = SaveUtils.restoreUserData()
+        currentList = currentUser.lastUsedList
         val instructions : List<String> = args.toMutableList()
         val length = instructions.size
         var i = 0
@@ -150,15 +153,7 @@ fun main(args: Array<String>) {
             i++
 
             currentUser.lastUsedList = currentList
-            if (!offline) {
-                try {
-                    CloudUtils.updateUser(currentUser)
-                } catch (_: ConnectException) {
-                    println("Cloud server could not be reached; data not saved in cloud.")
-                }
-            } else {
-                SaveUtils.saveUserData(currentUser)
-            }
+            SaveUtils.saveUserData(currentUser)
         }
 
     }
