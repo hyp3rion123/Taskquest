@@ -65,6 +65,7 @@ val iconSize = 20.0
 
 class MainBoardDisplay {
     var user = User()
+    val userHistory = UserHistory()
     var graph = Graph()
     var toDoVBox = VBox()
     var store = Store()
@@ -138,6 +139,22 @@ class MainBoardDisplay {
         // set title for the stage
         mainStage?.title = "TaskQuest";
 
+        mainStage?.setResizable(true)
+        mainStage?.setScene(createMainScene(mainStage))
+        mainStage?.show()
+
+
+        //DEBUG
+//        if (debugMode) {
+//            toDoVBox.style = debugCss
+////            headerLabel.style = debugCss
+//            boardViewHBox.style = debugCss
+//            sideBarVBox.style = debugCss
+//            mainTasksSection.style = debugCss
+//        }
+    }
+
+    fun createMainScene(mainStage: Stage?): Scene {
         val headerContainer = createHeaderContainer()
 
         // updates x and y of window
@@ -187,7 +204,7 @@ class MainBoardDisplay {
             -fx-background-color:""" + getTheme().third + """;
         """
 
-        val taskListVBox = createTaskListVBox(user.lists, createTaskButton)
+        var taskListVBox = createTaskListVBox(user.lists, createTaskButton)
 
         val mainScreenPane = BorderPane()
         mainScreenPane.right = taskListVBox
@@ -361,19 +378,34 @@ class MainBoardDisplay {
         }
         mainScene.accelerators[editTaskHotkey] = editTaskAction
 
-        mainStage?.setResizable(true)
-        mainStage?.setScene(mainScene)
-        mainStage?.show()
-
-
-        //DEBUG
-        if (debugMode) {
-            toDoVBox.style = debugCss
-//            headerLabel.style = debugCss
-            boardViewHBox.style = debugCss
-            sideBarVBox.style = debugCss
-            mainTasksSection.style = debugCss
+        val undoHotkey: KeyCombination = KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN)
+        val undoAction = Runnable {
+            println("before undo, prev user had " + userHistory.historyUndo.peek().currentUser.lists.size)
+            userHistory.previous(user)
+            dataChanged()
+            mainStage?.scene = createMainScene(mainStage)
+            println("undoing change, there are now " + user.lists.size)
         }
+        mainScene.accelerators[undoHotkey] = undoAction
+
+        val redoHotkey: KeyCombination = KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN)
+        val redoAction = Runnable {
+//            println("before undo, prev user had " + userHistory.historyUndo.peek().currentUser.lists.size)
+            userHistory.next(user)
+            dataChanged()
+            mainStage?.scene = createMainScene(mainStage)
+//            println("undoing change, there are now " + user.lists.size)
+        }
+        mainScene.accelerators[redoHotkey] = redoAction
+
+        val printHistory: KeyCombination = KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN)
+        val printHistoryAction = Runnable {
+            println("undo stack " + userHistory.historyUndo.size)
+            println("redo stack: " + userHistory.historyRedo.size)
+        }
+        mainScene.accelerators[printHistory] = printHistoryAction
+
+        return mainScene
     }
 
     fun coinsBalanceUpdated() {
@@ -422,7 +454,7 @@ class MainBoardDisplay {
 //        bannerImageView.fitWidth = 250.0
         bannerImageView.fitHeight = 60.0
 
-        var headerLabel = Label(".Welcome back, USER_NAME.") //<--when putting the actual user_name leave the dots, they help with alignment
+        var headerLabel = Label(".Welcome back, USER_NAME. " + user.lists.size) //<--when putting the actual user_name leave the dots, they help with alignment
         headerLabel.alignment = Pos.CENTER
         headerLabel.font = globalFont
         bannerImageView.fitWidthProperty().bind(headerLabel.widthProperty())
@@ -1163,6 +1195,9 @@ class MainBoardDisplay {
             if (text_title.text.trim() == "") {
                 errorStage("Title of new list can not be empty.")
             } else {
+                userHistory.save(user)
+                println("saving user history - added list")
+                println("saved user has " + userHistory.historyUndo.peek().getUser().lists.size)
                 user.addList(text_title.text, text_desc.text)
 
                 var curTaskList = user.lists[user.lists.size - 1]
