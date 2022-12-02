@@ -68,6 +68,15 @@ class TaskList(
         }
     }
 
+    fun findIdx(id : Int): Int {
+        for (idx in this.tasks.indices) {
+            if (this.tasks[idx].id == id) {
+                return idx
+            }
+        }
+        return 0
+    }
+
     fun moveItem(from: Int, to: Int): Boolean {
         var posFrom = -1
         var posTo = -1

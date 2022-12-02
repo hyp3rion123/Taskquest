@@ -14,7 +14,7 @@ class UserHistory {
             historyRedo.push(user.save())
             user.previous(historyUndo.pop())
         } else {
-            println("Undo array is empty")
+            //println("Undo array is empty")
         }
     }
 
@@ -23,7 +23,7 @@ class UserHistory {
             historyUndo.push(user.save())
             user.previous(historyRedo.pop())
         } else {
-            println("Redo array is empty")
+            //println("Redo array is empty")
         }
     }
 }

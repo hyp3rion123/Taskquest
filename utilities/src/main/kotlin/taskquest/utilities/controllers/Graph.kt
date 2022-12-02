@@ -106,10 +106,10 @@ class Graph() {
         fun printEvent(e: Event) {
             val doc : Document = Jsoup.parse(e.body?.content)
             val contentBody = doc.body().text()
-            println("Subject: " + e.subject)
-            println("Body: " + contentBody)
-            println("Start: " + e.start?.dateTime)
-            println("End: " + e.end?.dateTime)
+//            println("Subject: " + e.subject)
+//            println("Body: " + contentBody)
+//            println("Start: " + e.start?.dateTime)
+//            println("End: " + e.end?.dateTime)
         }
 
         @Throws(java.lang.Exception::class)

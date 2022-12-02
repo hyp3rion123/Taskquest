@@ -1,6 +1,7 @@
 package taskquest.app.javafx
 
 import com.dustinredmond.fxtrayicon.FXTrayIcon
+import com.fasterxml.jackson.module.kotlin.readValue
 import javafx.animation.TranslateTransition
 import javafx.application.Platform
 import javafx.collections.FXCollections
@@ -24,8 +25,10 @@ import javafx.stage.Stage
 import javafx.stage.StageStyle
 import javafx.util.Duration
 import org.controlsfx.control.CheckComboBox
+import taskquest.utilities.controllers.CloudUtils
 import taskquest.utilities.controllers.FunctionClass
 import taskquest.utilities.controllers.Graph
+import taskquest.utilities.controllers.SaveUtils
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreDataFromText
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
@@ -33,6 +36,7 @@ import taskquest.utilities.models.*
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
 import java.io.File
+import java.net.ConnectException
 import java.time.LocalDate
 import java.util.*
 
@@ -89,7 +93,12 @@ class MainBoardDisplay {
     var groupingMethodForBox = ""
     var coinsLabel = Label("Current coins\n" + user.wallet)
     var coinsShopLabel = Label("Current coins\n" + user.wallet)
-    lateinit var trayIcon : FXTrayIcon
+    var trayIcon : FXTrayIcon? = null
+    var copyTask : Task? = null
+    var mainSceneReady = false
+    var offline = false
+    var offlineName : String = ""
+    var trayMade = false
 
     val selectedTaskCss = """
                     -fx-border-color: """ + getTheme().second + """;
@@ -107,8 +116,15 @@ class MainBoardDisplay {
                     """.trimIndent()
 
     fun dataChanged() {
-        user.convertToString()
-        saveUserData(user)
+        if (!offline) {
+            try {
+                CloudUtils.updateUser(user)
+            } catch (_: ConnectException) {
+                println("Cloud server could not be reached; data not saved in cloud.")
+            }
+        } else {
+            saveUserData(user)
+        }
     }
     fun getTheme(): Triple<String, String, String> {
         return Triple(base1, base2, base3)
@@ -125,8 +141,338 @@ class MainBoardDisplay {
         return button
     }
 
+    fun createStartScene(mainStage: Stage?) : Scene {
+
+        val lbl = Label("Welcome to TaskQuest!!")
+        lbl.font = Font.font("Courier New", FontWeight.BOLD, 24.0)
+
+        // maybe describe what each option does?
+        val lbl2 = Label("Please select one of the options below to begin.")
+        lbl2.font = globalFont
+
+        val loginBtn = Button("Login")
+        val registerBtn = Button("Register")
+        val offlineBtn = Button("Offline")
+        val deleteBtn = Button("Delete")
+        setDefaultButtonStyle(loginBtn)
+        setDefaultButtonStyle(registerBtn)
+        setDefaultButtonStyle(offlineBtn)
+        setDefaultButtonStyle(deleteBtn)
+
+        val hbox = HBox(20.0)
+        hbox.children.addAll(loginBtn, registerBtn, offlineBtn, deleteBtn)
+        hbox.alignment = Pos.CENTER
+
+        val vbox = VBox(20.0)
+        vbox.style = """
+            -fx-background-color:""" + getTheme().third + """;
+        """
+        vbox.children.addAll(lbl, lbl2, hbox)
+        vbox.alignment = Pos.CENTER
+
+        loginBtn.setOnMouseClicked {
+
+            vbox.children.remove(3, vbox.children.size)
+
+            val msglbl = Label("You are logging in as an existing user.")
+            msglbl.font = globalFont
+
+            val userlbl = Label("Username: ")
+            userlbl.font = globalFont
+            val username = TextField()
+            username.promptText = "Enter Username"
+
+            val loginhbox = HBox(10.0)
+            loginhbox.children.addAll(userlbl, username)
+            loginhbox.alignment = Pos.CENTER
+
+            val loginhbox2 = HBox(10.0)
+
+            val passwordlbl = Label("Password: ")
+            passwordlbl.font = globalFont
+            loginhbox2.children.add(passwordlbl)
+
+            val displayPassword = TextField()
+            displayPassword.promptText = "Enter Password"
+            val hidePassword = PasswordField()
+            hidePassword.promptText = "Enter Password"
+            loginhbox2.children.add(hidePassword)
+
+            val showPassword = CheckBox("Show Password")
+
+            showPassword.setOnMouseClicked {
+                if (showPassword.isSelected) {
+                    loginhbox2.children.removeAt(1)
+                    displayPassword.text = hidePassword.text
+                    loginhbox2.children.add(1, displayPassword)
+                } else {
+                    loginhbox2.children.removeAt(1)
+                    hidePassword.text = displayPassword.text
+                    loginhbox2.children.add(1, hidePassword)
+                }
+            }
+
+            loginhbox2.alignment = Pos.CENTER
+
+            val confBtn = Button("Confirm")
+            setDefaultButtonStyle(confBtn)
+
+            vbox.children.addAll(msglbl, loginhbox, loginhbox2, showPassword, confBtn)
+
+            confBtn.setOnMouseClicked {
+                if (username.text.trim() == "") {
+                    errorStage("Username cannot be empty")
+                } else if (showPassword.isSelected && displayPassword.text.trim() == "") {
+                    errorStage("Password cannot be empty")
+                } else if (!showPassword.isSelected && hidePassword.text.trim() == "") {
+                    errorStage("Password cannot be empty")
+                } else {
+                    var res: String
+                    if (showPassword.isSelected) {
+                        res = CloudUtils.login(username.text.trim(), displayPassword.text.trim())
+                    } else {
+                        res = CloudUtils.login(username.text.trim(), hidePassword.text.trim())
+                    }
+
+                    if (res == "") {
+                        errorStage("Invalid login credentials. Please try again.")
+                    } else {
+                        user = SaveUtils.mapper.readValue<User>(res)
+                        mainSceneReady = true
+                        start_display(mainStage)
+                    }
+                }
+            }
+        }
+
+        registerBtn.setOnMouseClicked {
+            vbox.children.remove(3, vbox.children.size)
+
+            val msglbl = Label("Thank you for choosing to register with TaskQuest!")
+            msglbl.font = globalFont
+
+            val msglbl2 = Label("Please proceed by entering your name, username and a password.")
+            msglbl2.font = globalFont
+
+            val namelbl = Label("Name: ")
+            namelbl.font = globalFont
+            val name = TextField()
+            name.promptText = "Enter your name"
+
+            val userlbl = Label("Username: ")
+            userlbl.font = globalFont
+            val username = TextField()
+            username.promptText = "Enter Username"
+
+            val passwordlbl = Label("Password: ")
+            passwordlbl.font = globalFont
+
+            val displayPassword1 = TextField()
+            displayPassword1.promptText = "Enter Password"
+            val hidePassword1 = PasswordField()
+            hidePassword1.promptText = "Enter Password"
+
+            val confpasswordlbl = Label("Confirm Password: ")
+            confpasswordlbl.font = globalFont
+
+            val displayPassword2 = TextField()
+            displayPassword2.promptText = "Confirm Password"
+            val hidePassword2 = PasswordField()
+            hidePassword2.promptText = "Confirm Password"
+
+            val showPassword = CheckBox("Show Password")
+
+            val vbox1 = VBox(25.0)
+            val vbox2 = VBox(20.0)
+
+            showPassword.setOnMouseClicked {
+                if (showPassword.isSelected) {
+                    vbox2.children.removeAt(2)
+                    displayPassword1.text = hidePassword1.text
+                    vbox2.children.add(2, displayPassword1)
+                    vbox2.children.removeAt(3)
+                    displayPassword2.text = hidePassword2.text
+                    vbox2.children.add(3, displayPassword2)
+                } else {
+                    vbox2.children.removeAt(2)
+                    hidePassword1.text = displayPassword1.text
+                    vbox2.children.add(2, hidePassword1)
+                    vbox2.children.removeAt(3)
+                    hidePassword2.text = displayPassword2.text
+                    vbox2.children.add(3, hidePassword2)
+                }
+            }
+
+            vbox1.children.addAll(namelbl, userlbl, passwordlbl, confpasswordlbl)
+            vbox1.alignment = Pos.CENTER_RIGHT
+
+            vbox2.children.addAll(name, username, hidePassword1, hidePassword2)
+            vbox2.alignment = Pos.CENTER_LEFT
+
+            val reghbox = HBox(10.0)
+            reghbox.children.addAll(vbox1, vbox2)
+            reghbox.alignment = Pos.CENTER
+
+            val confBtn = Button("Confirm")
+            setDefaultButtonStyle(confBtn)
+
+            vbox.children.addAll(msglbl, msglbl2, reghbox, showPassword, confBtn)
+
+            confBtn.setOnMouseClicked {
+                if (name.text.trim() == "") {
+                    errorStage("Name cannot be empty")
+                } else if (username.text.trim() == "") {
+                    errorStage("Username cannot be empty")
+                } else if (showPassword.isSelected && displayPassword1.text.trim() == "") {
+                    errorStage("Password cannot be empty")
+                } else if (!showPassword.isSelected && hidePassword1.text.trim() == "") {
+                    errorStage("Password cannot be empty")
+                } else if (showPassword.isSelected && displayPassword1.text.trim() != displayPassword2.text.trim()) {
+                    errorStage("Passwords do not match")
+                } else if (!showPassword.isSelected && hidePassword1.text.trim() != hidePassword2.text.trim()) {
+                    errorStage("Passwords do not match")
+                } else {
+                    var res : String
+                    if (showPassword.isSelected) {
+                        res = CloudUtils.createUser(username.text, displayPassword1.text.trim())
+                    } else {
+                        res = CloudUtils.createUser(username.text, hidePassword1.text.trim())
+                    }
+                    if (res == "") {
+                        errorStage("Username in use. Please try again with a different username.")
+                    } else {
+                        user = SaveUtils.mapper.readValue<User>(res)
+
+                        user.name = name.text.trim()
+                        mainSceneReady = true
+                        start_display(mainStage)
+                    }
+                }
+            }
+        }
+
+        offlineBtn.setOnMouseClicked {
+            vbox.children.remove(3, vbox.children.size)
+
+            val msglbl = Label("You've chosen to work offline, any work done here will not be saved in the cloud.")
+            msglbl.font = globalFont
+
+            val msglbl2 = Label("This work will not be accessible by your other devices. Press 'Confirm' to continue.")
+            msglbl2.font = globalFont
+
+            val namelbl = Label("Name: ")
+            namelbl.font = globalFont
+            val name = TextField()
+            name.promptText = "Enter your name"
+
+            val offlinehbox = HBox(10.0)
+            offlinehbox.children.addAll(namelbl, name)
+            offlinehbox.alignment = Pos.CENTER
+
+            val confBtn = Button("Confirm")
+            setDefaultButtonStyle(confBtn)
+            confBtn.setOnMouseClicked {
+                if (name.text.trim() == "") {
+                    errorStage("Name cannot be empty")
+                } else {
+                    mainSceneReady = true
+                    offline = true
+                    offlineName = name.text.trim()
+                    start_display(mainStage)
+                }
+            }
+
+            vbox.children.addAll(msglbl, msglbl2, offlinehbox, confBtn)
+        }
+
+        deleteBtn.setOnMouseClicked {
+            vbox.children.remove(3, vbox.children.size)
+
+            val msglbl = Label("WARNING: Deleting your account is irreversible.")
+            msglbl.font = globalFont
+
+            val userlbl = Label("Username: ")
+            userlbl.font = globalFont
+            val username = TextField()
+            username.promptText = "Enter Username"
+
+            val loginhbox = HBox(10.0)
+            loginhbox.children.addAll(userlbl, username)
+            loginhbox.alignment = Pos.CENTER
+
+            val loginhbox2 = HBox(10.0)
+
+            val passwordlbl = Label("Password: ")
+            passwordlbl.font = globalFont
+            loginhbox2.children.add(passwordlbl)
+
+            val displayPassword = TextField()
+            displayPassword.promptText = "Enter Password"
+            val hidePassword = PasswordField()
+            hidePassword.promptText = "Enter Password"
+            loginhbox2.children.add(hidePassword)
+
+            val showPassword = CheckBox("Show Password")
+
+            showPassword.setOnMouseClicked {
+                if (showPassword.isSelected) {
+                    loginhbox2.children.removeAt(1)
+                    displayPassword.text = hidePassword.text
+                    loginhbox2.children.add(1, displayPassword)
+                } else {
+                    loginhbox2.children.removeAt(1)
+                    hidePassword.text = displayPassword.text
+                    loginhbox2.children.add(1, hidePassword)
+                }
+            }
+
+            loginhbox2.alignment = Pos.CENTER
+
+            val confBtn = Button("Confirm")
+            setDefaultButtonStyle(confBtn)
+
+            vbox.children.addAll(msglbl, loginhbox, loginhbox2, showPassword, confBtn)
+
+            confBtn.setOnMouseClicked {
+
+                if (username.text.trim() == "") {
+                    errorStage("Username cannot be empty")
+                } else if (showPassword.isSelected && displayPassword.text.trim() == "") {
+                    errorStage("Password cannot be empty")
+                } else if (!showPassword.isSelected && hidePassword.text.trim() == "") {
+                    errorStage("Password cannot be empty")
+                } else {
+                    var res : String
+                    if (showPassword.isSelected) {
+                        res = CloudUtils.deleteUser(username.text.trim(), displayPassword.text.trim())
+                    } else {
+                        res = CloudUtils.deleteUser(username.text.trim(), hidePassword.text.trim())
+                    }
+                    if (res == "") {
+                        errorStage("Invalid login credentials or account did not exist. Please try again.")
+                    } else {
+                        vbox.children.remove(3, vbox.children.size)
+
+                        val successDelMsg = Label("Account ${username.text.trim()} successfully deleted. We're sorry to see you go! :(")
+                        successDelMsg.font = globalFont
+                        vbox.children.add(successDelMsg)
+                    }
+
+                }
+            }
+        }
+
+        val startScene = Scene(vbox)
+        return startScene
+    }
+
+
     fun start_display(mainStage: Stage?) {
-        user = restoreUserData()
+
+        if (offline) {
+            user = restoreUserData()
+            user.name = offlineName
+        }
 
         val fileContent = javaClass.getResource("/default/store.json").readText()
         store = restoreStoreDataFromText(fileContent)
@@ -138,13 +484,21 @@ class MainBoardDisplay {
             mainStage.height = user.height
             mainStage.width = user.width
 
+            mainStage.minWidth = 700.0
+            mainStage.minHeight = 500.0
+
             // save dimensions on close
             mainStage.setOnCloseRequest {
                 user.x = mainStage.x
                 user.y = mainStage.y
                 user.height = mainStage.height
                 user.width = mainStage.width
+                if (trayMade) {
+                    trayIcon?.hide()
+                }
                 dataChanged()
+                Platform.exit()
+
             }
         }
 
@@ -152,20 +506,22 @@ class MainBoardDisplay {
         mainStage?.title = "TaskQuest";
         mainStage?.icons?.add(Image(logoPath))
 
-        mainStage?.setResizable(true)
-        mainStage?.setScene(createMainScene(mainStage))
-        mainStage?.show()
-    }
-
-    fun createMainScene(mainStage: Stage?): Scene {
-        val headerContainer = createHeaderContainer()
-
         // updates x and y of window
         mainStage?.xProperty()?.addListener { _, _, newValue -> user.x = newValue.toDouble() }
         mainStage?.yProperty()?.addListener { _, _, newValue -> user.y = newValue.toDouble() }
 
-        //Banner
-        //val headerHBox = createBanner() //<--fix the sizing of banner
+        mainStage?.isResizable = true
+        if (mainSceneReady) {
+            mainStage?.scene = createMainScene(mainStage)
+        } else {
+            mainStage?.scene = createStartScene(mainStage)
+        }
+        mainStage?.show()
+    }
+
+    fun createMainScene(mainStage: Stage?): Scene {
+
+        val headerContainer = createHeaderContainer()
 
         //Main tasks board
 
@@ -263,7 +619,7 @@ class MainBoardDisplay {
                 dataChanged()
                 mainStage.close()
             }
-            trayIcon.hide()
+
             start_display(mainStage)
         }
 
@@ -272,52 +628,72 @@ class MainBoardDisplay {
         }
 
         // taskbar icon start
-        trayIcon = FXTrayIcon(mainStage, javaClass.getResource("/assets/icons/logo.png"))
+        if (!trayMade) {
+            trayIcon = FXTrayIcon(mainStage, javaClass.getResource("/assets/icons/logo.png"))
+        }
+
 
         //Create a pop-up menu items
         val themeItem = MenuItem("Theme")
         val profileItem = MenuItem("Profile")
         val shopItem = MenuItem("Shop")
 
-        trayIcon.addMenuItem(themeItem)
+        if (!trayMade) {
+            trayIcon?.addMenuItem(themeItem)
+            trayIcon?.addMenuItem(profileItem)
+            trayIcon?.addMenuItem(shopItem)
+            trayIcon?.addSeparator()
+            trayIcon?.addExitItem(true)
+
+            trayIcon?.show()
+            trayMade = true
+            // taskbar icon end
+        }
+
         themeItem.setOnAction {
             themeButtonAction()
         }
-        trayIcon.addMenuItem(profileItem)
+
         profileItem.setOnAction {
             profileButtonAction()
         }
-        trayIcon.addMenuItem(shopItem)
+
         shopItem.setOnAction {
             shopButtonAction()
         }
-        trayIcon.addSeparator()
-        trayIcon.addExitItem(true)
 
-        trayIcon.show()
-        // taskbar icon end
-
-        val selectAboveTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.UP, KeyCombination.CONTROL_DOWN)
+        val selectAboveTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.UP, KeyCombination.SHORTCUT_DOWN)
         val selectAboveTaskAction = Runnable {
             if (user.lastUsedList != -1) {
                 var data = user.lists[user.lastUsedList]
-                if (data.curTask != -1 && data.curTask > 0) {
+                if (data.curTask != -1 && data.tasks.size > 1) {
                     toDoVBox.children[data.curTask + 1].style = unselectedTaskCss
-                    toDoVBox.children[data.curTask].style = selectedTaskCss
-                    data.updateCurTask(data.curTask - 1)
+                    if (data.curTask == 0) {
+                        toDoVBox.children[data.tasks.size].style = selectedTaskCss
+                        data.curTask = data.tasks.size - 1
+                    } else {
+                        toDoVBox.children[data.curTask].style = selectedTaskCss
+                        data.curTask -= 1
+                    }
                 }
             }
         }
         mainScene.accelerators[selectAboveTaskHotkey] = selectAboveTaskAction
 
-        val selectBelowTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.DOWN, KeyCombination.CONTROL_DOWN)
+        val selectBelowTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.DOWN, KeyCombination.SHORTCUT_DOWN)
         val selectBelowTaskAction = Runnable {
             if (user.lastUsedList != -1) {
                 var data = user.lists[user.lastUsedList]
-                if (data.curTask != -1 && data.curTask + 2 <= data.tasks.size) {
+                if (data.curTask != -1 && data.tasks.size > 1) {
                     toDoVBox.children[data.curTask + 1].style = unselectedTaskCss
-                    toDoVBox.children[data.curTask + 2].style = selectedTaskCss
-                    data.updateCurTask(data.curTask + 1)
+                    if (data.curTask == data.tasks.size - 1) {
+                        toDoVBox.children[1].style = selectedTaskCss
+                        data.curTask = 0
+                    } else {
+                        toDoVBox.children[data.curTask + 2].style = selectedTaskCss
+                        data.curTask += 1
+                    }
+
                 }
             }
         }
@@ -425,7 +801,15 @@ class MainBoardDisplay {
         val undoAction = Runnable {
             userHistory.previous(user)
             dataChanged()
-            mainStage?.scene = createMainScene(mainStage)
+            if (user.lists.size == 0) {
+                toDoVBox = createEmptyVBox("You have no lists to display. Create a list!")
+            } else {
+                toDoVBox = createTasksVBox(createTaskButton, user.lists[user.lastUsedList], user.lists[user.lastUsedList].title)
+            }
+            boardViewHBox.children.clear()
+            boardViewHBox.children.add(toDoVBox)
+            taskListVBox = createTaskListVBox(user.lists, createTaskButton)
+            mainScreenPane.right = taskListVBox
         }
         mainScene.accelerators[undoHotkey] = undoAction
 
@@ -433,9 +817,61 @@ class MainBoardDisplay {
         val redoAction = Runnable {
             userHistory.next(user)
             dataChanged()
-            mainStage?.scene = createMainScene(mainStage)
+            if (user.lists.size == 0) {
+                toDoVBox = createEmptyVBox("You have no lists to display. Create a list!")
+            } else {
+                toDoVBox = createTasksVBox(createTaskButton, user.lists[user.lastUsedList], user.lists[user.lastUsedList].title)
+            }
+            boardViewHBox.children.clear()
+            boardViewHBox.children.add(toDoVBox)
+            taskListVBox = createTaskListVBox(user.lists, createTaskButton)
+            mainScreenPane.right = taskListVBox
         }
         mainScene.accelerators[redoHotkey] = redoAction
+
+        val copyTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN)
+        val copyTaskAction = Runnable {
+            if (user.lastUsedList != -1 && user.lists[user.lastUsedList].curTask != -1) {
+                val curList = user.lists[user.lastUsedList]
+                val curTask = curList.tasks[curList.curTask]
+                copyTask = Task(-1, curTask.title, curTask.desc, curTask.dueDate, curTask.dateCreated,
+                    curTask.priority, curTask.difficulty, curTask.complete, curTask.completeOnce)
+                copyTask!!.tags = curTask.tags
+                copyTask!!.calcCoinValue()
+            }
+        }
+        mainScene.accelerators[copyTaskHotkey] = copyTaskAction
+
+        val pasteTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN)
+        val pasteTaskAction = Runnable {
+            if (user.lastUsedList != -1 && copyTask != null) {
+                val curList = user.lists[user.lastUsedList]
+                copyTask!!.id = curList.nextId
+                if (curList.curTask == -1) {
+                    curList.tasks.add(copyTask!!)
+                } else {
+                    copyTask?.let { it1 -> curList.tasks.add(curList.findIdx(curList.tasks[curList.curTask].id) + 1, it1) }
+                }
+                toDoVBox = createTasksVBox(createTaskButton, curList, curList.title)
+                boardViewHBox.children.clear()
+                boardViewHBox.children.add(toDoVBox)
+
+                curList.nextId += 1
+                copyTask = Task(curList.nextId, copyTask!!.title, copyTask!!.desc, copyTask!!.dueDate, copyTask!!.dateCreated,
+                    copyTask!!.priority, copyTask!!.difficulty, copyTask!!.complete, copyTask!!.completeOnce)
+            }
+        }
+        mainScene.accelerators[pasteTaskHotkey] = pasteTaskAction
+
+        val moveTaskHotkey: KeyCombination = KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN)
+        val moveTaskAction = Runnable {
+            if (user.lastUsedList != -1 && user.lists[user.lastUsedList].curTask != -1) {
+                val curList = user.lists[user.lastUsedList]
+                val curTask = curList.tasks[curList.curTask]
+                moveTaskStage(curTask, curList, createTaskButton)
+            }
+        }
+        mainScene.accelerators[moveTaskHotkey] = moveTaskAction
 
         //DEBUG
         if (debugMode) {
@@ -511,7 +947,7 @@ class MainBoardDisplay {
 //        bannerImageView.fitWidth = 250.0
         bannerImageView.fitHeight = 60.0
 
-        var headerLabel = Label(".Welcome back, USER_NAME.") //<--when putting the actual user_name leave the dots, they help with alignment
+        var headerLabel = Label(" Welcome back, ${user.name} ") //<--when putting the actual user_name leave the dots, they help with alignment
         headerLabel.alignment = Pos.CENTER
         headerLabel.font = globalFont
         bannerImageView.fitWidthProperty().bind(headerLabel.widthProperty())
@@ -617,19 +1053,15 @@ class MainBoardDisplay {
         btn.setMinSize(btn.prefWidth, btn.prefHeight)
         return btn
     }
-    fun createDetailsButton(): Button {
-        var btn = ImageButton("/assets/icons/details.png",iconSize,iconSize)
+    fun createEditButton(): Button {
+        var btn = ImageButton("/assets/icons/edit.png",iconSize,iconSize)
         btn.setMinSize(btn.prefWidth, btn.prefHeight)
         return btn
     }
 
-    fun createCopyButton(): Button {
-        var btn = ImageButton("/assets/icons/copy.png",iconSize,iconSize)
-        btn.setMinSize(btn.prefWidth, btn.prefHeight)
-        return btn
-    }
 
     fun createTaskHbox(task: Task, data:TaskList, tasksVBox: VBox, title: String, create_button: Button): HBox {
+
         val hbox = HBox(5.0)
         hbox.style = """
             -fx-border-color: """ + getTheme().second + """;
@@ -638,8 +1070,10 @@ class MainBoardDisplay {
             -fx-border-radius: 10px;
             """.trimIndent()
         hbox.padding = Insets(7.0)
+
         val taskTitle = Label(task.title)
         taskTitle.font = globalFont
+
         val c = CheckBox()
         c.setSelected(task.complete)
         c.setOnMouseClicked {
@@ -647,32 +1081,28 @@ class MainBoardDisplay {
                 task.complete = false
             } else {
                 task.complete = true
-                showTaskCompletionStage(task)
+                if (!task.completeOnce) {
+                    task.completeOnce = true
+                    showTaskCompletionStage(task)
+                    coinsBalanceUpdated()
+                } else {
+                    errorStage("You have already been rewarded for completing this task!")
+                }
+
             }
             dataChanged()
         }
-        var btn_del = createDeleteButton()
+
         val spacer = Pane()
         HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS)
         spacer.setMinSize(10.0, 10.0)
-        var btn_edit = createDetailsButton()
-        var btn_copy = createCopyButton()
+
+        var btn_del = createDeleteButton()
+        var btn_edit = createEditButton()
         setDefaultButtonStyle(btn_del)
         setDefaultButtonStyle(btn_edit)
-        setDefaultButtonStyle(btn_copy)
-        hbox.children.addAll(c, taskTitle, spacer, btn_del, btn_edit, btn_copy)
+        hbox.children.addAll(c, taskTitle, spacer, btn_del, btn_edit)
         hbox.setPrefSize(400.0, 50.0)
-        btn_copy.onDragDetected = EventHandler<MouseEvent?> {event ->
-            /* drag was detected, start a drag-and-drop gesture*/
-            /* allow any transfer mode */
-            val db: Dragboard = hbox.startDragAndDrop(*TransferMode.ANY)
-
-            /* Put a string on a dragboard */
-            val content = ClipboardContent()
-            content.putString(task.toString())
-            db.setContent(content)
-            event.consume()
-        }
 
         hbox.onDragDetected = EventHandler<MouseEvent?> {event ->
             /* drag was detected, start a drag-and-drop gesture*/
@@ -735,7 +1165,7 @@ class MainBoardDisplay {
             event.consume()
         }
 
-        hbox.onMouseClicked = EventHandler<MouseEvent?> {
+        hbox.onMousePressed = EventHandler<MouseEvent?> {
             if (data.curTask != -1) {
                 tasksVBox.children[data.curTask + 1].style = unselectedTaskCss
             }
@@ -747,7 +1177,45 @@ class MainBoardDisplay {
             } else {
                 hbox.style = selectedTaskCss
             }
+
+            val copyMenu = MenuItem("Copy")
+            val pasteMenu = MenuItem("Paste")
+
+            copyMenu.setOnAction {
+
+                copyTask = Task(-1, task.title, task.desc, task.dueDate, task.dateCreated,
+                    task.priority, task.difficulty, task.complete, task.completeOnce)
+                copyTask!!.tags = task.tags
+                copyTask!!.calcCoinValue()
+
+            }
+
+            pasteMenu.setOnAction {
+
+                if (copyTask != null) {
+                    copyTask!!.id = data.nextId
+                    copyTask?.let { it1 -> data.tasks.add(data.findIdx(task.id) + 1, it1) }
+
+                    toDoVBox = createTasksVBox(create_button, data, data.title)
+                    boardViewHBox.children.clear()
+                    boardViewHBox.children.add(toDoVBox)
+
+                    data.nextId += 1
+                    copyTask = Task(data.nextId, task.title, task.desc, task.dueDate, task.dateCreated,
+                    task.priority, task.difficulty, task.complete, task.completeOnce)
+                }
+
+            }
+
+            val contextMenu = ContextMenu(copyMenu, pasteMenu)
+            hbox.setOnContextMenuRequested { e ->
+                contextMenu.show(hbox.scene.window, e.screenX, e.screenY)
+                data.updateCurTask(task.id)
+                hbox.style = selectedTaskCss
+            }
+
         }
+
 
         btn_del.setOnMouseClicked {
             userHistory.save(user)
@@ -971,7 +1439,15 @@ class MainBoardDisplay {
         setDefaultButtonStyle(profileButton)
         setDefaultButtonStyle(shopButton)
         setDefaultButtonStyle(calendarButton)
-        sideBar.children.addAll(themeButton, profileButton, shopButton, calendarButton)
+
+        val platform = System.getProperty("os.name")
+
+        if (platform.contains("Mac")) {
+            sideBar.children.addAll(themeButton, profileButton, shopButton)
+        } else {
+            sideBar.children.addAll(themeButton, profileButton, shopButton, calendarButton)
+        }
+
         return sideBar to listOf(themeButton, profileButton, shopButton, calendarButton)
     }
 
@@ -997,15 +1473,16 @@ class MainBoardDisplay {
             btnClick()
         }
         //container
-        val prioSceneContainer = BorderPane()
-        prioSceneContainer.center = errorMessage
-        prioSceneContainer.bottom = exitDiffStageButton
-        prioSceneContainer.style = """
+        val vbox = VBox(20.0)
+        vbox.children.addAll(errorMessage, exitDiffStageButton)
+        vbox.alignment = Pos.CENTER
+        vbox.style = """
                     -fx-background-color:""" + getTheme().third + """;
                 """
+        vbox.padding = Insets(10.0)
 
         //scene
-        val invalidPriorityScene = Scene(prioSceneContainer,500.0, 300.0)
+        val invalidPriorityScene = Scene(vbox,600.0, 300.0)
 
         invalidDiffStage.scene = invalidPriorityScene
         invalidDiffStage.x = user.x
@@ -1087,7 +1564,6 @@ class MainBoardDisplay {
         newTag.promptText = "Add/Delete tags here"
 
         var selected_tags = CheckComboBox(strings)
-        selected_tags.title = "\t\t\tTags for this task"
 
         val addTagBtn = createAddButton()
         setDefaultButtonStyle(addTagBtn)
@@ -1126,7 +1602,6 @@ class MainBoardDisplay {
                 for (item in selected_tags.checkModel.checkedItems) {
                     selected_tags.checkModel.check(item)
                 }
-                selected_tags.title = "\t\t\tTags for this task"
             }
             newTag.clear()
         }
@@ -1403,7 +1878,7 @@ class MainBoardDisplay {
         title.minWidth = 100.0
         val delBtn = createDeleteButton()
         setDefaultButtonStyle(delBtn)
-        val editBtn = createDetailsButton()
+        val editBtn = createEditButton()
         setDefaultButtonStyle(editBtn)
 
         val spacer = Pane()
@@ -1431,43 +1906,6 @@ class MainBoardDisplay {
             boardViewHBox.children.clear()
             boardViewHBox.children.add(toDoVBox)
             user.updateActiveList(curTaskList.id)
-        }
-
-        hbox.onDragEntered = EventHandler<DragEvent?> { event ->
-            if (event.gestureSource !== hbox) hbox.opacity = 0.5
-        }
-
-        hbox.onDragExited = EventHandler<DragEvent?> { _ ->
-            hbox.opacity = 1.0
-        }
-
-        hbox.onDragOver = EventHandler<DragEvent?> {event ->
-            /* data is dragged over the target */
-            /* accept it only if it is not dragged from the same node and if it has a string data */
-            if (event.dragboard.hasString()) {
-                /* allow for both copying and moving, whatever user chooses */
-                event.acceptTransferModes(*TransferMode.COPY_OR_MOVE)
-            }
-            event.consume()
-        }
-        hbox.onDragDropped = EventHandler<DragEvent?> {event ->
-            /* data dropped */
-            /* if there is a string data on dragboard, read it and use it */
-            val db = event.dragboard
-            val props = db.string.split(",").toTypedArray()
-            curTaskList.addItem(
-            title=props[0], desc = props[1], dueDate = props[2],
-            priority = strToPrio(props[3]), difficulty = strToDiff(props[4])
-            )
-
-            if (user.lastUsedList == user.findIdx(curTaskList.id)) {
-                toDoVBox = createTasksVBox(btn_create_task_to_do, curTaskList, curTaskList.title)
-                boardViewHBox.children.clear()
-                boardViewHBox.children.add(toDoVBox)
-            }
-
-            /* let the source know whether the string was successfully transferred and used */
-            event.consume()
         }
 
         delBtn.setOnMouseClicked {
@@ -1593,7 +2031,6 @@ class MainBoardDisplay {
         newTag.promptText = "Add/Delete tags here"
 
         var selected_tags = CheckComboBox(strings)
-        selected_tags.title = "\t\t\tTags for this task"
 
         for (tag in strings) {
             if (task.tags.contains(tag)) {
@@ -1638,7 +2075,6 @@ class MainBoardDisplay {
                 for (item in selected_tags.checkModel.checkedItems) {
                     selected_tags.checkModel.check(item)
                 }
-                selected_tags.title = "\t\t\tTags for this task"
             }
             newTag.clear()
         }
@@ -1927,7 +2363,7 @@ class MainBoardDisplay {
         val buttonHBox = HBox()
         val backButton = Button("Back")
         backButton.setOnMouseClicked {
-            homeStage?.scene = homeScene
+            homeStage?.scene = createMainScene(homeStage)
         }
         setDefaultButtonStyle(backButton)
         buttonHBox.children.add(backButton)
@@ -2007,4 +2443,70 @@ class MainBoardDisplay {
         return vBox to purchaseBtn
     }
 
+    fun moveTaskStage(task: Task, list: TaskList, btn : Button) {
+
+        val moveTaskStage = Stage()
+        moveTaskStage.title = "Manual Sort"
+
+        val lbl = Label("Select the position you would like to move this task to: ")
+        lbl.font = globalFont
+        lbl.isWrapText = true
+
+        val confBtn = Button("Confirm")
+
+        val possiblePosn : ObservableList<Int> = FXCollections.observableArrayList()
+
+        for (i in 1..list.tasks.size) {
+            possiblePosn.add(i)
+        }
+
+        val posn = ComboBox(possiblePosn)
+
+        val vbox = VBox(20.0)
+        vbox.children.addAll(lbl, posn, confBtn)
+        vbox.alignment = Pos.CENTER
+        vbox.padding = Insets(10.0)
+        vbox.style = """
+            -fx-background-color:""" + getTheme().third + """;
+        """
+
+        confBtn.setOnMouseClicked {
+
+            if (posn.value != null) {
+                list.tasks.removeAt(list.curTask)
+                list.tasks.add(posn.value - 1, task)
+                list.curTask = posn.value - 1
+
+                toDoVBox = createTasksVBox(btn, list, list.title)
+                boardViewHBox.children.clear()
+                boardViewHBox.children.add(toDoVBox)
+            }
+
+            moveTaskStage.close()
+
+        }
+
+        val scene = Scene(vbox, 300.0, 450.0)
+
+        val confirmHotkey: KeyCombination = KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN)
+        val hotkeyAction = Runnable {
+            if (posn.value != null) {
+                list.tasks.removeAt(list.curTask)
+                list.tasks.add(posn.value - 1, task)
+                list.curTask = posn.value - 1
+
+                toDoVBox = createTasksVBox(btn, list, list.title)
+                boardViewHBox.children.clear()
+                boardViewHBox.children.add(toDoVBox)
+            }
+            moveTaskStage.close() // click button on ctrl + enter
+        }
+        scene.accelerators[confirmHotkey] = hotkeyAction
+
+        moveTaskStage.scene = scene
+        moveTaskStage.x = user.x
+        moveTaskStage.y = user.y
+        moveTaskStage.show()
+
+    }
 }

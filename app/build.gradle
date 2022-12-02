@@ -15,6 +15,7 @@ dependencies {
     implementation project(':utilities')
     implementation 'com.azure:azure-identity:1.+'
     implementation 'com.microsoft.graph:microsoft-graph:5.+'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+'
 }
 
 application {
