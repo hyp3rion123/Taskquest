@@ -3,9 +3,10 @@ package taskquest.utilities.models
 import com.google.gson.Gson
 import java.time.LocalDate
 
-data class User(var lastUsedList: Int = - 1, var wallet: Int = 0) {
-    //IMPORTANT NOTE: any variable you add and want to be able to undo must be added to the user memento function below
+data class User(val id: Int, var lastUsedList: Int = - 1, var wallet: Int = 0) {
+    // IMPORTANT NOTE: any variable you add and want to be able to undo must be added to the user memento function below
     // to properly restore everything
+    var name = ""
     var lists = mutableListOf<TaskList>()
     var purchasedItems = mutableListOf<Item>()
     var tags = mutableSetOf<String>()

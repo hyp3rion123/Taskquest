@@ -33,7 +33,7 @@ class SaveUtils {
             val filePath = appDataPath + File.separator + userDataFileName
             if (!File(filePath).exists()) {
                 File(filePath).createNewFile()
-                val json = mapper.writeValueAsString(User())
+                val json = mapper.writeValueAsString(User(0))
                 File(filePath).writeText(json)
                 return mapper.readValue<User>(json)
             } else {

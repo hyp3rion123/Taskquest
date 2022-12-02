@@ -75,7 +75,7 @@ val confettiImageView = ImageView(Image("/assets/gifs/confetti.gif"))
 
 
 class MainBoardDisplay {
-    var user = User()
+    var user = User(0)
     val userHistory = UserHistory()
     var graph = Graph()
     var toDoVBox = VBox()

@@ -90,7 +90,7 @@ internal class CommandsTest {
 
     @Test
     fun selectListCommandOne() {
-        val user = User()
+        val user = User(0)
         user.lastUsedList = 1
         val list = TaskList(0, "Test List")
         list.addItem("item 1")
@@ -122,7 +122,7 @@ internal class CommandsTest {
 
     @Test
     fun listDelCommand() {
-        val user = User()
+        val user = User(0)
         val list = TaskList(0, "Test List")
         list.addItem("apple")
         user.lists.add(list)
@@ -142,7 +142,7 @@ internal class CommandsTest {
 
     @Test
     fun addTagsCommandNorm() {
-        val user = User()
+        val user = User(0)
         val command = AddTagsCommand(listOf("addtags", "2", "tag1", "tag2"))
         command.execute()
         assert(user.tags.size == 0)
@@ -150,7 +150,7 @@ internal class CommandsTest {
 
     @Test
     fun addTagsCommandLessArgs() {
-        val user = User()
+        val user = User(0)
         val command = AddTagsCommand(listOf("addtags", "55", "tag1", "tag2", "tag3"))
         command.execute()
         assert(user.tags.size == 0)
@@ -158,7 +158,7 @@ internal class CommandsTest {
 
     @Test
     fun addTagsCommandMoreArgs() {
-        val user = User()
+        val user = User(0)
         val command = AddTagsCommand(listOf("addtags", "1", "tag1", "tag2", "tag3"))
         command.execute()
         assert(user.tags.size == 0)
@@ -166,7 +166,7 @@ internal class CommandsTest {
 
     @Test
     fun delTagCommand() {
-        val user = User()
+        val user = User(0)
         val command = AddTagsCommand(listOf("addtags", "2", "tag1", "tag2"))
         command.execute()
         assert(user.tags.size == 0)
@@ -179,7 +179,7 @@ internal class CommandsTest {
 
     @Test
     fun delTagCommandFail() {
-        val user = User()
+        val user = User(0)
         val command = AddTagsCommand(listOf("addtags", "2", "tag1", "tag2"))
         command.execute()
         assert(user.tags.size == 0)
@@ -192,7 +192,7 @@ internal class CommandsTest {
 
     @Test
     fun showTagCommandWithTags() {
-        val user = User()
+        val user = User(0)
         val command = AddTagsCommand(listOf("addtags", "2", "tag1", "tag2"))
         command.execute()
 
@@ -204,7 +204,7 @@ internal class CommandsTest {
 
     @Test
     fun showTagCommandWithOutTags() {
-        val user = User()
+        val user = User(0)
         val command = ShowTagsCommand()
         command.execute()
         assert(user.tags.size == 0)
@@ -213,7 +213,7 @@ internal class CommandsTest {
 
     @Test
     fun coinCommand() {
-        val user = User()
+        val user = User(0)
         val command = ShowCoins()
         command.execute()
         assert(user.wallet == 0)
@@ -221,7 +221,7 @@ internal class CommandsTest {
 
     @Test
     fun delAll() {
-        val user = User()
+        val user = User(0)
         val command = DelTagsCommand(listOf("deltag, tag1"))
         command.execute()
 

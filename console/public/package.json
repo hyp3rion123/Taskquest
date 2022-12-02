@@ -1,30 +1,24 @@
 {
-  "bin": {
-    "taskquest": "jdeploy-bundle/jdeploy.js"
-  },
-  "author": "Shayn Adatia",
-  "description": "A CLI app for tracking tasks",
-  "main": "index.js",
-  "preferGlobal": true,
-  "repository": "",
-  "version": "1.0.1",
-  "jdeploy": {
-    "jdk": false,
-    "javaVersion": "17",
-    "jar": "console-uber.jar",
-    "javafx": false,
-    "title": "Taskquest"
-  },
-  "dependencies": {
-    "njre": "^0.2.0",
-    "shelljs": "^0.8.4"
-  },
-  "license": "ISC",
-  "name": "taskquest-cli",
-  "files": [
-    "jdeploy-bundle"
-  ],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  }
+    "bin": {"taskquest": "jdeploy-bundle/jdeploy.js"},
+    "author": "Shayn Adatia",
+    "description": "A CLI app for tracking tasks",
+    "main": "index.js",
+    "preferGlobal": true,
+    "repository": "",
+    "version": "1.0.2",
+    "jdeploy": {
+        "jdk": false,
+        "javaVersion": "17",
+        "jar": "console-uber.jar",
+        "javafx": false,
+        "title": "Taskquest"
+    },
+    "dependencies": {
+        "njre": "^0.2.0",
+        "shelljs": "^0.8.4"
+    },
+    "license": "ISC",
+    "name": "taskquest-cli",
+    "files": ["jdeploy-bundle"],
+    "scripts": {"test": "echo \"Error: no test specified\" && exit 1"}
 }

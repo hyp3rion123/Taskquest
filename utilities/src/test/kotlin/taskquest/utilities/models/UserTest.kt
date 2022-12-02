@@ -7,7 +7,7 @@ import taskquest.utilities.models.enums.Priority
 internal class UserTest {
     @Test
     fun diminishingReturns() {
-        val user = User()
+        val user = User(0)
         user.addList("Test List")
         user.lists[0].addItem(title="item 1", priority=Priority.High, difficulty=Difficulty.Hard)
         user.lists[0].addItem(title="item 2", priority=Priority.High, difficulty=Difficulty.Hard)
