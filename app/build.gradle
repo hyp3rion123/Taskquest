@@ -13,6 +13,8 @@ dependencies {
     implementation 'org.controlsfx:controlsfx:11.1.2'
     implementation 'com.dustinredmond.fxtrayicon:FXTrayIcon:4.0.1'
     implementation project(':utilities')
+    implementation 'com.azure:azure-identity:1.+'
+    implementation 'com.microsoft.graph:microsoft-graph:5.+'
 }
 
 application {

@@ -1,6 +1,7 @@
 package taskquest.app.javafx
 
 import com.dustinredmond.fxtrayicon.FXTrayIcon
+import javafx.animation.TranslateTransition
 import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
@@ -8,24 +9,30 @@ import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
+import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.input.*
 import javafx.scene.layout.*
+import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Stage
+import javafx.stage.StageStyle
+import javafx.util.Duration
 import org.controlsfx.control.CheckComboBox
 import taskquest.utilities.controllers.FunctionClass
+import taskquest.utilities.controllers.Graph
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreStoreDataFromText
 import taskquest.utilities.controllers.SaveUtils.Companion.restoreUserData
 import taskquest.utilities.controllers.SaveUtils.Companion.saveUserData
 import taskquest.utilities.models.*
 import taskquest.utilities.models.enums.Difficulty
 import taskquest.utilities.models.enums.Priority
+import java.io.File
 import java.time.LocalDate
 import java.util.*
 
@@ -64,8 +71,12 @@ var theme = 0
 val iconSize = 20.0
 val logoPath = "/assets/icons/logo.png"
 
+val confettiImageView = ImageView(Image("/assets/gifs/confetti.gif"))
+
+
 class MainBoardDisplay {
     var user = User()
+    var graph = Graph()
     var toDoVBox = VBox()
     var store = Store()
     var boardViewHBox = HBox()
@@ -181,6 +192,7 @@ class MainBoardDisplay {
         var themeButton = buttonList[0]
         var profileButton = buttonList[1]
         var shopButton = buttonList[2]
+        var calendarButton = buttonList[3]
 
         val mainTasksSection = VBox(20.0, headerContainer, boardViewScroll)
         mainTasksSection.padding = Insets(0.0, 0.0, 0.0, 0.0)
@@ -198,6 +210,13 @@ class MainBoardDisplay {
         mainScreenPane.right.minHeight(250.0)
 
         var mainScene = Scene(mainScreenPane, 900.0, 600.0)
+
+        calendarButton.setOnMouseClicked {
+            if(!graph.synced){
+                graph.init()
+            }
+            graph.updateTasks(user.lists)
+        }
 
         fun shopButtonAction() {
             mainStage?.scene = createShopScene(mainStage, mainScene) //created every time for refresh purposes
@@ -400,6 +419,8 @@ class MainBoardDisplay {
         mainStage?.show()
 
 
+
+
         //DEBUG
         if (debugMode) {
             toDoVBox.style = debugCss
@@ -413,6 +434,22 @@ class MainBoardDisplay {
     fun coinsBalanceUpdated() {
         coinsLabel.text = "Current coins\n" + user.wallet
         coinsShopLabel.text = "Current coins\n" + user.wallet
+    }
+
+    fun addTranslationAnimation(node: Node, xTranslateValue: Double, yTranslateValue: Double, durationInMs: Double) {
+        //Duration =
+        val duration = Duration.millis(durationInMs)
+        //Create new translate transition
+        val transition = TranslateTransition(duration, node)
+        //Move in X axis by
+        transition.byX = xTranslateValue
+        //Move in Y axis by
+        transition.byY = yTranslateValue
+        //Go back to previous position after 2.5 seconds
+        transition.isAutoReverse = true
+        //Repeat animation
+        transition.cycleCount = 999
+        transition.play()
     }
 
     fun createHeaderContainer(): BorderPane{
@@ -468,6 +505,7 @@ class MainBoardDisplay {
         val container = StackPane()
         container.children.addAll(bannerImageView, headerHBox)
         container.alignment = Pos.CENTER
+
 
         return container
     }
@@ -909,11 +947,13 @@ class MainBoardDisplay {
         val themeButton = ImageButton("/assets/icons/theme.png",30.0,30.0)
         val profileButton = ImageButton("/assets/icons/profile.png",30.0,30.0)
         val shopButton = ImageButton("/assets/icons/shop.png",30.0,30.0)
+        val calendarButton = ImageButton("/assets/icons/calendar.png",30.0,30.0)
         setDefaultButtonStyle(themeButton)
         setDefaultButtonStyle(profileButton)
         setDefaultButtonStyle(shopButton)
-        sideBar.children.addAll(themeButton, profileButton, shopButton)
-        return sideBar to listOf(themeButton, profileButton, shopButton)
+        setDefaultButtonStyle(calendarButton)
+        sideBar.children.addAll(themeButton, profileButton, shopButton, calendarButton)
+        return sideBar to listOf(themeButton, profileButton, shopButton, calendarButton)
     }
 
     fun errorStage(errMsg : String) {
@@ -1683,6 +1723,7 @@ class MainBoardDisplay {
 
         val profileStackPane = StackPane()
         profileStackPane.children.addAll(profileImageView, bannerCopy)
+        addTranslationAnimation(profileStackPane, 0.0, 8.0, (1500..2500).random().toDouble())
 
         val userInfoLabel = Label("User Information")
         userInfoLabel.font = globalFont
@@ -1705,7 +1746,7 @@ class MainBoardDisplay {
 
         var unlockablesHBox = FlowPane(Orientation.HORIZONTAL)
         unlockablesHBox.hgap = 10.0
-        unlockablesHBox.vgap = 10.0
+        unlockablesHBox.vgap = 20.0
 
         for (item in user.purchasedItems) {
             val childHBox = createShopItemVBox(item, 100.0)
@@ -1724,7 +1765,6 @@ class MainBoardDisplay {
             }
 
             unlockablesHBox.children.add(childHBox)
-
         }
         unlockablesHBox.alignment = Pos.CENTER
 
@@ -1756,6 +1796,8 @@ class MainBoardDisplay {
         imageView.image = image
         imageView.fitWidth = size
         imageView.fitHeight = size
+        addTranslationAnimation(imageView, 0.0, 8.0, (1500..2500).random().toDouble())
+
         //Title
         val label = Label(item.name)
         label.font = globalFont
@@ -1764,9 +1806,21 @@ class MainBoardDisplay {
         vBox.children.addAll(imageView, titleBox)
         return vBox
     }
+
     fun showTaskCompletionStage(task: Task) {
         user.completeTask(task) // count new task completed
         updateBanner() // update banner displayed
+
+        // setup confetti stage
+        var confettiStage = Stage()
+        confettiImageView.prefWidth(500.0)
+        confettiStage.initStyle(StageStyle.TRANSPARENT)
+        val box = VBox(confettiImageView)
+        val gifScene = Scene(box)
+        box.style = "-fx-background-color: transparent";
+        gifScene.fill = Color.TRANSPARENT
+        confettiStage.scene = gifScene
+        confettiStage.show()
 
         val taskCompletionStage = Stage()
         taskCompletionStage.setTitle("Task Completed!")
@@ -1827,6 +1881,7 @@ class MainBoardDisplay {
                     // close task after
                     if (counter == 0) {
                         taskCompletionStage.close()
+                        confettiStage.close()
                     } else {
                         btn.text = "Exit ($counter)"
                         counter--
@@ -1876,7 +1931,7 @@ class MainBoardDisplay {
         val flowPane = FlowPane()
         val scrollPane = ScrollPane()
         flowPane.padding = Insets(30.0, 20.0, 30.0, 60.0)
-        flowPane.vgap = 10.0
+        flowPane.vgap = 20.0
         flowPane.hgap = 30.0
         flowPane.orientation = Orientation.VERTICAL
         scrollPane.content = flowPane
